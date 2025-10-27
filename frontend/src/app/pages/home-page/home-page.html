@@ -1,1 +1,12 @@
-<p>home-page works!</p>
+<div class="card">
+    <div class="font-semibold text-xl mb-4">Next meeting</div>
+    <p-panel header="Info" [toggleable]="true">
+        <p class="m-0">
+            MEETING DETAILS GO HERE
+        </p>
+    </p-panel>
+</div>
+
+<ng-container *ngIf="showCalendar">
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+</ng-container>

@@ -1,5 +1,21 @@
 /* You can add global styles to this file, and also import other style files */
+
 @use './tailwind.css';
 @use './layout/layout.scss';
 @use 'primeicons/primeicons.css';
 @use './demo/demo.scss';
+
+/* FullCalendar "today" highlight override: make current day light blue */
+/* Targets daygrid and other FullCalendar views; uses !important to override CDN styles */
+.fc .fc-daygrid-day.fc-day-today,
+.fc .fc-day-today,
+.fc .fc-timegrid-slot.fc-day-today {
+  background-color: rgba(45, 185, 205, 0.71) !important; /* very light blue */
+  color: inherit !important;
+}
+
+/* Remove any stronger background on the day number element */
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-top,
+.fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+  background-color: transparent !important;
+}
