@@ -19,8 +19,6 @@ export class HomePage implements AfterViewInit, OnDestroy {
     @ViewChild('calendar', { read: ElementRef }) calendarEl!: ElementRef;
 
     // Keeps the calendar mounted for API-driven resizing; template uses this in *ngIf
-    showCalendar = true;
-
     private layoutListener: any;
     private resizeObserver?: ResizeObserver;
     private sidebarTransitionListener?: (ev: TransitionEvent) => void;
@@ -104,5 +102,3 @@ export class HomePage implements AfterViewInit, OnDestroy {
     }
 }
 
-// add debug to the ResizeObserver attachment
-// (we already log when updateSize is called in the service, but also log when observer fires)
