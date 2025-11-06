@@ -19,6 +19,8 @@ export class HomePage implements AfterViewInit, OnDestroy {
     @ViewChild('calendar', { read: ElementRef }) calendarEl!: ElementRef;
 
     // Keeps the calendar mounted for API-driven resizing; template uses this in *ngIf
+    // Exposed to the template so *ngIf="showCalendar" compiles
+    public showCalendar: boolean = true;
     private layoutListener: any;
     private resizeObserver?: ResizeObserver;
     private sidebarTransitionListener?: (ev: TransitionEvent) => void;
@@ -37,6 +39,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
     };
 
     // Attach ResizeObserver to the current calendar host element (disconnects previous observer)
+
     private attachResizeObserver() {
         try {
             if (this.resizeObserver) {
@@ -101,4 +104,3 @@ export class HomePage implements AfterViewInit, OnDestroy {
         alert('Date clicked: ' + arg.dateStr);
     }
 }
-
