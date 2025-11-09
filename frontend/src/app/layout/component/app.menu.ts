@@ -24,8 +24,21 @@ export class AppMenu {
                 label: 'Home',
                 items: [{ label: 'Home', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
+
+
             {
                 label: 'Menu',
+                items: [
+                    { label: 'Patients', icon: 'pi pi-fw pi-user', routerLink: ['/menu/patients'] },
+                    { label: 'Meetings', icon: 'pi pi-fw pi-calendar', routerLink: ['/menu/meetings'] },
+                    { label: 'Symptoms', icon: 'pi pi-fw pi-exclamation-circle', routerLink: ['/menu/symptoms'] },
+                    { label: 'Exercises', icon: 'pi pi-fw pi-comment', routerLink: ['/menu/exercises'] },
+                    { label: 'Statistics', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/menu/statistics'] }
+                ]
+            },
+
+            {
+                label: 'UI Kit',
                 items: [
                     { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
                     { label: 'Input', icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] },
@@ -44,6 +57,11 @@ export class AppMenu {
                     { label: 'Misc', icon: 'pi pi-fw pi-circle', routerLink: ['/uikit/misc'] }
                 ]
             },
+
+
+
+
+
             {
                 label: 'Pages',
                 icon: 'pi pi-fw pi-briefcase',

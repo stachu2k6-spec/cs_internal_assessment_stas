@@ -12,6 +12,7 @@ export const appRoutes: Routes = [
         component: AppLayout,
         children: [
             { path: '', component: HomePage },
+            { path: 'menu', loadChildren: () => import('./app/pages/menu/menu.routes') },
             { path: 'uikit', loadChildren: () => import('./app/pages/uikit/uikit.routes') },
             { path: 'documentation', component: Documentation },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }

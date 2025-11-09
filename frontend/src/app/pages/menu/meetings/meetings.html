@@ -1,0 +1,42 @@
+<div class="card">
+    <div class="font-semibold text-xl mb-4">SEARCH BAR AND UTIL BUTTONS</div>
+    <p-toolbar>
+        <ng-template #start>
+            <p-button icon="pi pi-plus" class="mr-2" severity="secondary" text />
+            <p-button icon="pi pi-print" class="mr-2" severity="secondary" text />
+            <p-button icon="pi pi-upload" severity="secondary" text />
+        </ng-template>
+
+        <ng-template #center>
+            <p-iconfield>
+                <p-inputicon>
+                    <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input pInputText placeholder="Search" />
+            </p-iconfield>
+        </ng-template>
+    </p-toolbar>
+</div>
+<div class="card">
+    <div class="font-semibold text-xl mb-4">Tabs</div>
+    <p-tabs value="0">
+        <p-tablist>
+            <p-tab value="0">Upcoming</p-tab>
+            <p-tab value="1">History</p-tab>
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel value="0">
+                <p class="m-0">
+                    UPCOMING MEETINGS CONTENT GOES HERE
+                </p>
+            </p-tabpanel>
+            <p-tabpanel value="1">
+                <p class="m-0">
+                    MEETING HISTORY CONTENT GOES HERE
+                </p>
+            </p-tabpanel>
+
+        </p-tabpanels>
+    </p-tabs>
+</div>
+
