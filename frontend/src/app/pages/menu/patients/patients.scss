@@ -1,7 +1,5 @@
-.p-datatable-frozen-tbody {
-    font-weight: bold;
-}
-
-.p-datatable-scrollable .p-frozen-column {
-    font-weight: bold;
+::ng-deep {
+    .p-orderlist-list-container {
+        width: 100%;
+    }
 }

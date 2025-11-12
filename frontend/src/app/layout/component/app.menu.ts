@@ -38,6 +38,16 @@ export class AppMenu {
             },
 
             {
+                label: 'Object View',
+                items: [
+                    { label: 'Patient', icon: 'pi pi-fw pi-user', routerLink: ['/object-view/patient-view'] },
+                    { label: 'Meeting', icon: 'pi pi-fw pi-calendar', routerLink: ['/object-view/meeting-view'] },
+                    { label: 'Symptom', icon: 'pi pi-fw pi-exclamation-circle', routerLink: ['/object-view/symptom-view'] },
+                    { label: 'Exercise', icon: 'pi pi-fw pi-comment', routerLink: ['/object-view/exercise-view'] },
+                ]
+            },
+
+            {
                 label: 'UI Kit',
                 items: [
                     { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
@@ -57,8 +67,6 @@ export class AppMenu {
                     { label: 'Misc', icon: 'pi pi-fw pi-circle', routerLink: ['/uikit/misc'] }
                 ]
             },
-
-
 
 
 

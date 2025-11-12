@@ -18,124 +18,80 @@
     </p-toolbar>
 </div>
 
-
 <div class="card">
-    <div class="font-semibold text-xl mb-4">Patients</div>
-    <p-table
-        #dt1
-        [value]="customers1"
-        dataKey="id"
-        [rows]="10"
-        [loading]="loading"
-        [rowHover]="true"
-        [showGridlines]="true"
-        [paginator]="true"
-        [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
-        responsiveLayout="scroll"
-    >
-        <ng-template #caption>
-            <div class="flex justify-between items-center flex-column sm:flex-row">
-                <button pButton label="Clear" class="p-button-outlined mb-2" icon="pi pi-filter-slash" (click)="clear(dt1)"></button>
-                <p-iconfield iconPosition="left" class="ml-auto">
-                    <p-inputicon>
-                        <i class="pi pi-search"></i>
-                    </p-inputicon>
-                    <input pInputText type="text" (input)="onGlobalFilter(dt1, $event)" placeholder="Search keyword" />
-                </p-iconfield>
+    <div class="font-semibold text-xl">Patients</div>
+    <p-dataview [value]="products" [layout]="layout">
+        <ng-template #header>
+            <div class="flex justify-end">
+                <p-select-button [(ngModel)]="layout" [options]="options" [allowEmpty]="false">
+                    <ng-template #item let-option>
+                        <i class="pi " [ngClass]="{ 'pi-bars': option === 'list', 'pi-table': option === 'grid' }"></i>
+                    </ng-template>
+                </p-select-button>
             </div>
         </ng-template>
-        <ng-template #header>
-            <tr>
-                <th style="min-width: 12rem">
-                    <div class="flex justify-between items-center">
-                        Name
-                        <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter>
-                    </div>
-                </th>
-                <th style="min-width: 10rem">
-                    <div class="flex justify-between items-center">
-                        Last Meeting
-                        <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter>
-                    </div>
-                </th>
-                <th style="min-width: 10rem">
-                    <div class="flex justify-between items-center">
-                        Next Meeting
-                        <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter>
-                    </div>
-                </th>
-                <th style="min-width: 10rem">
-                    <div class="flex justify-between items-center">
-                        Balance
-                        <p-columnFilter type="numeric" field="balance" display="menu" currency="USD"></p-columnFilter>
-                    </div>
-                </th>
-                <th style="min-width: 12rem">
-                    <div class="flex justify-between items-center">
-                        Status
-                        <p-columnFilter field="status" matchMode="equals" display="menu">
-                            <ng-template #filter let-value let-filter="filterCallback">
-                                <p-select [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)" placeholder="Any" [style]="{ 'min-width': '12rem' }">
-                                    <ng-template let-option #item>
-                                        <span [class]="'customer-badge status-' + option.value">{{ option.label }}</span>
-                                    </ng-template>
-                                </p-select>
-                            </ng-template>
-                        </p-columnFilter>
-                    </div>
-                </th>
-                <th style="min-width: 12rem">
-                    <div class="flex justify-between items-center">
-                        Activity
-                        <p-columnFilter field="activity" matchMode="between" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
-                            <ng-template #filter let-filter="filterCallback">
-                                <p-slider [ngModel]="activityValues" [range]="true" (onSlideEnd)="filter($event.values)" styleClass="m-3" [style]="{ 'min-width': '12rem' }"></p-slider>
-                                <div class="flex items-center justify-between px-2">
-                                    <span>{{ activityValues[0] }}</span>
-                                    <span>{{ activityValues[1] }}</span>
+
+        <ng-template #grid let-items>
+            <div class="grid grid-cols-12 gap-4">
+                <div *ngFor="let item of items; let i = index" class="col-span-12 sm:col-span-6 lg:col-span-4 p-2">
+                    <div class="p-6 border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 rounded flex flex-col">
+                        <div class="relative w-full shadow-sm">
+                            <img class="rounded w-full" src="https://primefaces.org/cdn/primevue/images/product/{{ item.image }}" [alt]="item.name" />
+                            <div
+                                class="absolute bg-black/70 rounded-border"
+                                [style]="{
+                                            left: '4px',
+                                            top: '4px'
+                                        }"
+                            >
+                                <p-tag [value]="'PATIENT ACTIVITY'" [severity]="getSeverity(item)"></p-tag>
+                            </div>
+                        </div>
+                        <div class="pt-12">
+                            <div class="flex flex-row justify-between items-start gap-2">
+                                <div>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PATIENT NAME</span>
+                                    <div class="text-lg font-medium mt-1">
+                                        PATIENT SURNAME
+                                    </div>
                                 </div>
-                            </ng-template>
-                        </p-columnFilter>
+                            </div>
+                            <div class="flex flex-col gap-6 mt-6">
+                                <span class="text-2xl font-semibold">NEXT MEETING DATE</span>
+                                <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">LAST MEETING DATE</span>
+                            </div>
+                        </div>
                     </div>
-                </th>
-            </tr>
+                </div>
+            </div>
         </ng-template>
-        <ng-template #body let-customer>
-            <tr>
-                <td>
-                    {{ customer.name }}
-                </td>
-                <td>
-                    {{ customer.date | date: 'MM/dd/yyyy' }}
-                </td>
-                <td>
-                    {{ customer.date | date: 'MM/dd/yyyy' }}
-                </td>
-                <td>
-                    {{ customer.balance | currency: 'USD' : 'symbol' }}
-                </td>
-                <td>
-                    <p-tag [value]="customer.status.toLowerCase()" [severity]="getSeverity(customer.status.toLowerCase())" styleClass="dark:bg-surface-900!" />
-                </td>
-                <td>
-                    <p-progressbar [value]="customer.activity" [showValue]="false" [style]="{ height: '0.5rem' }" />
-                </td>
-            </tr>
+
+        <ng-template #list let-items>
+            <div class="flex flex-col">
+                <div *ngFor="let item of items; let i = index">
+                    <div class="flex flex-col sm:flex-row sm:items-center p-6 gap-4" [ngClass]="{ 'border-t border-surface': i !== 0 }">
+                        <div class="md:w-40 relative">
+                            <img class="block xl:block mx-auto rounded w-full" src="https://primefaces.org/cdn/primevue/images/product/{{ item.image }}" [alt]="item.name" />
+                            <div class="absolute bg-black/70 rounded-border" [style]="{ left: '4px', top: '4px' }">
+                                <p-tag [value]="'PATIENT ACTIVITY'" [severity]="getSeverity(item)"></p-tag>
+                            </div>
+                        </div>
+                        <div class="flex flex-col md:flex-row justify-between md:items-center flex-1 gap-6">
+                            <div class="flex flex-row md:flex-col justify-between items-start gap-2">
+                                <div>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PATIENT NAME</span>
+                                    <div class="text-lg font-medium mt-2">PATIENT SURNAME</div>
+                                </div>
+
+                            </div>
+                            <div class="flex flex-col md:items-end gap-8">
+                                <span class="text-xl font-semibold">NEXT MEETING DATE</span>
+                                <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">LAST MEETING DATE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </ng-template>
-        <ng-template #emptymessage>
-            <tr>
-                <td colspan="8">No customers found.</td>
-            </tr>
-        </ng-template>
-        <ng-template #loadingbody>
-            <tr>
-                <td colspan="8">Loading customers data. Please wait.</td>
-            </tr>
-        </ng-template>
-    </p-table>
+    </p-dataview>
 </div>
-
-
-
-
-

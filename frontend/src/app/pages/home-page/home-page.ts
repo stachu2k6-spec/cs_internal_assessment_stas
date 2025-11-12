@@ -6,11 +6,16 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Panel } from 'primeng/panel';
 import { CalendarResizeService } from '../../layout/service/calendar-resize.service';
+import { Button } from 'primeng/button';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { Toolbar } from 'primeng/toolbar';
 
 @Component({
     selector: 'app-home-page',
     standalone: true,
-    imports: [CommonModule, FullCalendarModule, Panel],
+    imports: [CommonModule, FullCalendarModule, Panel, Button, IconField, InputIcon, InputText, Toolbar],
     templateUrl: './home-page.html',
     styleUrl: './home-page.scss'
 })
@@ -55,7 +60,9 @@ export class HomePage implements AfterViewInit, OnDestroy {
 
             this.resizeObserver = new ResizeObserver(() => {
                 try {
-                    try { console.log('[home] ResizeObserver fired', new Date().toISOString()); } catch (e) {}
+                    try {
+                        console.log('[home] ResizeObserver fired', new Date().toISOString());
+                    } catch (e) {}
                     this.calendarComponent?.getApi()?.updateSize();
                 } catch (e) {}
             });
@@ -71,12 +78,16 @@ export class HomePage implements AfterViewInit, OnDestroy {
         try {
             const api = this.calendarComponent?.getApi();
             if (api) this.calendarResizeService.register(api);
-            try { console.log('[home] registered calendar api with service:', !!api, new Date().toISOString()); } catch (e) {}
+            try {
+                console.log('[home] registered calendar api with service:', !!api, new Date().toISOString());
+            } catch (e) {}
         } catch (e) {}
 
         this.layoutListener = () => {
             try {
-                try { console.log('[home] layoutMenuToggled received - calling service', new Date().toISOString()); } catch (e) {}
+                try {
+                    console.log('[home] layoutMenuToggled received - calling service', new Date().toISOString());
+                } catch (e) {}
                 this.calendarResizeService.triggerResize();
             } catch (e) {}
         };
@@ -88,14 +99,20 @@ export class HomePage implements AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        try { window.removeEventListener('layoutMenuToggled', this.layoutListener); } catch (e) {}
+        try {
+            window.removeEventListener('layoutMenuToggled', this.layoutListener);
+        } catch (e) {}
         this.layoutListener = null;
 
         // unregister API and cleanup observers/listeners
-        try { this.calendarResizeService.unregister(); } catch (e) {}
+        try {
+            this.calendarResizeService.unregister();
+        } catch (e) {}
 
         if (this.resizeObserver) {
-            try { this.resizeObserver.disconnect(); } catch (e) {}
+            try {
+                this.resizeObserver.disconnect();
+            } catch (e) {}
             this.resizeObserver = undefined;
         }
     }
