@@ -22,10 +22,33 @@ export class AppMenu {
         this.model = [
             {
                 label: 'Home',
-                items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
+                items: [{ label: 'Home', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
             },
+
+
             {
-                label: 'UI Components',
+                label: 'Menu',
+                items: [
+                    { label: 'Patients', icon: 'pi pi-fw pi-user', routerLink: ['/menu/patients'] },
+                    { label: 'Meetings', icon: 'pi pi-fw pi-calendar', routerLink: ['/menu/meetings'] },
+                    { label: 'Symptoms', icon: 'pi pi-fw pi-exclamation-circle', routerLink: ['/menu/symptoms'] },
+                    { label: 'Exercises', icon: 'pi pi-fw pi-comment', routerLink: ['/menu/exercises'] },
+                    { label: 'Statistics', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/menu/statistics'] }
+                ]
+            },
+
+            {
+                label: 'Object View',
+                items: [
+                    { label: 'Patient', icon: 'pi pi-fw pi-user', routerLink: ['/object-view/patient-view'] },
+                    { label: 'Meeting', icon: 'pi pi-fw pi-calendar', routerLink: ['/object-view/meeting-view'] },
+                    { label: 'Symptom', icon: 'pi pi-fw pi-exclamation-circle', routerLink: ['/object-view/symptom-view'] },
+                    { label: 'Exercise', icon: 'pi pi-fw pi-comment', routerLink: ['/object-view/exercise-view'] },
+                ]
+            },
+
+            {
+                label: 'UI Kit',
                 items: [
                     { label: 'Form Layout', icon: 'pi pi-fw pi-id-card', routerLink: ['/uikit/formlayout'] },
                     { label: 'Input', icon: 'pi pi-fw pi-check-square', routerLink: ['/uikit/input'] },
@@ -44,6 +67,9 @@ export class AppMenu {
                     { label: 'Misc', icon: 'pi pi-fw pi-circle', routerLink: ['/uikit/misc'] }
                 ]
             },
+
+
+
             {
                 label: 'Pages',
                 icon: 'pi pi-fw pi-briefcase',

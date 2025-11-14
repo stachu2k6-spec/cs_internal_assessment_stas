@@ -1,0 +1,31 @@
+<div class="card">
+    <div class="font-semibold text-xl mb-4">SEARCH BAR AND UTIL BUTTONS</div>
+    <p-toolbar>
+        <ng-template #start>
+            <p-button icon="pi pi-plus" class="mr-2" severity="secondary" text />
+            <p-button icon="pi pi-print" class="mr-2" severity="secondary" text />
+            <p-button icon="pi pi-upload" severity="secondary" text />
+        </ng-template>
+
+        <ng-template #center>
+            <p-iconfield>
+                <p-inputicon>
+                    <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input pInputText placeholder="Search" />
+            </p-iconfield>
+        </ng-template>
+    </p-toolbar>
+</div>
+<div class="card">
+    <div class="font-semibold text-xl mb-4">Next meeting</div>
+    <p-panel header="Info" [toggleable]="true">
+        <p class="m-0">
+            MEETING DETAILS GO HERE
+        </p>
+    </p-panel>
+</div>
+
+<ng-container *ngIf="showCalendar">
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+</ng-container>
