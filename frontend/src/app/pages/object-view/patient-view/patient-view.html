@@ -1,1 +1,108 @@
-<p>patient-view works!</p>
+<div class="card">
+    <div class="font-semibold text-xl mb-4">Patient profile</div>
+    <p-splitter [style]="{ height: '800px' }" [panelSizes]="[70, 30]" [minSizes]="[10, 0]" styleClass="mb-8">
+        <ng-template #panel>
+            <p-splitter layout="vertical" [panelSizes]="[20, 80]">
+                <ng-template #panel>
+                    <div class="p-6 border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 rounded flex flex-row">
+                        <p-image src="https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg" alt="Image" width="150" />
+                        <div class="flex flex-col gap-4 ml-6">
+                            <div class="flex flex-row justify-between items-start gap-2">
+                                <div>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PATIENT NAME</span>
+                                    <div class="text-lg font-medium mt-1">
+                                        PATIENT SURNAME
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <div>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">LAST MEETING DATE</span>
+                                    <div class="text-lg font-medium mt-1">
+                                        NEXT MEETING DATE
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template #panel>
+                    <div class="card flex flex-col gap-4">
+                        <div class="col flex items-center justify-center font-semibold text-xl">Notes</div>
+                        <textarea pTextarea placeholder="Type here" [autoResize]="true" rows="30" cols="30"></textarea>
+                    </div>
+                </ng-template>
+            </p-splitter>
+        </ng-template>
+        <ng-template #panel>
+            <p-splitter layout="vertical" [panelSizes]="[30, 70]">
+                <ng-template #panel>
+                    <div class="card">
+                        <p-table [value]="customers2" [scrollable]="true" scrollHeight="200px" styleClass="mt-4">
+                            <ng-template #header>
+                                <tr>
+                                    <th style="min-width:100px">Symptoms</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template #body let-customer>
+                                <tr>
+                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </ng-template>
+                <ng-template #panel>
+                    <div class="card">
+                        <div class="font-semibold text-xl mb-4">Meetings</div>
+                        <p-tabs value="0">
+                            <p-tablist>
+                                <p-tab value="0">Upcoming</p-tab>
+                                <p-tab value="1">History</p-tab>
+                            </p-tablist>
+                            <p-tabpanels>
+                                <p-tabpanel value="0">
+                                    <div class="card">
+                                        <p-table [value]="customers2" [scrollable]="true" scrollHeight="350px" styleClass="mt-4">
+                                            <ng-template #header>
+                                                <tr>
+                                                    <th style="min-width:100px">Meeting date</th>
+                                                    <th style="min-width:100px">Meeting time</th>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template #body let-customer>
+                                                <tr>
+                                                    <td pFrozenColumn class="font-bold">{{ customer.name }}</td>
+                                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </div>
+                                </p-tabpanel>
+                                <p-tabpanel value="1">
+                                    <div class="card">
+                                        <p-table [value]="customers2" [scrollable]="true" scrollHeight="350px" styleClass="mt-4">
+                                            <ng-template #header>
+                                                <tr>
+                                                    <th style="min-width:100px">Meeting date</th>
+                                                    <th style="min-width:100px">Meeting time</th>
+                                                </tr>
+                                            </ng-template>
+                                            <ng-template #body let-customer>
+                                                <tr>
+                                                    <td pFrozenColumn class="font-bold">{{ customer.name }}</td>
+                                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </div>
+                                </p-tabpanel>
+
+                            </p-tabpanels>
+                        </p-tabs>
+                    </div>
+                </ng-template>
+            </p-splitter>
+        </ng-template>
+    </p-splitter>
+</div>
