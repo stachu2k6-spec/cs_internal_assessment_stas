@@ -28,6 +28,8 @@ import { DatePicker } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { Image } from 'primeng/image';
+import { RouterLink } from '@angular/router';
+import { ContextMenu } from 'primeng/contextmenu';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -65,7 +67,9 @@ interface expandedRows {
         DatePicker,
         FloatLabel,
         InputNumber,
-        Image
+        Image,
+        RouterLink,
+        ContextMenu
     ],
     templateUrl: './patient-view.html',
     styleUrl: './patient-view.scss',
@@ -94,11 +98,20 @@ export class PatientView implements OnInit {
 
     activityValues: number[] = [0, 100];
 
+    selectedSymptom: Customer | null = null;
+
+    selectedMeeting: Customer | null = null;
+
     isExpanded: boolean = false;
+
+    symptomsCMItems: any[] = [];
+
+    meetingsCMItems: any[] = [];
 
     balanceFrozen: boolean = false;
 
     loading: boolean = true;
+
 
     @ViewChild('filter') filter!: ElementRef;
 
@@ -140,10 +153,32 @@ export class PatientView implements OnInit {
             { label: 'Renewal', value: 'renewal' },
             { label: 'Proposal', value: 'proposal' }
         ];
+
+        this.symptomsCMItems = [
+            { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteSymptom(this.selectedSymptom) }
+        ];
+
+        this.meetingsCMItems = [
+            { label: 'Edit', icon: 'pi pi-pencil', command: () => this.editMeeting(this.selectedMeeting) },
+            { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteMeeting(this.selectedMeeting) }
+        ];
     }
+
 
     onSort() {
         this.updateRowGroupMetaData();
+    }
+
+    deleteSymptom(symptom: Customer | null) {
+        //remove symptom logic here
+    }
+
+    editMeeting(customer: Customer | null) {
+        //edit meeting logic here
+    }
+
+    deleteMeeting(customer: Customer | null) {
+        //delete meeting logic here
     }
 
     updateRowGroupMetaData() {

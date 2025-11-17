@@ -71,62 +71,81 @@
             </p-splitter>
         </ng-template>
         <ng-template #panel>
-            <p-splitter layout="vertical" [panelSizes]="[30, 70]">
+            <p-splitter layout="vertical" [panelSizes]="[35, 65]">
                 <ng-template #panel>
                     <div class="card">
-                        <p-table [value]="customers2" [scrollable]="true" scrollHeight="200px" styleClass="mt-4">
-                            <ng-template #header>
+
+                        <!-- context menu instance (one only) -->
+                        <p-contextMenu #cm [model]="symptomsCMItems"></p-contextMenu>
+
+                        <p-table
+                            [value]="customers2"
+                            [scrollable]="true"
+                            scrollHeight="200px"
+                            styleClass="mt-4"
+                            [contextMenu]="cm"
+                            [(contextMenuSelection)]="selectedSymptom"
+                        >
+                            <ng-template pTemplate="header">
                                 <tr>
                                     <th style="min-width:100px">Symptoms</th>
                                 </tr>
                             </ng-template>
-                            <ng-template #body let-customer>
-                                <tr>
+
+                            <ng-template pTemplate="body" let-customer>
+                                <tr
+                                    class="hover-scale cursor-pointer"
+                                    [routerLink]="['/object-view','symptom-view']"
+                                    (contextmenu)="$event.preventDefault()"
+                                    [pContextMenuRow]="customer">
+                                      <!-- this ties the row to the context menu -->
                                     <td style="min-width:100px">{{ customer.id }}</td>
                                 </tr>
                             </ng-template>
                         </p-table>
+
+                        <div class="w-full flex justify-center mt-4">
+                            <p-button label="Add Symptom" icon="pi pi-plus" iconPos="right"></p-button>
+                        </div>
                     </div>
                 </ng-template>
                 <ng-template #panel>
                     <div class="card">
                         <div class="font-semibold text-xl mb-4">Meetings</div>
+                        <p-contextMenu #cmMeetings [model]="meetingsCMItems"></p-contextMenu>
+
                         <p-tabs value="0">
                             <p-tablist>
                                 <p-tab value="0">Upcoming</p-tab>
                                 <p-tab value="1">History</p-tab>
                             </p-tablist>
+
                             <p-tabpanels>
                                 <p-tabpanel value="0">
                                     <div class="card">
-                                        <p-table [value]="customers2" [scrollable]="true" scrollHeight="350px" styleClass="mt-4">
+                                        <p-table
+                                            [value]="customers2"
+                                            [scrollable]="true"
+                                            scrollHeight="350px"
+                                            styleClass="mt-4"
+                                            [contextMenu]="cmMeetings"
+                                            [(contextMenuSelection)]="selectedMeeting"
+                                        >
                                             <ng-template #header>
                                                 <tr>
                                                     <th style="min-width:100px">Meeting date</th>
                                                     <th style="min-width:100px">Meeting time</th>
                                                 </tr>
                                             </ng-template>
+
                                             <ng-template #body let-customer>
-                                                <tr>
-                                                    <td pFrozenColumn class="font-bold">{{ customer.name }}</td>
-                                                    <td style="min-width:100px">{{ customer.id }}</td>
-                                                </tr>
-                                            </ng-template>
-                                        </p-table>
-                                    </div>
-                                </p-tabpanel>
-                                <p-tabpanel value="1">
-                                    <div class="card">
-                                        <p-table [value]="customers2" [scrollable]="true" scrollHeight="350px" styleClass="mt-4">
-                                            <ng-template #header>
-                                                <tr>
-                                                    <th style="min-width:100px">Meeting date</th>
-                                                    <th style="min-width:100px">Meeting time</th>
-                                                </tr>
-                                            </ng-template>
-                                            <ng-template #body let-customer>
-                                                <tr>
-                                                    <td pFrozenColumn class="font-bold">{{ customer.name }}</td>
+                                                <tr
+                                                    class="hover-scale cursor-pointer"
+                                                    [routerLink]="['/object-view','meeting-view']"
+                                                    [pContextMenuRow]="customer"
+                                                    (contextmenu)="$event.preventDefault()"
+                                                >
+                                                    <td class="font-bold">{{ customer.name }}</td>
                                                     <td style="min-width:100px">{{ customer.id }}</td>
                                                 </tr>
                                             </ng-template>
@@ -134,6 +153,37 @@
                                     </div>
                                 </p-tabpanel>
 
+                                <p-tabpanel value="1">
+                                    <div class="card">
+                                        <p-table
+                                            [value]="customers2"
+                                            [scrollable]="true"
+                                            scrollHeight="300px"
+                                            styleClass="mt-4"
+                                            [contextMenu]="cmMeetings"
+                                            [(contextMenuSelection)]="selectedMeeting"
+                                        >
+                                            <ng-template #header>
+                                                <tr>
+                                                    <th style="min-width:100px">Meeting date</th>
+                                                    <th style="min-width:100px">Meeting time</th>
+                                                </tr>
+                                            </ng-template>
+
+                                            <ng-template #body let-customer>
+                                                <tr
+                                                    class="hover-scale cursor-pointer"
+                                                    [routerLink]="['/object-view','meeting-view']"
+                                                    [pContextMenuRow]="customer"
+                                                    (contextmenu)="$event.preventDefault()"
+                                                >
+                                                    <td class="font-bold">{{ customer.name }}</td>
+                                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                                </tr>
+                                            </ng-template>
+                                        </p-table>
+                                    </div>
+                                </p-tabpanel>
                             </p-tabpanels>
                         </p-tabs>
                     </div>
