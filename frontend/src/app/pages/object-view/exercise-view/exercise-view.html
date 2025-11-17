@@ -1,1 +1,60 @@
-<p>exercise-view works!</p>
+<div class="card">
+    <div class="font-semibold text-xl mb-4">SYMPTOM VIEW</div>
+    <p-splitter [style]="{ height: '800px' }" [panelSizes]="[70, 30]" [minSizes]="[10, 0]" styleClass="mb-8">
+        <ng-template #panel>
+            <p-splitter layout="vertical" [panelSizes]="[20, 80]">
+                <ng-template #panel>
+                    <div class="w-full p-6 bg-surface-0 dark:bg-surface-900 rounded flex justify-between items-center">
+                        <div class="flex flex-col gap-2">
+                            <div class="text-xl font-medium mt-1">
+                                Exercise Name
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <p-button label="Save" icon="pi pi-save" raised/>
+                            <p-button label="Edit" icon="pi pi-user-edit" severity="secondary" raised/>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template #panel>
+                    <p-splitter [panelSizes]="[40,60]">
+                        <ng-template #panel>
+                            <div class="card flex flex-col gap-4">
+                                <div class="font-semibold text-xl flex items-center justify-center">Info</div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="name1">Name</label>
+                                    <input pInputText id="name1" type="text" />
+                                </div>
+                            </div>
+                        </ng-template>
+                        <ng-template #panel>
+                            <div class="card flex flex-col gap-4">
+                                <div class="col flex items-center justify-center font-semibold text-xl">Notes</div>
+                                <textarea pTextarea placeholder="Type here" [autoResize]="true" rows="25" cols="30"></textarea>
+                            </div>
+                        </ng-template>
+                    </p-splitter>
+                </ng-template>
+            </p-splitter>
+        </ng-template>
+        <ng-template #panel>
+            <div class="card">
+                <div class="font-semibold text-xl mb-4">Symptoms addressed</div>
+                <div class="card">
+                    <p-table [value]="customers2" [scrollable]="true" scrollHeight="600px" styleClass="mt-4">
+                        <ng-template #header>
+                            <tr>
+                                <th style="min-width:300px">Symptoms</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-customer>
+                            <tr>
+                                <td style="min-width:100px">{{ customer.id }}</td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </div>
+        </ng-template>
+    </p-splitter>
+</div>

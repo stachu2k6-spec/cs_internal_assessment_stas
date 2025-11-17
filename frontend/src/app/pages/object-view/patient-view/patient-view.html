@@ -4,9 +4,10 @@
         <ng-template #panel>
             <p-splitter layout="vertical" [panelSizes]="[20, 80]">
                 <ng-template #panel>
-                    <div class="p-6 border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 rounded flex flex-row">
+                    <div class="w-full p-6 bg-surface-0 dark:bg-surface-900 rounded flex justify-between items-center">
                         <p-image src="https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg" alt="Image" width="150" />
-                        <div class="flex flex-col gap-4 ml-6">
+
+                        <div class="flex flex-col gap-4 ml-6 flex-1">
                             <div class="flex flex-row justify-between items-start gap-2">
                                 <div>
                                     <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PATIENT NAME</span>
@@ -15,6 +16,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="flex flex-col gap-2">
                                 <div>
                                     <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">LAST MEETING DATE</span>
@@ -24,13 +26,47 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="flex gap-4">
+                            <p-button label="Save" icon="pi pi-save" raised/>
+                            <p-button label="Edit" icon="pi pi-user-edit" severity="secondary" raised/>
+                        </div>
                     </div>
                 </ng-template>
                 <ng-template #panel>
-                    <div class="card flex flex-col gap-4">
-                        <div class="col flex items-center justify-center font-semibold text-xl">Notes</div>
-                        <textarea pTextarea placeholder="Type here" [autoResize]="true" rows="30" cols="30"></textarea>
-                    </div>
+                    <p-splitter [panelSizes]="[40,60]">
+                        <ng-template #panel>
+                            <div class="card flex flex-col gap-4">
+                                <div class="font-semibold text-xl flex items-center justify-center">Info</div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="name1">Name</label>
+                                    <input pInputText id="name1" type="text" />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="name1">Surname</label>
+                                    <input pInputText id="name1" type="text" />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="age1">Age</label>
+                                    <input pInputText id="age1" type="text" />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="email1">Email</label>
+                                    <input pInputText id="email1" type="text" />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="age1">Phone</label>
+                                    <input pInputText id="age1" type="text" />
+                                </div>
+                            </div>
+                        </ng-template>
+                        <ng-template #panel>
+                            <div class="card flex flex-col gap-4">
+                                <div class="col flex items-center justify-center font-semibold text-xl">Notes</div>
+                                <textarea pTextarea placeholder="Type here" [autoResize]="true" rows="25" cols="30"></textarea>
+                            </div>
+                        </ng-template>
+                    </p-splitter>
                 </ng-template>
             </p-splitter>
         </ng-template>
