@@ -16,6 +16,7 @@ import { Product, ProductService } from '../../service/product.service';
 import { ObjectUtils } from 'primeng/utils';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { RouterLink } from '@angular/router';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -24,7 +25,7 @@ interface expandedRows {
 @Component({
     selector: 'app-symptoms',
     standalone: true,
-    imports: [Button, IconField, InputIcon, InputText, Toolbar, ButtonDirective, CurrencyPipe, DatePipe, MultiSelect, ProgressBar, Select, Slider, TableModule, Tag, FormsModule],
+    imports: [Button, IconField, InputIcon, InputText, Toolbar, ButtonDirective, CurrencyPipe, DatePipe, MultiSelect, ProgressBar, Select, Slider, TableModule, Tag, FormsModule, RouterLink],
     templateUrl: './symptoms.html',
     styleUrl: './symptoms.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
@@ -76,7 +77,6 @@ export class Symptoms implements OnInit {
         this.customerService.getCustomersMedium().then((customers) => (this.customers2 = customers));
         this.customerService.getCustomersLarge().then((customers) => (this.customers3 = customers));
         this.productService.getProductsWithOrdersSmall().then((data) => (this.products = data));
-
 
         this.statuses = [
             { label: 'Unqualified', value: 'unqualified' },

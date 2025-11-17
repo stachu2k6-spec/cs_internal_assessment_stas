@@ -88,7 +88,11 @@
                             </tr>
                         </ng-template>
                         <ng-template #body let-customer>
-                            <tr>
+                            <tr
+                                class="hover-scale cursor-pointer"
+                                [routerLink]="['/object-view','meeting-view',]"
+                            >
+                                <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
                                     {{ customer.name }}
                                 </td>
@@ -179,7 +183,11 @@
                             </tr>
                         </ng-template>
                         <ng-template #body let-customer>
-                            <tr>
+                            <tr
+                                class="hover-scale cursor-pointer"
+                                [routerLink]="['/object-view','meeting-view',]"
+                            >
+                                <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
                                     {{ customer.name }}
                                 </td>

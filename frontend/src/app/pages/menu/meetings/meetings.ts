@@ -18,6 +18,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { Customer, CustomerService, Representative } from '@/pages/service/customer.service';
 import { Product, ProductService } from '@/pages/service/product.service';
 import { ObjectUtils } from 'primeng/utils';
+import { RouterLink } from '@angular/router';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -25,7 +26,7 @@ interface expandedRows {
 
 @Component({
     selector: 'app-meeting-database',
-    imports: [Button, IconField, InputIcon, InputText, SplitButton, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, CurrencyPipe, DatePipe, MultiSelect, ProgressBar, Select, Slider, TableModule, Tag, FormsModule],
+    imports: [Button, IconField, InputIcon, InputText, SplitButton, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, CurrencyPipe, DatePipe, MultiSelect, ProgressBar, Select, Slider, TableModule, Tag, FormsModule, RouterLink],
     templateUrl: './meetings.html',
     styleUrl: './meetings.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
@@ -129,7 +130,7 @@ export class Meetings implements OnInit {
     }
 
     expandAll() {
-        if(ObjectUtils.isEmpty(this.expandedRows)) {
+        if (ObjectUtils.isEmpty(this.expandedRows)) {
             this.expandedRows = this.products.reduce(
                 (acc, p) => {
                     if (p.id) {
@@ -141,9 +142,8 @@ export class Meetings implements OnInit {
             );
             this.isExpanded = true;
         } else {
-            this.collapseAll()
+            this.collapseAll();
         }
-
     }
 
     collapseAll() {

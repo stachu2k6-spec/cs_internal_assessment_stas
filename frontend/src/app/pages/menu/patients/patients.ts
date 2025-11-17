@@ -12,6 +12,7 @@ import { Toolbar } from 'primeng/toolbar';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
+import { RouterLink } from '@angular/router';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -20,7 +21,7 @@ interface expandedRows {
 @Component({
     selector: 'app-patients',
     standalone: true,
-    imports: [CommonModule, DataViewModule, FormsModule, SelectButtonModule, PickListModule, OrderListModule, TagModule, ButtonModule, Toolbar, IconField, InputIcon, InputText],
+    imports: [CommonModule, DataViewModule, FormsModule, SelectButtonModule, PickListModule, OrderListModule, TagModule, ButtonModule, Toolbar, IconField, InputIcon, InputText, RouterLink],
     templateUrl: './patients.html',
     styleUrl: './patients.scss',
     providers: [ProductService]
