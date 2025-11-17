@@ -27,9 +27,32 @@
                             </div>
                         </div>
 
-                        <div class="flex gap-4">
-                            <p-button label="Save" icon="pi pi-save" raised/>
-                            <p-button label="Edit" icon="pi pi-user-edit" severity="secondary" raised/>
+                        <div class="flex gap-4 items-center">
+                            <p-button
+                                *ngIf="!isEditMode"
+                                label="Edit"
+                                icon="pi pi-user-edit"
+                                severity="secondary"
+                                raised
+                                (click)="enterEdit()"
+                            ></p-button>
+
+                            <p-button
+                                *ngIf="isEditMode"
+                                label="Save"
+                                icon="pi pi-save"
+                                raised
+                                (click)="save()"
+                            ></p-button>
+
+                            <p-button
+                                *ngIf="isEditMode"
+                                label="Cancel"
+                                icon="pi pi-times"
+                                severity="danger"
+                                raised
+                                (click)="cancelEdit()"
+                            ></p-button>
                         </div>
                     </div>
                 </ng-template>
@@ -38,39 +61,52 @@
                         <ng-template #panel>
                             <div class="card flex flex-col gap-4">
                                 <div class="font-semibold text-xl flex items-center justify-center">Info</div>
+
                                 <div class="flex flex-col gap-2">
                                     <label for="name1">Name</label>
-                                    <input pInputText id="name1" type="text" />
+                                    <input pInputText id="name1" type="text" [(ngModel)]="patient.name" [readonly]="!isEditMode" />
                                 </div>
+
                                 <div class="flex flex-col gap-2">
-                                    <label for="name1">Surname</label>
-                                    <input pInputText id="name1" type="text" />
+                                    <label for="surname1">Surname</label>
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.surname" [readonly]="!isEditMode" />
                                 </div>
+
                                 <div class="flex flex-col gap-2">
                                     <label for="age1">Age</label>
-                                    <input pInputText id="age1" type="text" />
+                                    <input pInputText id="age1" type="text" [(ngModel)]="patient.age" [readonly]="!isEditMode" />
                                 </div>
+
                                 <div class="flex flex-col gap-2">
                                     <label for="email1">Email</label>
-                                    <input pInputText id="email1" type="text" />
+                                    <input pInputText id="email1" type="text" [(ngModel)]="patient.email" [readonly]="!isEditMode" />
                                 </div>
+
                                 <div class="flex flex-col gap-2">
-                                    <label for="age1">Phone</label>
-                                    <input pInputText id="age1" type="text" />
+                                    <label for="phone1">Phone</label>
+                                    <input pInputText id="phone1" type="text" [(ngModel)]="patient.phone" [readonly]="!isEditMode" />
                                 </div>
                             </div>
                         </ng-template>
                         <ng-template #panel>
                             <div class="card flex flex-col gap-4">
                                 <div class="col flex items-center justify-center font-semibold text-xl">Notes</div>
-                                <textarea pTextarea placeholder="Type here" [autoResize]="true" rows="25" cols="30"></textarea>
+                                <textarea
+                                    pTextarea
+                                    placeholder="Notes go here"
+                                    [autoResize]="true"
+                                    rows="30"
+                                    cols="30"
+                                    [(ngModel)]="patient.notes"
+                                    [readonly]="!isEditMode"
+                                ></textarea>
                             </div>
                         </ng-template>
                     </p-splitter>
                 </ng-template>
             </p-splitter>
         </ng-template>
-        <ng-template #panel>
+            <ng-template #panel>
             <p-splitter layout="vertical" [panelSizes]="[35, 65]">
                 <ng-template #panel>
                     <div class="card">
@@ -111,7 +147,10 @@
                 </ng-template>
                 <ng-template #panel>
                     <div class="card">
-                        <div class="font-semibold text-xl mb-4">Meetings</div>
+                        <div class="w-full flex justify-between">
+                            <div class="font-semibold text-xl mb-4">Meetings</div>
+                            <p-button label="Schedule Meeting" icon="pi pi-plus" iconPos="right"></p-button>
+                        </div>
                         <p-contextMenu #cmMeetings [model]="meetingsCMItems"></p-contextMenu>
 
                         <p-tabs value="0">
