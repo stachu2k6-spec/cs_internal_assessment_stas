@@ -90,7 +90,6 @@ export class MeetingView implements OnInit {
 
     loading: boolean = true;
 
-    // inside PatientView class (add these properties)
     isEditMode: boolean = false;
 
 // local model for editing

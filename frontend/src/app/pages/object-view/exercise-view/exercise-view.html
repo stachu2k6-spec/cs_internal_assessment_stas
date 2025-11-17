@@ -1,5 +1,5 @@
 <div class="card">
-    <div class="font-semibold text-xl mb-4">SYMPTOM VIEW</div>
+    <div class="font-semibold text-xl mb-4">EXERCISE VIEW</div>
     <p-splitter [style]="{ height: '800px' }" [panelSizes]="[70, 30]" [minSizes]="[10, 0]" styleClass="mb-8">
         <ng-template #panel>
             <p-splitter layout="vertical" [panelSizes]="[20, 80]">
@@ -10,9 +10,32 @@
                                 Exercise Name
                             </div>
                         </div>
-                        <div class="flex gap-4">
-                            <p-button label="Save" icon="pi pi-save" raised/>
-                            <p-button label="Edit" icon="pi pi-user-edit" severity="secondary" raised/>
+                        <div class="flex gap-4 items-center">
+                            <p-button
+                                *ngIf="!isEditMode"
+                                label="Edit"
+                                icon="pi pi-user-edit"
+                                severity="secondary"
+                                raised
+                                (click)="enterEdit()"
+                            ></p-button>
+
+                            <p-button
+                                *ngIf="isEditMode"
+                                label="Save"
+                                icon="pi pi-save"
+                                raised
+                                (click)="save()"
+                            ></p-button>
+
+                            <p-button
+                                *ngIf="isEditMode"
+                                label="Cancel"
+                                icon="pi pi-times"
+                                severity="danger"
+                                raised
+                                (click)="cancelEdit()"
+                            ></p-button>
                         </div>
                     </div>
                 </ng-template>
@@ -23,14 +46,21 @@
                                 <div class="font-semibold text-xl flex items-center justify-center">Info</div>
                                 <div class="flex flex-col gap-2">
                                     <label for="name1">Name</label>
-                                    <input pInputText id="name1" type="text" />
+                                    <input pInputText id="name1" type="text" [(ngModel)]="exercise.name" [readonly]="!isEditMode" />
                                 </div>
                             </div>
                         </ng-template>
                         <ng-template #panel>
                             <div class="card flex flex-col gap-4">
                                 <div class="col flex items-center justify-center font-semibold text-xl">Notes</div>
-                                <textarea pTextarea placeholder="Type here" [autoResize]="true" rows="25" cols="30"></textarea>
+                                <textarea
+                                    pTextarea placeholder="Type here"
+                                    [autoResize]="true"
+                                    rows="25"
+                                    cols="30"
+                                    [(ngModel)]="exercise.notes"
+                                    [readonly]="!isEditMode"
+                                ></textarea>
                             </div>
                         </ng-template>
                     </p-splitter>

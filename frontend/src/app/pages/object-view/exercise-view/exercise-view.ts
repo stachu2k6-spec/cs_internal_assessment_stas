@@ -8,23 +8,19 @@ import { Customer, CustomerService, Representative } from '@/pages/service/custo
 import { Product, ProductService } from '@/pages/service/product.service';
 import { ObjectUtils } from 'primeng/utils';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { NgIf } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 interface expandedRows {
     [key: string]: boolean;
 }
 
 @Component({
-  selector: 'app-exercise-view',
-    imports: [
-        Button,
-        InputText,
-        Splitter,
-        TableModule,
-        Textarea
-    ],
-  templateUrl: './exercise-view.html',
-  styleUrl: './exercise-view.scss',
-  providers: [ConfirmationService, MessageService, CustomerService, ProductService]
+    selector: 'app-exercise-view',
+    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule],
+    templateUrl: './exercise-view.html',
+    styleUrl: './exercise-view.scss',
+    providers: [ConfirmationService, MessageService, CustomerService, ProductService]
 })
 export class ExerciseView implements OnInit {
     customers1: Customer[] = [];
@@ -56,6 +52,22 @@ export class ExerciseView implements OnInit {
     balanceFrozen: boolean = false;
 
     loading: boolean = true;
+
+
+    isEditMode: boolean = false;
+
+// local model for editing
+    exercise: {
+        id?: any;
+        name: string;
+        notes?: string;
+    } = {
+        // default empty; will be populated in ngOnInit from your source if available
+        name: '',
+        notes: ''
+    };
+    private _exerciseBackup: any = null;
+
 
     @ViewChild('filter') filter!: ElementRef;
 
@@ -97,6 +109,37 @@ export class ExerciseView implements OnInit {
             { label: 'Renewal', value: 'renewal' },
             { label: 'Proposal', value: 'proposal' }
         ];
+    }
+
+    enterEdit() {
+        // create a shallow clone backup so cancel can restore previous state
+        this._exerciseBackup = { ...this.exercise };
+        this.isEditMode = true;
+    }
+
+    cancelEdit() {
+        if (this._exerciseBackup) {
+            this.exercise = { ...this._exerciseBackup };
+            this._exerciseBackup = null;
+        }
+        this.isEditMode = false;
+    }
+
+    save() {
+        // TODO: call your API to persist exercise changes
+        // For now, we mock save with a message and toggle mode off
+        this.isEditMode = false;
+        this._exerciseBackup = null;
+
+        // show a toast (you already have MessageService provider)
+        // this.messageService.add({
+        //     severity: 'success',
+        //     summary: 'Saved',
+        //     detail: 'Patient data saved.'
+        // });
+
+        // If you have a real backend: call service then handle response
+        // this.patientService.updatePatient(this.patient).then(...).catch(...)
     }
 
     onSort() {
