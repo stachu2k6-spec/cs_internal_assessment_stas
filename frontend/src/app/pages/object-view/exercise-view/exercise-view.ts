@@ -10,6 +10,7 @@ import { ObjectUtils } from 'primeng/utils';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { NgIf } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -17,7 +18,7 @@ interface expandedRows {
 
 @Component({
     selector: 'app-exercise-view',
-    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule],
+    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink],
     templateUrl: './exercise-view.html',
     styleUrl: './exercise-view.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
@@ -53,10 +54,9 @@ export class ExerciseView implements OnInit {
 
     loading: boolean = true;
 
-
     isEditMode: boolean = false;
 
-// local model for editing
+    // local model for editing
     exercise: {
         id?: any;
         name: string;
@@ -67,7 +67,6 @@ export class ExerciseView implements OnInit {
         notes: ''
     };
     private _exerciseBackup: any = null;
-
 
     @ViewChild('filter') filter!: ElementRef;
 

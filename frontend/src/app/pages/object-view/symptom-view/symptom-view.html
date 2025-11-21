@@ -78,7 +78,9 @@
                             </tr>
                         </ng-template>
                         <ng-template #body let-customer>
-                            <tr>
+                            <tr class="hover-scale cursor-pointer"
+                            [routerLink]="['/object-view','exercise-view']"
+                            >
                                 <td style="min-width:100px">{{ customer.id }}</td>
                             </tr>
                         </ng-template>

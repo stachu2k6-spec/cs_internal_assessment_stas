@@ -12,6 +12,7 @@ import { ObjectUtils } from 'primeng/utils';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { NgIf } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -19,7 +20,7 @@ interface expandedRows {
 
 @Component({
     selector: 'app-symptom-view',
-    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule],
+    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink],
     templateUrl: './symptom-view.html',
     styleUrl: './symptom-view.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
@@ -57,7 +58,7 @@ export class SymptomView implements OnInit {
 
     isEditMode: boolean = false;
 
-// local model for editing
+    // local model for editing
     symptom: {
         id?: any;
         name: string;

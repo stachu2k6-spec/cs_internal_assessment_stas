@@ -29,6 +29,7 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { Image } from 'primeng/image';
 import { Toolbar } from 'primeng/toolbar';
+import { RouterLink } from '@angular/router';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -56,6 +57,7 @@ interface expandedRows {
         Splitter,
         Textarea,
         Image,
+        RouterLink
     ],
     templateUrl: './meeting-view.html',
     styleUrl: './meeting-view.scss',
@@ -92,7 +94,7 @@ export class MeetingView implements OnInit {
 
     isEditMode: boolean = false;
 
-// local model for editing
+    // local model for editing
     patient: {
         id?: any;
         name: string;
@@ -125,7 +127,7 @@ export class MeetingView implements OnInit {
         time: '',
         notes: '',
         ratingValue: null
-    }
+    };
 
     private _patientBackup: any = null;
 
