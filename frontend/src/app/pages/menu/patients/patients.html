@@ -22,8 +22,8 @@
     <div class="font-semibold text-xl">Patients</div>
     <div *ngFor="let p of patients">
         <strong>{{ p.name }} {{ p.surname }}</strong><br>
-        Adres: {{ p.address }}<br>
-        Notatki: {{ p.notes }}
+        Address: {{ p.address }}<br>
+        Notes: {{ p.notes }}
         <hr>
     </div>
     <p-dataview [value]="products" [layout]="layout">
