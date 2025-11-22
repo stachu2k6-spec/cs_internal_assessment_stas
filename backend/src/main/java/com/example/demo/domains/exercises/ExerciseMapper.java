@@ -1,16 +1,16 @@
-package com.example.demo.domains.patients;
+package com.example.demo.domains.exercises;
 
-import com.example.demo.controllers.patients.PatientsDto;
-import com.example.demo.repository.patients.PatientEntity;
+import com.example.demo.controllers.exercises.ExercisesDto;
+import com.example.demo.repository.exercises.ExerciseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-public class PatientMapper {
+public class ExerciseMapper {
 
-    public PatientEntity toEntity(PatientsDto dto) {
-        PatientEntity entity = new PatientEntity();
+    public ExerciseEntity toEntity(ExercisesDto dto) {
+        ExerciseEntity entity = new ExerciseEntity();
 
         // id z DTO może być null przy tworzeniu nowego pacjenta
         if (dto.getId() != null && !dto.getId().isEmpty()) {
@@ -23,13 +23,11 @@ public class PatientMapper {
         return entity;
     }
 
-    public PatientsDto toDto(PatientEntity entity) {
-        PatientsDto dto = new PatientsDto();
+    public ExercisesDto toDto(ExerciseEntity entity) {
+        ExercisesDto dto = new ExercisesDto();
 
         dto.setId(entity.getId().toString());
         dto.setName(entity.getName());
-        dto.setSurname(entity.getSurname());
-        dto.setAddress(entity.getAddress());
         dto.setNotes(entity.getNotes());
 
         return dto;

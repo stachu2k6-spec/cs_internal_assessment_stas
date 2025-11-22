@@ -1,16 +1,16 @@
-package com.example.demo.domains.patients;
+package com.example.demo.domains.symptoms;
 
-import com.example.demo.controllers.patients.PatientsDto;
-import com.example.demo.repository.patients.PatientEntity;
+import com.example.demo.controllers.symptoms.SymptomsDto;
+import com.example.demo.repository.symptoms.SymptomEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-public class PatientMapper {
+public class SymptomMapper {
 
-    public PatientEntity toEntity(PatientsDto dto) {
-        PatientEntity entity = new PatientEntity();
+    public SymptomEntity toEntity(SymptomsDto dto) {
+        SymptomEntity entity = new SymptomEntity();
 
         // id z DTO może być null przy tworzeniu nowego pacjenta
         if (dto.getId() != null && !dto.getId().isEmpty()) {
@@ -23,13 +23,11 @@ public class PatientMapper {
         return entity;
     }
 
-    public PatientsDto toDto(PatientEntity entity) {
-        PatientsDto dto = new PatientsDto();
+    public SymptomsDto toDto(SymptomEntity entity) {
+        SymptomsDto dto = new SymptomsDto();
 
         dto.setId(entity.getId().toString());
         dto.setName(entity.getName());
-        dto.setSurname(entity.getSurname());
-        dto.setAddress(entity.getAddress());
         dto.setNotes(entity.getNotes());
 
         return dto;
