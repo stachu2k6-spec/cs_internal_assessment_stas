@@ -18,6 +18,8 @@ public class PatientMapper {
         }
 
         entity.setName(dto.getName());
+        entity.setSurname(dto.getSurname());
+        entity.setAddress(dto.getAddress());
         entity.setNotes(dto.getNotes());
 
         return entity;
