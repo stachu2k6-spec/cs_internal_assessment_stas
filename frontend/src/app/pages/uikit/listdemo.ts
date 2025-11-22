@@ -120,7 +120,7 @@ import { Product, ProductService } from '../service/product.service';
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>  
                 </ng-template>
             </p-dataview>
         </div>

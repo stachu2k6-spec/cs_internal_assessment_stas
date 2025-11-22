@@ -66,7 +66,11 @@
             </tr>
         </ng-template>
         <ng-template #body let-customer>
-            <tr>
+            <tr
+                class="hover-scale cursor-pointer"
+                [routerLink]="['/object-view','exercise-view',]"
+            >
+                <!-- TODO: ensure `id` exists and pass correct id here -->
                 <td>
                     Exercise name
                 </td>

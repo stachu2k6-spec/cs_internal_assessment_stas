@@ -1,0 +1,9 @@
+.hover-scale {
+    transition: background-color 0.18s ease !important;
+    cursor: pointer !important;
+}
+
+.hover-scale:hover td {
+    background-color: #f3f3f3 !important;
+}
+

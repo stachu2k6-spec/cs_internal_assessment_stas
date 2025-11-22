@@ -60,7 +60,7 @@
                 </th>
                 <th style="min-width: 10rem">
                     <div class="flex justify-between items-center">
-                        Patients Affected
+                        PatientsService Affected
                         <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter>
                     </div>
                 </th>
@@ -81,7 +81,11 @@
             </tr>
         </ng-template>
         <ng-template #body let-customer>
-            <tr>
+            <tr
+                class="hover-scale cursor-pointer"
+                [routerLink]="['/object-view','symptom-view',]"
+            >
+                <!-- TODO: ensure `id` exists and pass correct id here -->
                 <td>
                     Symptom name
                 </td>

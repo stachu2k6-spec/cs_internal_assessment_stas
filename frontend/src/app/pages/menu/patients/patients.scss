@@ -3,3 +3,15 @@
         width: 100%;
     }
 }
+
+.hover-scale {
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    transform-origin: center;
+    cursor: pointer;
+    will-change: transform;
+}
+.hover-scale:hover {
+    transform: scale(1.02);
+    z-index: 10;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+}

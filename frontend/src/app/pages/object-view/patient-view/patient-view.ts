@@ -28,6 +28,8 @@ import { DatePicker } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { Image } from 'primeng/image';
+import { RouterLink } from '@angular/router';
+import { ContextMenu } from 'primeng/contextmenu';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -35,7 +37,6 @@ interface expandedRows {
 
 @Component({
     selector: 'app-patient-view',
-    standalone: true,
     imports: [
         TableModule,
         MultiSelectModule,
@@ -65,7 +66,9 @@ interface expandedRows {
         DatePicker,
         FloatLabel,
         InputNumber,
-        Image
+        Image,
+        RouterLink,
+        ContextMenu
     ],
     templateUrl: './patient-view.html',
     styleUrl: './patient-view.scss',
@@ -94,11 +97,44 @@ export class PatientView implements OnInit {
 
     activityValues: number[] = [0, 100];
 
+    selectedSymptom: Customer | null = null;
+
+    selectedMeeting: Customer | null = null;
+
     isExpanded: boolean = false;
+
+    symptomsCMItems: any[] = [];
+
+    meetingsCMItems: any[] = [];
 
     balanceFrozen: boolean = false;
 
     loading: boolean = true;
+
+    // inside PatientView class (add these properties)
+    isEditMode: boolean = false;
+
+// local model for editing
+    patient: {
+        id?: any;
+        name: string;
+        surname: string;
+        age?: number | string;
+        email?: string;
+        phone?: string;
+        notes?: string;
+    } = {
+        // default empty; will be populated in ngOnInit from your source if available
+        name: '',
+        surname: '',
+        age: '',
+        email: '',
+        phone: '',
+        notes: ''
+    };
+
+    private _patientBackup: any = null;
+
 
     @ViewChild('filter') filter!: ElementRef;
 
@@ -140,10 +176,63 @@ export class PatientView implements OnInit {
             { label: 'Renewal', value: 'renewal' },
             { label: 'Proposal', value: 'proposal' }
         ];
+
+        this.symptomsCMItems = [
+            { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteSymptom(this.selectedSymptom) }
+        ];
+
+        this.meetingsCMItems = [
+            { label: 'Edit', icon: 'pi pi-pencil', command: () => this.editMeeting(this.selectedMeeting) },
+            { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteMeeting(this.selectedMeeting) }
+        ];
     }
+
 
     onSort() {
         this.updateRowGroupMetaData();
+    }
+
+    deleteSymptom(symptom: Customer | null) {
+        //remove symptom logic here
+    }
+
+    editMeeting(customer: Customer | null) {
+        //edit meeting logic here
+    }
+
+    deleteMeeting(customer: Customer | null) {
+        //delete meeting logic here
+    }
+
+    enterEdit() {
+        // create a shallow clone backup so cancel can restore previous state
+        this._patientBackup = { ...this.patient };
+        this.isEditMode = true;
+    }
+
+    cancelEdit() {
+        if (this._patientBackup) {
+            this.patient = { ...this._patientBackup };
+            this._patientBackup = null;
+        }
+        this.isEditMode = false;
+    }
+
+    save() {
+        // TODO: call your API to persist patient changes
+        // For now, we mock save with a message and toggle mode off
+        this.isEditMode = false;
+        this._patientBackup = null;
+
+        // show a toast (you already have MessageService provider)
+        // this.messageService.add({
+        //     severity: 'success',
+        //     summary: 'Saved',
+        //     detail: 'Patient data saved.'
+        // });
+
+        // If you have a real backend: call service then handle response
+        // this.patientService.updatePatient(this.patient).then(...).catch(...)
     }
 
     updateRowGroupMetaData() {

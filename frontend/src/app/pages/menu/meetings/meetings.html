@@ -67,28 +67,17 @@
                                 </th>
                                 <th style="min-width: 10rem">
                                     <div class="flex justify-between items-center">
-                                        Balance
-                                        <p-columnFilter type="numeric" field="balance" display="menu" currency="USD"></p-columnFilter>
-                                    </div>
-                                </th>
-                                <th style="min-width: 12rem">
-                                    <div class="flex justify-between items-center">
-                                        Status
-                                        <p-columnFilter field="status" matchMode="equals" display="menu">
-                                            <ng-template #filter let-value let-filter="filterCallback">
-                                                <p-select [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)" placeholder="Any" [style]="{ 'min-width': '12rem' }">
-                                                    <ng-template let-option #item>
-                                                        <span [class]="'customer-badge status-' + option.value">{{ option.label }}</span>
-                                                    </ng-template>
-                                                </p-select>
-                                            </ng-template>
-                                        </p-columnFilter>
+                                        Time
                                     </div>
                                 </th>
                             </tr>
                         </ng-template>
                         <ng-template #body let-customer>
-                            <tr>
+                            <tr
+                                class="hover-scale cursor-pointer"
+                                [routerLink]="['/object-view','meeting-view',]"
+                            >
+                                <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
                                     {{ customer.name }}
                                 </td>
@@ -96,10 +85,7 @@
                                     {{ customer.date | date: 'MM/dd/yyyy' }}
                                 </td>
                                 <td>
-                                    {{ customer.balance | currency: 'USD' : 'symbol' }}
-                                </td>
-                                <td>
-                                    <p-tag [value]="customer.status.toLowerCase()" [severity]="getSeverity(customer.status.toLowerCase())" styleClass="dark:bg-surface-900!" />
+                                    MEETING TIME
                                 </td>
                             </tr>
                         </ng-template>
@@ -158,28 +144,17 @@
                                 </th>
                                 <th style="min-width: 10rem">
                                     <div class="flex justify-between items-center">
-                                        Balance
-                                        <p-columnFilter type="numeric" field="balance" display="menu" currency="USD"></p-columnFilter>
-                                    </div>
-                                </th>
-                                <th style="min-width: 12rem">
-                                    <div class="flex justify-between items-center">
-                                        Status
-                                        <p-columnFilter field="status" matchMode="equals" display="menu">
-                                            <ng-template #filter let-value let-filter="filterCallback">
-                                                <p-select [ngModel]="value" [options]="statuses" (onChange)="filter($event.value)" placeholder="Any" [style]="{ 'min-width': '12rem' }">
-                                                    <ng-template let-option #item>
-                                                        <span [class]="'customer-badge status-' + option.value">{{ option.label }}</span>
-                                                    </ng-template>
-                                                </p-select>
-                                            </ng-template>
-                                        </p-columnFilter>
+                                        Time
                                     </div>
                                 </th>
                             </tr>
                         </ng-template>
                         <ng-template #body let-customer>
-                            <tr>
+                            <tr
+                                class="hover-scale cursor-pointer"
+                                [routerLink]="['/object-view','meeting-view',]"
+                            >
+                                <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
                                     {{ customer.name }}
                                 </td>
@@ -187,10 +162,7 @@
                                     {{ customer.date | date: 'MM/dd/yyyy' }}
                                 </td>
                                 <td>
-                                    {{ customer.balance | currency: 'USD' : 'symbol' }}
-                                </td>
-                                <td>
-                                    <p-tag [value]="customer.status.toLowerCase()" [severity]="getSeverity(customer.status.toLowerCase())" styleClass="dark:bg-surface-900!" />
+                                    MEETING TIME
                                 </td>
                             </tr>
                         </ng-template>
