@@ -1,17 +1,18 @@
 package com.example.demo.controllers.exercises;
 
+import com.example.demo.domains.exercises.ExercisesFacade;
 import com.example.demo.domains.meetings.MeetingsFacade;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/meetings")
+@RequestMapping("/exercises")
 public class ExercisesController {
 
-    private final MeetingsFacade exerciseFacade;
+    private final ExercisesFacade exerciseFacade;
 
-    public ExercisesController(MeetingsFacade exerciseFacade) {
+    public ExercisesController(ExercisesFacade exerciseFacade) {
         this.exerciseFacade = exerciseFacade;
     }
 
