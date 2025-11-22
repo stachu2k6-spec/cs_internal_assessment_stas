@@ -13,6 +13,9 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { RouterLink } from '@angular/router';
+import { PatientDto } from '@/pages/service/patients/patients.model';
+import { PatientsFacade } from '@/pages/service/patients/patients.facade';
+import { tap } from 'rxjs';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -39,7 +42,12 @@ export class Patients implements OnInit {
 
     orderCities: any[] = [];
 
-    constructor(private productService: ProductService) {}
+    /**
+     PATIENTS
+     */
+    patients: PatientDto[] =[]
+
+    constructor(private productService: ProductService, private patientsFacade: PatientsFacade) {}
 
     ngOnInit() {
         this.productService.getProductsSmall().then((data) => (this.products = data.slice(0, 6)));
@@ -65,6 +73,17 @@ export class Patients implements OnInit {
             { name: 'Barcelona', code: 'BRC' },
             { name: 'Rome', code: 'RM' }
         ];
+
+
+        this.patientsFacade.fetchAllPatients()
+        this.patientsFacade.patientsState$
+            .pipe(
+                tap(x=> {
+                    this.patients = x;
+                })
+            )
+            .subscribe()
+
     }
 
     getSeverity(product: Product) {
