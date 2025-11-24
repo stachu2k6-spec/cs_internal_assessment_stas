@@ -27,9 +27,7 @@ public class PatientEntity {
     private String phoneNumber;
     private String email;
 
-    @Column(columnDefinition = "TEXT")
     private String notes;
-
     private String activityLevel;
 
     private String photoUrl;

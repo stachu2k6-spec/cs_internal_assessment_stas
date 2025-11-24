@@ -13,29 +13,29 @@ export class SymptomService {
     constructor(private http: HttpClient) {}
 
     getAll(): Observable<SymptomDto[]> {
-        //return this.http.get<SymptomDto[]>(this.apiUrl);
-        return of([
-            {
-                id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-                name: 'Headache',
-                notes: 'Mild, recurring in the afternoon.'
-            },
-            {
-                id: '7d9c2ec3-2a7e-4f8f-9be6-21c8d2ed2b9d',
-                name: 'Nausea',
-                notes: 'Occurs after eating heavy meals.'
-            },
-            {
-                id: '0b9d1a35-83a1-4c3d-9c25-830a48ceadf5',
-                name: 'Fatigue',
-                notes: 'Patient reports low energy throughout the day.'
-            },
-            {
-                id: 'd1a75c63-f3e4-4c88-90f5-8b9a4fbc60ca',
-                name: 'Dizziness',
-                notes: 'Short episodes lasting 1–2 minutes.'
-            }
-        ]);
+        return this.http.get<SymptomDto[]>(this.apiUrl);
+        // return of([
+        //     {
+        //         id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        //         name: 'Headache',
+        //         notes: 'Mild, recurring in the afternoon.'
+        //     },
+        //     {
+        //         id: '7d9c2ec3-2a7e-4f8f-9be6-21c8d2ed2b9d',
+        //         name: 'Nausea',
+        //         notes: 'Occurs after eating heavy meals.'
+        //     },
+        //     {
+        //         id: '0b9d1a35-83a1-4c3d-9c25-830a48ceadf5',
+        //         name: 'Fatigue',
+        //         notes: 'Patient reports low energy throughout the day.'
+        //     },
+        //     {
+        //         id: 'd1a75c63-f3e4-4c88-90f5-8b9a4fbc60ca',
+        //         name: 'Dizziness',
+        //         notes: 'Short episodes lasting 1–2 minutes.'
+        //     }
+        // ]);
 
 
 
