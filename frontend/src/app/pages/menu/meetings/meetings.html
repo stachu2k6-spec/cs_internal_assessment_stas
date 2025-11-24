@@ -30,14 +30,12 @@
                     <div class="font-semibold text-xl mb-4">Upcoming Meetings</div>
                     <p-table
                         #dt1
-                        [value]="customers1"
+                        [value]="meetings"
                         dataKey="id"
                         [rows]="10"
-                        [loading]="loading"
                         [rowHover]="true"
                         [showGridlines]="true"
                         [paginator]="true"
-                        [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
                         responsiveLayout="scroll"
                     >
                         <ng-template #caption>
@@ -70,33 +68,41 @@
                                         Time
                                     </div>
                                 </th>
+                                <th style="min-width: 10rem">
+                                    <div class="flex justify-between items-center">
+                                        Duration
+                                    </div>
+                                </th>
                             </tr>
                         </ng-template>
-                        <ng-template #body let-customer>
+                        <ng-template #body let-meeting>
                             <tr
                                 class="hover-scale cursor-pointer"
-                                [routerLink]="['/object-view','meeting-view',]"
+                                [routerLink]="['/view','meeting',]"
                             >
                                 <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
-                                    {{ customer.name }}
+                                    PATIENT NAME
                                 </td>
                                 <td>
-                                    {{ customer.date | date: 'MM/dd/yyyy' }}
+                                    {{ meeting.date }}
                                 </td>
                                 <td>
-                                    MEETING TIME
+                                    {{ meeting.startTime }}
+                                </td>
+                                <td>
+                                    {{ formatDuration(meeting.duration) }}
                                 </td>
                             </tr>
                         </ng-template>
                         <ng-template #emptymessage>
                             <tr>
-                                <td colspan="8">No customers found.</td>
+                                <td colspan="8">No meetings planned.</td>
                             </tr>
                         </ng-template>
                         <ng-template #loadingbody>
                             <tr>
-                                <td colspan="8">Loading customers data. Please wait.</td>
+                                <td colspan="8">Loading meeting data. Please wait.</td>
                             </tr>
                         </ng-template>
                     </p-table>
@@ -107,14 +113,12 @@
                     <div class="font-semibold text-xl mb-4">Meeting History</div>
                     <p-table
                         #dt1
-                        [value]="customers1"
+                        [value]="meetings"
                         dataKey="id"
                         [rows]="10"
-                        [loading]="loading"
                         [rowHover]="true"
                         [showGridlines]="true"
                         [paginator]="true"
-                        [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
                         responsiveLayout="scroll"
                     >
                         <ng-template #caption>
@@ -147,33 +151,41 @@
                                         Time
                                     </div>
                                 </th>
+                                <th style="min-width: 10rem">
+                                    <div class="flex justify-between items-center">
+                                        Duration
+                                    </div>
+                                </th>
                             </tr>
                         </ng-template>
-                        <ng-template #body let-customer>
+                        <ng-template #body let-meeting>
                             <tr
                                 class="hover-scale cursor-pointer"
-                                [routerLink]="['/object-view','meeting-view',]"
+                                [routerLink]="['/view','meeting',]"
                             >
                                 <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
-                                    {{ customer.name }}
+                                    PATIENT NAME
                                 </td>
                                 <td>
-                                    {{ customer.date | date: 'MM/dd/yyyy' }}
+                                    {{ meeting.date }}
                                 </td>
                                 <td>
-                                    MEETING TIME
+                                    {{ meeting.startTime }}
+                                </td>
+                                <td>
+                                    {{ formatDuration(meeting.duration) }}
                                 </td>
                             </tr>
                         </ng-template>
                         <ng-template #emptymessage>
                             <tr>
-                                <td colspan="8">No customers found.</td>
+                                <td colspan="8">No meetings planned.</td>
                             </tr>
                         </ng-template>
                         <ng-template #loadingbody>
                             <tr>
-                                <td colspan="8">Loading customers data. Please wait.</td>
+                                <td colspan="8">Loading meeting data. Please wait.</td>
                             </tr>
                         </ng-template>
                     </p-table>

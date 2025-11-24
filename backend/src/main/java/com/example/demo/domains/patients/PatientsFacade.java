@@ -1,7 +1,6 @@
 package com.example.demo.domains.patients;
 
-
-import com.example.demo.controllers.patients.PatientsDto;
+import com.example.demo.controllers.patients.PatientDto;
 import com.example.demo.repository.patients.PatientEntity;
 import com.example.demo.repository.patients.PatientRepository;
 import org.springframework.http.HttpStatus;
@@ -22,43 +21,57 @@ public class PatientsFacade {
         this.patientMapper = patientMapper;
     }
 
-    public List<PatientsDto> getPatients() {
-        List<PatientEntity> patientRepositoryAll = this.patientRepository.findAll();
-
-        return patientRepositoryAll
+    public List<PatientDto> getPatients() {
+        return patientRepository.findAll()
                 .stream()
                 .map(patientMapper::toDto)
                 .toList();
     }
 
-    public PatientsDto addPatients(PatientsDto patientsDto) {
-        PatientEntity patientEntity = this.patientMapper.toEntity(patientsDto);
-        PatientEntity savedEntity = this.patientRepository.save(patientEntity);
+    public PatientDto addPatients(PatientDto patientDto) {
+        PatientEntity patientEntity = patientMapper.toEntity(patientDto);
+        PatientEntity savedEntity = patientRepository.save(patientEntity);
         return patientMapper.toDto(savedEntity);
     }
 
-    public PatientsDto getPatientsById(String id) {
-
+    public PatientDto getPatientsById(String id) {
         return patientRepository.findById(UUID.fromString(id))
                 .map(patientMapper::toDto)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found")
+                );
     }
 
-    public PatientsDto updatePatient(String id, PatientsDto patientsDto) {
-        PatientEntity patient_not_found = patientRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found"));
+    public PatientDto updatePatient(String id, PatientDto patientDto) {
+        PatientEntity patient = patientRepository.findById(UUID.fromString(id))
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found")
+                );
 
-        patient_not_found.setName(patientsDto.getName());
-        patient_not_found.setSurname(patientsDto.getSurname());
-        patient_not_found.setAddress(patientsDto.getAddress());
-        patient_not_found.setNotes(patientsDto.getNotes());
+        // Update fields
+        patient.setName(patientDto.getName());
+        patient.setSurname(patientDto.getSurname());
+        patient.setBirthDate(patientDto.getBirthDate());
+        patient.setGender(patientDto.getGender());
+        patient.setAddress(patientDto.getAddress());
+        patient.setPhoneNumber(patientDto.getPhoneNumber());
+        patient.setEmail(patientDto.getEmail());
+        patient.setNotes(patientDto.getNotes());
+        patient.setActivityLevel(patientDto.getActivityLevel());
+        patient.setPhotoUrl(patientDto.getPhotoUrl());
 
-        PatientEntity patientEntity = patientRepository.save(patient_not_found);
+        PatientEntity updated = patientRepository.save(patient);
 
-        return patientMapper.toDto(patientEntity);
+        return patientMapper.toDto(updated);
     }
 
     public void deletePatient(String id) {
-        this.patientRepository.deleteById(UUID.fromString(id));
+        UUID uuid = UUID.fromString(id);
+
+        if (!patientRepository.existsById(uuid)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found");
+        }
+
+        patientRepository.deleteById(uuid);
     }
 }

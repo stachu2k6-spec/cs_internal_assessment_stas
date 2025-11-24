@@ -1,0 +1,43 @@
+package com.example.demo.controllers.patients;
+
+import com.example.demo.domains.patients.PatientsFacade;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/patients")
+public class PatientController {
+
+    private final PatientsFacade patientFacade;
+
+    public PatientController(PatientsFacade patientFacade) {
+        this.patientFacade = patientFacade;
+    }
+
+    @GetMapping
+    public List<PatientDto> getPatients() {
+        return patientFacade.getPatients();
+    }
+
+    @PostMapping
+    public PatientDto addPatient(@RequestBody PatientDto patientDto) {
+        return patientFacade.addPatients(patientDto);
+    }
+
+    @GetMapping("/{id}")
+    public PatientDto getPatient(@PathVariable String id) {
+        return patientFacade.getPatientsById(id);
+    }
+
+    @PutMapping("/{id}")
+    public PatientDto updatePatient(@PathVariable String id, @RequestBody PatientDto patientDto) {
+        return patientFacade.updatePatient(id, patientDto);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deletePatient(@PathVariable String id) {
+        patientFacade.deletePatient(id);
+        return "ok";
+    }
+}

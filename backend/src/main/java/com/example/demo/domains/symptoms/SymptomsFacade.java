@@ -1,7 +1,7 @@
 package com.example.demo.domains.symptoms;
 
 
-import com.example.demo.controllers.symptoms.SymptomsDto;
+import com.example.demo.controllers.symptoms.SymptomDto;
 import com.example.demo.repository.symptoms.SymptomEntity;
 import com.example.demo.repository.symptoms.SymptomRepository;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ public class SymptomsFacade {
         this.symptomMapper = symptomMapper;
     }
 
-    public List<SymptomsDto> getSymptoms() {
+    public List<SymptomDto> getSymptoms() {
         List<SymptomEntity> symptomRepositoryAll = this.symptomRepository.findAll();
 
         return symptomRepositoryAll
@@ -31,20 +31,20 @@ public class SymptomsFacade {
                 .toList();
     }
 
-    public SymptomsDto addSymptoms(SymptomsDto symptomsDto) {
+    public SymptomDto addSymptoms(SymptomDto symptomsDto) {
         SymptomEntity symptomEntity = this.symptomMapper.toEntity(symptomsDto);
         SymptomEntity savedEntity = this.symptomRepository.save(symptomEntity);
         return symptomMapper.toDto(savedEntity);
     }
 
-    public SymptomsDto getSymptomsById(String id) {
+    public SymptomDto getSymptomsById(String id) {
 
         return symptomRepository.findById(UUID.fromString(id))
                 .map(symptomMapper::toDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Symptom not found"));
     }
 
-    public SymptomsDto updateSymptom(String id, SymptomsDto symptomsDto) {
+    public SymptomDto updateSymptom(String id, SymptomDto symptomsDto) {
         SymptomEntity symptom_not_found = symptomRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Symptom not found"));
 

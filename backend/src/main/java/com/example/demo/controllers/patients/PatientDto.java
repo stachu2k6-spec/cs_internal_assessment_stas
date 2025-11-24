@@ -1,37 +1,26 @@
-package com.example.demo.repository.patients;
+package com.example.demo.controllers.patients;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
-@Setter
 @Getter
-@Entity
-@Table(name = "patients")
-public class PatientEntity {
-
-    @Id
-    @GeneratedValue
-    private UUID id;
-
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class PatientDto {
+    private String id;
     private String name;
     private String surname;
-    private String gender;
-
     private LocalDate birthDate;
-
+    private String gender;
     private String address;
     private String phoneNumber;
     private String email;
-
     private String notes;
     private String activityLevel;
-
     private String photoUrl;
-
-    public PatientEntity() {}
-
 }

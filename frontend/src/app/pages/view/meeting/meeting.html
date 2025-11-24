@@ -1,0 +1,149 @@
+<div class="card">
+    <div class="font-semibold text-xl mb-4">MEETING VIEW</div>
+    <p-splitter [style]="{ height: '800px' }" [panelSizes]="[70, 30]" [minSizes]="[10, 0]" styleClass="mb-8">
+        <ng-template #panel>
+            <p-splitter layout="vertical" [panelSizes]="[20, 80]">
+                <ng-template #panel>
+                    <div class="w-full p-6 bg-surface-0 dark:bg-surface-900 rounded flex justify-between items-center">
+                        <p-image src="https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg" alt="Image" width="150" />
+
+                        <div class="flex flex-col gap-4 ml-6 flex-1">
+                            <div class="flex flex-row justify-between items-start gap-2">
+                                <div>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PATIENT NAME</span>
+                                    <div class="text-lg font-medium mt-1">
+                                        PATIENT SURNAME
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-2">
+                                <div>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">MEETING TIME</span>
+                                    <div class="text-lg font-medium mt-1">
+                                        MEETING DATE
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 items-center">
+                            <p-button
+                                *ngIf="!isEditMode"
+                                label="Edit"
+                                icon="pi pi-user-edit"
+                                severity="secondary"
+                                raised
+                                (click)="enterEdit()"
+                            ></p-button>
+
+                            <p-button
+                                *ngIf="isEditMode"
+                                label="Save"
+                                icon="pi pi-save"
+                                raised
+                                (click)="save()"
+                            ></p-button>
+
+                            <p-button
+                                *ngIf="isEditMode"
+                                label="Cancel"
+                                icon="pi pi-times"
+                                severity="danger"
+                                raised
+                                (click)="cancelEdit()"
+                            ></p-button>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template #panel>
+                    <p-splitter [panelSizes]="[40,60]">
+                        <ng-template #panel>
+                            <div class="card flex flex-col gap-4">
+                                <div class="font-semibold text-xl flex items-center justify-center">Info</div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="name1">Name</label>
+                                    <input pInputText id="name1" type="text" [(ngModel)]="patient.name" [readonly]="!isEditMode" />
+                                </div>
+
+                                <div class="flex flex-col gap-2">
+                                    <label for="surname1">Surname</label>
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.surname" [readonly]="!isEditMode" />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="age1">Date</label>
+                                    <input pInputText id="age1" type="text" [(ngModel)]="meeting.date" [readonly]="!isEditMode" />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="email1">Time</label>
+                                    <input pInputText id="email1" type="text" [(ngModel)]="meeting.time" [readonly]="!isEditMode" />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="email1">Duration</label>
+                                    <input pInputText id="email1" type="text" [(ngModel)]="meeting.time" [readonly]="!isEditMode" />
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <div>Rating</div>
+                                    <p-rating [(ngModel)]="meeting.ratingValue" [readonly]="!isEditMode"/>
+                                </div>
+                            </div>
+                        </ng-template>
+                        <ng-template #panel>
+                            <div class="card flex flex-col gap-4">
+                                <div class="col flex items-center justify-center font-semibold text-xl">Notes</div>
+                                <textarea
+                                    pTextarea placeholder="Meeting notes here..."
+                                    [autoResize]="true"
+                                    rows="25"
+                                    cols="30"
+                                    [(ngModel)]="meeting.notes"
+                                    [readonly]="!isEditMode"
+                                ></textarea>
+                            </div>
+                        </ng-template>
+                    </p-splitter>
+                </ng-template>
+            </p-splitter>
+        </ng-template>
+        <ng-template #panel>
+            <p-splitter layout="vertical" [panelSizes]="[40, 60]">
+                <ng-template #panel>
+                    <div class="card">
+                        <p-table [value]="customers2" [scrollable]="true" scrollHeight="250px" styleClass="mt-4">
+                            <ng-template #header>
+                                <tr>
+                                    <th class="text-xl" style="min-width:300px">Suggested Exercises</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template #body let-customer>
+                                <tr
+                                    class="hover-scale cursor-pointer"
+                                    [routerLink]="['/view','exercise']">
+                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </ng-template>
+                <ng-template #panel>
+                    <div class="card">
+                        <p-table [value]="customers2" [scrollable]="true" scrollHeight="400px" styleClass="mt-4">
+                            <ng-template #header>
+                                <tr>
+                                    <th class="text-xl" style="min-width:300px">Currently Planned Exercises</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template #body let-customer>
+                                <tr class="hover-scale cursor-pointer"
+                                [routerLink]="['/view','exercise']"
+                                >
+                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </ng-template>
+            </p-splitter>
+        </ng-template>
+    </p-splitter>
+</div>
