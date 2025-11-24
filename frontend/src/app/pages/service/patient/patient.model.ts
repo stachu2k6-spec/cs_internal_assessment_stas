@@ -1,5 +1,5 @@
 export interface PatientDto {
-    id: string;
+    id: string;             // UUID
     name: string;
     surname: string;
     birthDate: Date;

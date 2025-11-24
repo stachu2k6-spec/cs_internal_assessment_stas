@@ -36,27 +36,8 @@ interface expandedRows {
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
 })
 export class Meetings implements OnInit {
-    customers1: Customer[] = [];
 
-    customers2: Customer[] = [];
-
-    customers3: Customer[] = [];
-
-    representatives: Representative[] = [];
-
-    statuses: any[] = [];
-
-    products: Product[] = [];
-
-    rowGroupMetadata: any;
-
-    expandedRows: expandedRows = {};
-
-    activityValues: number[] = [0, 100];
-
-    isExpanded: boolean = false;
-
-    loading: boolean = true;
+    //statuses: any[] = [];
 
     /** List of meetings */
     meetings: MeetingDto[] =[]
@@ -64,8 +45,6 @@ export class Meetings implements OnInit {
     @ViewChild('filter') filter!: ElementRef;
 
     constructor(
-        private customerService: CustomerService,
-        private productService: ProductService,
         private meetingFacade: MeetingFacade
     ) {}
 
@@ -79,92 +58,6 @@ export class Meetings implements OnInit {
             )
             .subscribe()
 
-
-        this.customerService.getCustomersLarge().then((customers) => {
-            this.customers1 = customers;
-            this.loading = false;
-
-            // @ts-ignore
-            this.customers1.forEach((customer) => (customer.date = new Date(customer.date)));
-        });
-        this.customerService.getCustomersMedium().then((customers) => (this.customers2 = customers));
-        this.customerService.getCustomersLarge().then((customers) => (this.customers3 = customers));
-        this.productService.getProductsWithOrdersSmall().then((data) => (this.products = data));
-
-        this.representatives = [
-            { name: 'Amy Elsner', image: 'amyelsner.png' },
-            { name: 'Anna Fali', image: 'annafali.png' },
-            { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-            { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-            { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-            { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-            { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-            { name: 'Onyama Limba', image: 'onyamalimba.png' },
-            { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-            { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-        ];
-
-        this.statuses = [
-            { label: 'Unqualified', value: 'unqualified' },
-            { label: 'Qualified', value: 'qualified' },
-            { label: 'New', value: 'new' },
-            { label: 'Negotiation', value: 'negotiation' },
-            { label: 'Renewal', value: 'renewal' },
-            { label: 'Proposal', value: 'proposal' }
-        ];
-    }
-
-    onSort() {
-        this.updateRowGroupMetaData();
-    }
-
-    updateRowGroupMetaData() {
-        this.rowGroupMetadata = {};
-
-        if (this.customers3) {
-            for (let i = 0; i < this.customers3.length; i++) {
-                const rowData = this.customers3[i];
-                const representativeName = rowData?.representative?.name || '';
-
-                if (i === 0) {
-                    this.rowGroupMetadata[representativeName] = { index: 0, size: 1 };
-                } else {
-                    const previousRowData = this.customers3[i - 1];
-                    const previousRowGroup = previousRowData?.representative?.name;
-                    if (representativeName === previousRowGroup) {
-                        this.rowGroupMetadata[representativeName].size++;
-                    } else {
-                        this.rowGroupMetadata[representativeName] = { index: i, size: 1 };
-                    }
-                }
-            }
-        }
-    }
-
-    expandAll() {
-        if (ObjectUtils.isEmpty(this.expandedRows)) {
-            this.expandedRows = this.products.reduce(
-                (acc, p) => {
-                    if (p.id) {
-                        acc[p.id] = true;
-                    }
-                    return acc;
-                },
-                {} as { [key: string]: boolean }
-            );
-            this.isExpanded = true;
-        } else {
-            this.collapseAll();
-        }
-    }
-
-    collapseAll() {
-        this.expandedRows = {};
-        this.isExpanded = false;
-    }
-
-    formatCurrency(value: number) {
-        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     }
 
     onGlobalFilter(table: Table, event: Event) {
@@ -176,6 +69,8 @@ export class Meetings implements OnInit {
         this.filter.nativeElement.value = '';
     }
 
+    /** For future activity stuff??? */
+    /**
     getSeverity(status: string) {
         switch (status) {
             case 'qualified':
@@ -203,9 +98,9 @@ export class Meetings implements OnInit {
                 return 'info';
         }
     }
+     */
 
-
-
+    /** Format ISO 8601 duration to human-readable format */
      formatDuration(isoDuration: string): string {
         const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
 

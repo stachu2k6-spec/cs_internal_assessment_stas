@@ -17,6 +17,11 @@ import { ObjectUtils } from 'primeng/utils';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { RouterLink } from '@angular/router';
+import { MeetingDto } from '@/pages/service/meeting/meeting.model';
+import { SymptomDto } from '@/pages/service/symptom/symptom.model';
+import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
+import { SymptomFacade } from '@/pages/service/symptom/symptom.facade';
+import { tap } from 'rxjs';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -59,11 +64,14 @@ export class Symptoms implements OnInit {
 
     loading: boolean = true;
 
+    symptoms: SymptomDto[] =[]
+
     @ViewChild('filter') filter!: ElementRef;
 
     constructor(
         private customerService: CustomerService,
-        private productService: ProductService
+        private productService: ProductService,
+        private symptomFacade: SymptomFacade
     ) {}
 
     ngOnInit() {
@@ -86,6 +94,16 @@ export class Symptoms implements OnInit {
             { label: 'Renewal', value: 'renewal' },
             { label: 'Proposal', value: 'proposal' }
         ];
+
+        this.symptomFacade.fetchAllSymptoms()
+        this.symptomFacade.symptomState$
+            .pipe(
+                tap(x=> {
+                    this.symptoms = x;
+                })
+            )
+            .subscribe()
+
     }
 
     onSort() {
