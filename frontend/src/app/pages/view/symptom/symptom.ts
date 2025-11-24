@@ -19,13 +19,13 @@ interface expandedRows {
 }
 
 @Component({
-    selector: 'app-symptom-view',
+    selector: 'app-symptom',
     imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink],
-    templateUrl: './symptom-view.html',
-    styleUrl: './symptom-view.scss',
+    templateUrl: './symptom.html',
+    styleUrl: './symptom.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
 })
-export class SymptomView implements OnInit {
+export class Symptom implements OnInit {
     customers1: Customer[] = [];
 
     customers2: Customer[] = [];

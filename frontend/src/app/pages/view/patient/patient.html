@@ -131,7 +131,7 @@
                             <ng-template pTemplate="body" let-customer>
                                 <tr
                                     class="hover-scale cursor-pointer"
-                                    [routerLink]="['/object-view','symptom-view']"
+                                    [routerLink]="['/view','symptom']"
                                     (contextmenu)="$event.preventDefault()"
                                     [pContextMenuRow]="customer">
                                       <!-- this ties the row to the context menu -->
@@ -180,7 +180,7 @@
                                             <ng-template #body let-customer>
                                                 <tr
                                                     class="hover-scale cursor-pointer"
-                                                    [routerLink]="['/object-view','meeting-view']"
+                                                    [routerLink]="['/view','meeting']"
                                                     [pContextMenuRow]="customer"
                                                     (contextmenu)="$event.preventDefault()"
                                                 >
@@ -212,7 +212,7 @@
                                             <ng-template #body let-customer>
                                                 <tr
                                                     class="hover-scale cursor-pointer"
-                                                    [routerLink]="['/object-view','meeting-view']"
+                                                    [routerLink]="['/view','meeting']"
                                                     [pContextMenuRow]="customer"
                                                     (contextmenu)="$event.preventDefault()"
                                                 >

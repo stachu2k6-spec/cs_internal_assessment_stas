@@ -28,15 +28,15 @@ import { DatePicker } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { Image } from 'primeng/image';
+import { Toolbar } from 'primeng/toolbar';
 import { RouterLink } from '@angular/router';
-import { ContextMenu } from 'primeng/contextmenu';
 
 interface expandedRows {
     [key: string]: boolean;
 }
 
 @Component({
-    selector: 'app-patient-view',
+    selector: 'app-meeting',
     imports: [
         TableModule,
         MultiSelectModule,
@@ -55,26 +55,15 @@ interface expandedRows {
         RippleModule,
         IconFieldModule,
         Splitter,
-        Tabs,
-        TabList,
-        Tab,
-        TabPanel,
-        TabPanels,
-        CdkTreeNodePadding,
         Textarea,
-        AutoComplete,
-        DatePicker,
-        FloatLabel,
-        InputNumber,
         Image,
-        RouterLink,
-        ContextMenu
+        RouterLink
     ],
-    templateUrl: './patient-view.html',
-    styleUrl: './patient-view.scss',
+    templateUrl: './meeting.html',
+    styleUrl: './meeting.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
 })
-export class PatientView implements OnInit {
+export class Meeting implements OnInit {
     customers1: Customer[] = [];
 
     customers2: Customer[] = [];
@@ -97,24 +86,15 @@ export class PatientView implements OnInit {
 
     activityValues: number[] = [0, 100];
 
-    selectedSymptom: Customer | null = null;
-
-    selectedMeeting: Customer | null = null;
-
     isExpanded: boolean = false;
-
-    symptomsCMItems: any[] = [];
-
-    meetingsCMItems: any[] = [];
 
     balanceFrozen: boolean = false;
 
     loading: boolean = true;
 
-    // inside PatientView class (add these properties)
     isEditMode: boolean = false;
 
-// local model for editing
+    // local model for editing
     patient: {
         id?: any;
         name: string;
@@ -133,8 +113,25 @@ export class PatientView implements OnInit {
         notes: ''
     };
 
+    meeting: {
+        id?: any;
+        patientId?: any;
+        date?: Date | string;
+        time?: string;
+        notes?: string;
+        ratingValue: any;
+    } = {
+        id: '',
+        patientId: '',
+        date: '',
+        time: '',
+        notes: '',
+        ratingValue: null
+    };
+
     private _patientBackup: any = null;
 
+    private _meetingBackup: any = null;
 
     @ViewChild('filter') filter!: ElementRef;
 
@@ -176,32 +173,10 @@ export class PatientView implements OnInit {
             { label: 'Renewal', value: 'renewal' },
             { label: 'Proposal', value: 'proposal' }
         ];
-
-        this.symptomsCMItems = [
-            { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteSymptom(this.selectedSymptom) }
-        ];
-
-        this.meetingsCMItems = [
-            { label: 'Edit', icon: 'pi pi-pencil', command: () => this.editMeeting(this.selectedMeeting) },
-            { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteMeeting(this.selectedMeeting) }
-        ];
     }
-
 
     onSort() {
         this.updateRowGroupMetaData();
-    }
-
-    deleteSymptom(symptom: Customer | null) {
-        //remove symptom logic here
-    }
-
-    editMeeting(customer: Customer | null) {
-        //edit meeting logic here
-    }
-
-    deleteMeeting(customer: Customer | null) {
-        //delete meeting logic here
     }
 
     enterEdit() {

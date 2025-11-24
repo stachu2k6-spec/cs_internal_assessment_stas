@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SymptomView } from './symptom-view';
+import { Meeting } from './meeting';
 
-describe('SymptomView', () => {
-  let component: SymptomView;
-  let fixture: ComponentFixture<SymptomView>;
+describe('Meeting', () => {
+  let component: Meeting;
+  let fixture: ComponentFixture<Meeting>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SymptomView]
+      imports: [Meeting]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(SymptomView);
+    fixture = TestBed.createComponent(Meeting);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

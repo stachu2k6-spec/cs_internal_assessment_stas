@@ -17,13 +17,13 @@ interface expandedRows {
 }
 
 @Component({
-    selector: 'app-exercise-view',
+    selector: 'app-exercise',
     imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink],
-    templateUrl: './exercise-view.html',
-    styleUrl: './exercise-view.scss',
+    templateUrl: './exercise.html',
+    styleUrl: './exercise.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
 })
-export class ExerciseView implements OnInit {
+export class Exercise implements OnInit {
     customers1: Customer[] = [];
 
     customers2: Customer[] = [];
