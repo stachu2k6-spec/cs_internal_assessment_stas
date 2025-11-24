@@ -20,13 +20,8 @@
 
 <div class="card">
     <div class="font-semibold text-xl">Patients</div>
-    <div *ngFor="let p of patients">
-        <strong>{{ p.name }} {{ p.surname }}</strong><br>
-        Address: {{ p.address }}<br>
-        Notes: {{ p.notes }}
-        <hr>
-    </div>
-    <p-dataview [value]="products" [layout]="layout">
+
+    <p-dataview [value]="patients" [layout]="layout">
         <ng-template #header>
             <div class="flex justify-end">
                 <p-select-button [(ngModel)]="layout" [options]="options" [allowEmpty]="false">
@@ -39,12 +34,12 @@
 
         <ng-template #grid let-items>
             <div class="grid grid-cols-12 gap-4">
-                <div *ngFor="let item of items; let i = index" class="col-span-12 sm:col-span-6 lg:col-span-4 p-2 hover-scale"
+                <div *ngFor="let p of patients; let i = index" class="col-span-12 sm:col-span-6 lg:col-span-4 p-2 hover-scale"
                      [routerLink]="['/view','patient']">
                     <!-- ADD ID TO LINK -->
                     <div class="p-6 border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 rounded flex flex-col">
                         <div class="relative w-full shadow-sm">
-                            <img class="rounded w-full" src="https://primefaces.org/cdn/primevue/images/product/{{ item.image }}" [alt]="item.name" />
+                            <img class="rounded w-full" src="{{ p.photoUrl }}" [alt]="p.name" />
                             <div
                                 class="absolute bg-black/70 rounded-border"
                                 [style]="{
@@ -52,15 +47,15 @@
                                             top: '4px'
                                         }"
                             >
-                                <p-tag [value]="'PATIENT ACTIVITY'" [severity]="getSeverity(item)"></p-tag>
+                                <!-- <p-tag [value]="'PATIENT ACTIVITY'" [severity]="{{ p.activityLevel }}"></p-tag> -->
                             </div>
                         </div>
                         <div class="pt-12">
                             <div class="flex flex-row justify-between items-start gap-2">
                                 <div>
-                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PATIENT NAME</span>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm"> {{ p.name }} </span>
                                     <div class="text-lg font-medium mt-1">
-                                        PATIENT SURNAME
+                                        {{ p.surname }}
                                     </div>
                                 </div>
                             </div>
@@ -76,21 +71,21 @@
 
         <ng-template #list let-items>
             <div class="flex flex-col">
-                <div *ngFor="let item of items; let i = index">
+                <div *ngFor="let p of patients; let i = index">
                     <div class="flex flex-col sm:flex-row sm:items-center p-6 gap-4 hover-scale" [ngClass]="{ 'border-t border-surface': i !== 0 }"
                          [routerLink]="['/view','patient']">
                         <!-- ADD IT DO LINK -->
                         <div class="md:w-40 relative">
-                            <img class="block xl:block mx-auto rounded w-full" src="https://primefaces.org/cdn/primevue/images/product/{{ item.image }}" [alt]="item.name" />
+                            <img class="block xl:block mx-auto rounded w-full" src="{{ p.photoUrl }}" [alt]="p.name" />
                             <div class="absolute bg-black/70 rounded-border" [style]="{ left: '4px', top: '4px' }">
-                                <p-tag [value]="'PATIENT ACTIVITY'" [severity]="getSeverity(item)"></p-tag>
+                                <!-- <p-tag [value]="'PATIENT ACTIVITY'" [severity]="getSeverity(item)"></p-tag> -->
                             </div>
                         </div>
                         <div class="flex flex-col md:flex-row justify-between md:items-center flex-1 gap-6">
                             <div class="flex flex-row md:flex-col justify-between items-start gap-2">
                                 <div>
-                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PATIENT NAME</span>
-                                    <div class="text-lg font-medium mt-2">PATIENT SURNAME</div>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{ p.name }}</span>
+                                    <div class="text-lg font-medium mt-2">{{ p.surname }}</div>
                                 </div>
 
                             </div>

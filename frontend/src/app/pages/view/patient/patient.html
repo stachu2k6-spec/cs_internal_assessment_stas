@@ -72,9 +72,19 @@
                                     <input pInputText id="surname1" type="text" [(ngModel)]="patient.surname" [readonly]="!isEditMode" />
                                 </div>
 
+                                <div class="flex flex-col gap-2"> <!-- fix  -->
+                                    <label for="surname1">Birth Date</label>
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.surname" [readonly]="!isEditMode" />
+                                </div>
+
+                                <div class="flex flex-col gap-2"> <!-- fix  -->
+                                    <label for="surname1">Gender</label>
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.surname" [readonly]="!isEditMode" />
+                                </div>
+
                                 <div class="flex flex-col gap-2">
-                                    <label for="age1">Age</label>
-                                    <input pInputText id="age1" type="text" [(ngModel)]="patient.age" [readonly]="!isEditMode" />
+                                    <label for="phone1">Phone</label>
+                                    <input pInputText id="phone1" type="text" [(ngModel)]="patient.phone" [readonly]="!isEditMode" />
                                 </div>
 
                                 <div class="flex flex-col gap-2">
@@ -82,9 +92,9 @@
                                     <input pInputText id="email1" type="text" [(ngModel)]="patient.email" [readonly]="!isEditMode" />
                                 </div>
 
-                                <div class="flex flex-col gap-2">
-                                    <label for="phone1">Phone</label>
-                                    <input pInputText id="phone1" type="text" [(ngModel)]="patient.phone" [readonly]="!isEditMode" />
+                                <div class="flex flex-col gap-2"> <!-- fix  -->
+                                    <label for="surname1">Address</label>
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.name" [readonly]="!isEditMode" />
                                 </div>
                             </div>
                         </ng-template>

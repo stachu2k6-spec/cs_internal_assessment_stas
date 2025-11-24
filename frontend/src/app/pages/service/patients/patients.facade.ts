@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, take, tap } from 'rxjs';
-import { PatientDto } from '@/pages/service/patients/patients.model';
+import { PatientDto } from '@/pages/service/patients/patient.model';
 import { PatientsService } from '@/pages/service/patients/patients.service';
 
 @Injectable({
