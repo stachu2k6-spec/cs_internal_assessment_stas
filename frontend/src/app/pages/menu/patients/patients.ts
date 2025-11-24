@@ -13,8 +13,8 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { RouterLink } from '@angular/router';
-import { PatientDto } from '@/pages/service/patients/patient.model';
-import { PatientsFacade } from '@/pages/service/patients/patients.facade';
+import { PatientDto } from '@/pages/service/patient/patient.model';
+import { PatientFacade } from '@/pages/service/patient/patient.facade';
 import { tap } from 'rxjs';
 
 interface expandedRows {
@@ -33,17 +33,14 @@ export class Patients implements OnInit {
 
     options = ['grid', 'list'];
 
-    /**
-     PATIENTS
-     */
-
+    /** List of patients */
     patients: PatientDto[] =[]
 
-    constructor(private patientsFacade: PatientsFacade) {}
+    constructor(private patientFacade: PatientFacade) {}
 
     ngOnInit() {
-        this.patientsFacade.fetchAllPatients()
-        this.patientsFacade.patientsState$
+        this.patientFacade.fetchAllPatients()
+        this.patientFacade.patientState$
             .pipe(
                 tap(x=> {
                     this.patients = x;

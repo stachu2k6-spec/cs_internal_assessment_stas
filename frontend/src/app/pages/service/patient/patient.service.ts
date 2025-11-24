@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { PatientDto } from '@/pages/service/patients/patient.model';
+import { PatientDto } from '@/pages/service/patient/patient.model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PatientsService {
+export class PatientService {
 
     private readonly apiUrl = 'http://localhost:8080/patients'; // backend url
 
@@ -17,7 +17,7 @@ export class PatientsService {
 
         return of([
             {
-                id: 1,
+                id: "1abc",
                 name: 'John',
                 surname: 'Doe',
                 birthDate: new Date('1990-05-14'),
@@ -30,7 +30,7 @@ export class PatientsService {
                 photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
             },
             {
-                id: 2,
+                id: "2abc",
                 name: 'Anna',
                 surname: 'Kowalski',
                 birthDate: new Date('1985-11-02'),
@@ -43,7 +43,7 @@ export class PatientsService {
                 photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
             },
             {
-                id: 3,
+                id: "3abc",
                 name: 'Lukas',
                 surname: 'Schmidt',
                 birthDate: new Date('2000-01-20'),

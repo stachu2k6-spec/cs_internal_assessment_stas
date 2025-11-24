@@ -1,4 +1,4 @@
-package com.example.demo.controllers.patients;
+package com.example.demo.controllers.meetings;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,10 +9,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PatientsDto {
+public class MeetingDto {
     private String id;
-    private String name;
-    private String surname;
-    private String address;
+    private String date;
+    private String time;
+    private float duration;
     private String notes;
 }

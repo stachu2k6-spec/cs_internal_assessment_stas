@@ -19,6 +19,10 @@ import { Customer, CustomerService, Representative } from '@/pages/service/custo
 import { Product, ProductService } from '@/pages/service/product.service';
 import { ObjectUtils } from 'primeng/utils';
 import { RouterLink } from '@angular/router';
+import { MeetingDto } from '@/pages/service/meeting/meeting.model';
+import { PatientFacade } from '@/pages/service/patient/patient.facade';
+import { tap } from 'rxjs';
+import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -38,10 +42,6 @@ export class Meetings implements OnInit {
 
     customers3: Customer[] = [];
 
-    selectedCustomers1: Customer[] = [];
-
-    selectedCustomer: Customer = {};
-
     representatives: Representative[] = [];
 
     statuses: any[] = [];
@@ -56,18 +56,30 @@ export class Meetings implements OnInit {
 
     isExpanded: boolean = false;
 
-    balanceFrozen: boolean = false;
-
     loading: boolean = true;
+
+    /** List of meetings */
+    meetings: MeetingDto[] =[]
 
     @ViewChild('filter') filter!: ElementRef;
 
     constructor(
         private customerService: CustomerService,
-        private productService: ProductService
+        private productService: ProductService,
+        private meetingFacade: MeetingFacade
     ) {}
 
     ngOnInit() {
+        this.meetingFacade.fetchAllMeetings()
+        this.meetingFacade.meetingState$
+            .pipe(
+                tap(x=> {
+                    this.meetings = x;
+                })
+            )
+            .subscribe()
+
+
         this.customerService.getCustomersLarge().then((customers) => {
             this.customers1 = customers;
             this.loading = false;
@@ -192,17 +204,16 @@ export class Meetings implements OnInit {
         }
     }
 
-    calculateCustomerTotal(name: string) {
-        let total = 0;
 
-        if (this.customers2) {
-            for (let customer of this.customers2) {
-                if (customer.representative?.name === name) {
-                    total++;
-                }
-            }
-        }
 
-        return total;
+     formatDuration(isoDuration: string): string {
+        const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+
+        const hours = match?.[1] ? Number(match[1]) : 0;
+        const minutes = match?.[2] ? Number(match[2]) : 0;
+
+        if (hours && minutes) return `${hours}h ${minutes}m`;
+        if (hours) return `${hours}h`;
+        return `${minutes}m`;
     }
 }

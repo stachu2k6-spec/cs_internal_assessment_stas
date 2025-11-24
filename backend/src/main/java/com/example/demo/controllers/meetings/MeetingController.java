@@ -7,32 +7,32 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/meetings")
-public class MeetingsController {
+public class MeetingController {
 
     private final MeetingsFacade meetingFacade;
 
-    public MeetingsController(MeetingsFacade meetingFacade) {
+    public MeetingController(MeetingsFacade meetingFacade) {
         this.meetingFacade = meetingFacade;
     }
 
     @GetMapping
-    public List<MeetingsDto> getMeetings() {
+    public List<MeetingDto> getMeetings() {
         return meetingFacade.getMeetings();
     }
 
     @PostMapping
-    public MeetingsDto addMeeting(@RequestBody MeetingsDto meetingsDto) {
-        return meetingFacade.addMeetings(meetingsDto);
+    public MeetingDto addMeeting(@RequestBody MeetingDto meetingDto) {
+        return meetingFacade.addMeetings(meetingDto);
     }
 
     @GetMapping("/{id}")
-    public MeetingsDto getMeeting(@PathVariable String id) {
+    public MeetingDto getMeeting(@PathVariable String id) {
         return meetingFacade.getMeetingsById(id);
     }
 
     @PutMapping("/{id}")
-    public MeetingsDto updateMeeting(@PathVariable String id, @RequestBody MeetingsDto meetingsDto) {
-        return meetingFacade.updateMeeting(id, meetingsDto);
+    public MeetingDto updateMeeting(@PathVariable String id, @RequestBody MeetingDto meetingDto) {
+        return meetingFacade.updateMeeting(id, meetingDto);
     }
 
     @DeleteMapping("/{id}")
