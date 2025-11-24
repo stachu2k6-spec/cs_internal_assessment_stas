@@ -7,31 +7,31 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/symptoms")
-public class SymptomsController {
+public class SymptomController {
 
     private final SymptomsFacade symptomFacade;
 
-    public SymptomsController(SymptomsFacade symptomFacade) {
+    public SymptomController(SymptomsFacade symptomFacade) {
         this.symptomFacade = symptomFacade;
     }
 
     @GetMapping
-    public List<SymptomsDto> getSymptoms() {
+    public List<SymptomDto> getSymptoms() {
         return symptomFacade.getSymptoms();
     }
 
     @PostMapping
-    public SymptomsDto addSymptom(@RequestBody SymptomsDto symptomsDto) {
+    public SymptomDto addSymptom(@RequestBody SymptomDto symptomsDto) {
         return symptomFacade.addSymptoms(symptomsDto);
     }
 
     @GetMapping("/{id}")
-    public SymptomsDto getSymptom(@PathVariable String id) {
+    public SymptomDto getSymptom(@PathVariable String id) {
         return symptomFacade.getSymptomsById(id);
     }
 
     @PutMapping("/{id}")
-    public SymptomsDto updateSymptom(@PathVariable String id, @RequestBody SymptomsDto symptomsDto) {
+    public SymptomDto updateSymptom(@PathVariable String id, @RequestBody SymptomDto symptomsDto) {
         return symptomFacade.updateSymptom(id, symptomsDto);
     }
 

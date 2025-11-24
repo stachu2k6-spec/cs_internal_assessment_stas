@@ -1,9 +1,14 @@
 package com.example.demo.repository.patients;
-import jakarta.persistence.*;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDate;
 import java.util.UUID;
 
-
+@Setter
+@Getter
 @Entity
 @Table(name = "patients")
 public class PatientEntity {
@@ -14,48 +19,21 @@ public class PatientEntity {
 
     private String name;
     private String surname;
+    private String gender;
+
+    private LocalDate birthDate;
+
     private String address;
+    private String phoneNumber;
+    private String email;
+
+    @Column(columnDefinition = "TEXT")
     private String notes;
+
+    private String activityLevel;
+
+    private String photoUrl;
 
     public PatientEntity() {}
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
 }

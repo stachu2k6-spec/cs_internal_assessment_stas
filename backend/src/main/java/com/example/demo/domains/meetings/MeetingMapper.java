@@ -1,6 +1,6 @@
 package com.example.demo.domains.meetings;
 
-import com.example.demo.controllers.meetings.MeetingsDto;
+import com.example.demo.controllers.meetings.MeetingDto;
 import com.example.demo.repository.meetings.MeetingEntity;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +9,7 @@ import java.util.UUID;
 @Service
 public class MeetingMapper {
 
-    public MeetingEntity toEntity(MeetingsDto dto) {
+    public MeetingEntity toEntity(MeetingDto dto) {
         MeetingEntity entity = new MeetingEntity();
 
         // id z DTO może być null przy tworzeniu nowego pacjenta
@@ -18,19 +18,19 @@ public class MeetingMapper {
         }
 
         entity.setDate(dto.getDate());
-        entity.setTime(dto.getTime());
+        entity.setTime(dto.getStartTime());
         entity.setDuration(dto.getDuration());
         entity.setNotes(dto.getNotes());
 
         return entity;
     }
 
-    public MeetingsDto toDto(MeetingEntity entity) {
-        MeetingsDto dto = new MeetingsDto();
+    public MeetingDto toDto(MeetingEntity entity) {
+        MeetingDto dto = new MeetingDto();
 
         dto.setId(entity.getId().toString());
         dto.setDate(entity.getDate());
-        dto.setTime(entity.getTime());
+        dto.setStartTime(entity.getTime());
         dto.setDuration(entity.getDuration());
         dto.setNotes(entity.getNotes());
 

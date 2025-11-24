@@ -4,6 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.stereotype.Service;
+
+import java.sql.Time;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -11,8 +18,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MeetingDto {
     private String id;
-    private String date;
-    private String time;
-    private float duration;
+    private LocalDate date;
+    private LocalTime startTime;
+    private Duration duration;
     private String notes;
 }

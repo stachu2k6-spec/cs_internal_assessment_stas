@@ -1,7 +1,7 @@
 package com.example.demo.domains.meetings;
 
 
-import com.example.demo.controllers.meetings.MeetingsDto;
+import com.example.demo.controllers.meetings.MeetingDto;
 import com.example.demo.repository.meetings.MeetingEntity;
 import com.example.demo.repository.meetings.MeetingRepository;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ public class MeetingsFacade {
         this.meetingMapper = meetingMapper;
     }
 
-    public List<MeetingsDto> getMeetings() {
+    public List<MeetingDto> getMeetings() {
         List<MeetingEntity> meetingRepositoryAll = this.meetingRepository.findAll();
 
         return meetingRepositoryAll
@@ -31,27 +31,27 @@ public class MeetingsFacade {
                 .toList();
     }
 
-    public MeetingsDto addMeetings(MeetingsDto meetingsDto) {
-        MeetingEntity meetingEntity = this.meetingMapper.toEntity(meetingsDto);
+    public MeetingDto addMeetings(MeetingDto meetingDto) {
+        MeetingEntity meetingEntity = this.meetingMapper.toEntity(meetingDto);
         MeetingEntity savedEntity = this.meetingRepository.save(meetingEntity);
         return meetingMapper.toDto(savedEntity);
     }
 
-    public MeetingsDto getMeetingsById(String id) {
+    public MeetingDto getMeetingsById(String id) {
 
         return meetingRepository.findById(UUID.fromString(id))
                 .map(meetingMapper::toDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Meeting not found"));
     }
 
-    public MeetingsDto updateMeeting(String id, MeetingsDto meetingsDto) {
+    public MeetingDto updateMeeting(String id, MeetingDto meetingDto) {
         MeetingEntity meeting_not_found = meetingRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Meeting not found"));
 
-        meeting_not_found.setDate(meetingsDto.getDate());
-        meeting_not_found.setTime(meetingsDto.getTime());
-        meeting_not_found.setDuration(meetingsDto.getDuration());
-        meeting_not_found.setNotes(meetingsDto.getNotes());
+        meeting_not_found.setDate(meetingDto.getDate());
+        meeting_not_found.setTime(meetingDto.getStartTime());
+        meeting_not_found.setDuration(meetingDto.getDuration());
+        meeting_not_found.setNotes(meetingDto.getNotes());
 
         MeetingEntity meetingEntity = meetingRepository.save(meeting_not_found);
 
