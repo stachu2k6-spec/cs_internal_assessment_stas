@@ -30,10 +30,10 @@ interface expandedRows {
 
 @Component({
     selector: 'app-meeting-database',
-    imports: [Button, IconField, InputIcon, InputText, SplitButton, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, CurrencyPipe, DatePipe, MultiSelect, ProgressBar, Select, Slider, TableModule, Tag, FormsModule, RouterLink],
+    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, CurrencyPipe, DatePipe, MultiSelect, ProgressBar, Select, Slider, TableModule, Tag, FormsModule, RouterLink],
     templateUrl: './meetings.html',
     styleUrl: './meetings.scss',
-    providers: [ConfirmationService, MessageService, CustomerService, ProductService]
+    providers: []
 })
 export class Meetings implements OnInit {
 

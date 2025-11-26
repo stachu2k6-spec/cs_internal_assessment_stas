@@ -76,7 +76,7 @@
         <ng-template #body let-symptom>
             <tr
                 class="hover-scale cursor-pointer"
-                [routerLink]="['/view','symptom',]"
+                [routerLink]="['/view','symptom', symptom.id]"
             >
                 <!-- TODO: ensure `id` exists and pass correct id here -->
                 <td>

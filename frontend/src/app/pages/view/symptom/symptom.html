@@ -7,7 +7,7 @@
                     <div class="w-full p-6 bg-surface-0 dark:bg-surface-900 rounded flex justify-between items-center">
                         <div class="flex flex-col gap-2">
                             <div class="text-xl font-medium mt-1">
-                                Symptom Name
+                                {{ symptom.name }}
                             </div>
                         </div>
                         <div class="flex gap-4 items-center">
@@ -71,7 +71,7 @@
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Exercises addressing symptom</div>
                 <div class="card">
-                    <p-table [value]="customers2" [scrollable]="true" scrollHeight="600px" styleClass="mt-4">
+                    <p-table [value]="tempData" [scrollable]="true" scrollHeight="600px" styleClass="mt-4">
                         <ng-template #header>
                             <tr>
                                 <th style="min-width:300px">Exercises</th>

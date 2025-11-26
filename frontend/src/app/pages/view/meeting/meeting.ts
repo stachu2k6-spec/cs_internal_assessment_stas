@@ -56,6 +56,7 @@ interface expandedRows {
     providers: []
 })
 export class Meeting implements OnInit {
+    customers2: any[] = [];
 
     statuses: any[] = [];
 

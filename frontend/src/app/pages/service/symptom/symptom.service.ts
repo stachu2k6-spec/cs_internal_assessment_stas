@@ -41,8 +41,8 @@ export class SymptomService {
 
     }
 
-    getById(id: number): Observable<SymptomDto> {
-        return this.http.get<SymptomDto>('${this.apiUrl}/${id}');
+    getById(id: string): Observable<SymptomDto> {
+        return this.http.get<SymptomDto>(this.apiUrl + '/' + id);
     }
 
     create(symptom: Omit<SymptomDto, 'id'>): Observable<SymptomDto> {
