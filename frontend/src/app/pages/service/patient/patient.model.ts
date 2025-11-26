@@ -2,7 +2,7 @@ export interface PatientDto {
     id: string;             // UUID
     name: string;
     surname: string;
-    birthDate: Date;
+    birthDate: string;      // ISO date: '2025-11-24'
     gender: string;
     address: string;
     phoneNumber: string;

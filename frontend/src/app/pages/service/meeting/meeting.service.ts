@@ -49,8 +49,8 @@ export class MeetingService {
 
     }
 
-    getById(id: number): Observable<MeetingDto> {
-        return this.http.get<MeetingDto>('${this.apiUrl}/${id}');
+    getById(id: string): Observable<MeetingDto> {
+        return this.http.get<MeetingDto>(this.apiUrl + '/' + id);
     }
 
     create(meeting: Omit<MeetingDto, 'id'>): Observable<MeetingDto> {

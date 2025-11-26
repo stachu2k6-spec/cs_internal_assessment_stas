@@ -36,7 +36,9 @@ export class Patients implements OnInit {
     /** List of patients */
     patients: PatientDto[] =[]
 
-    constructor(private patientFacade: PatientFacade) {}
+    constructor(
+        private patientFacade: PatientFacade
+    ) {}
 
     ngOnInit() {
         this.patientFacade.fetchAllPatients()
