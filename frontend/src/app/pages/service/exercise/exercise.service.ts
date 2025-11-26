@@ -38,8 +38,8 @@ export class ExerciseService {
         // ]);
     }
 
-    getById(id: number): Observable<ExerciseDto> {
-        return this.http.get<ExerciseDto>('${this.apiUrl}/${id}');
+    getById(id: string): Observable<ExerciseDto> {
+        return this.http.get<ExerciseDto>(this.apiUrl + '/' + id);
     }
 
     create(exercise: Omit<ExerciseDto, 'id'>): Observable<ExerciseDto> {

@@ -36,15 +36,8 @@ export class Symptom implements OnInit {
     isEditMode: boolean = false;
 
     // local model for editing
-    symptom: {
-        id?: any;
-        name: string;
-        notes?: string;
-    } = {
-        // default empty; will be populated in ngOnInit from your source if available
-        name: '',
-        notes: ''
-    };
+    symptom: SymptomDto = this.createEmptySymptom();
+
     private _symptomBackup: any = null;
 
     @ViewChild('filter') filter!: ElementRef;

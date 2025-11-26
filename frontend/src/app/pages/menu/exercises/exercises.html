@@ -67,7 +67,7 @@
         <ng-template #body let-exercise>
             <tr
                 class="hover-scale cursor-pointer"
-                [routerLink]="['/view','exercise',]"
+                [routerLink]="['/view','exercise',exercise.id]"
             >
                 <!-- TODO: ensure `id` exists and pass correct id here -->
                 <td>
