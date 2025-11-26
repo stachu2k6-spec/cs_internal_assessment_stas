@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, take, tap } from 'rxjs';
+import { BehaviorSubject, Observable, take, tap } from 'rxjs';
 import { PatientDto } from '@/pages/service/patient/patient.model';
 import { PatientService } from '@/pages/service/patient/patient.service';
 
@@ -8,6 +8,7 @@ import { PatientService } from '@/pages/service/patient/patient.service';
 })
 export class PatientFacade {
     patientState$ = new BehaviorSubject<PatientDto[]>([])
+    patientByIdState$ = new BehaviorSubject<PatientDto | null>(null)
 
     constructor(private patientService: PatientService) {
     }
@@ -21,5 +22,16 @@ export class PatientFacade {
                 })
             )
             .subscribe()
+    }
+
+    // return the HTTP observable and update the BehaviorSubject
+    fetchById(id: string): Observable<PatientDto> {
+        // clear any previous value so UI doesn't show stale patient
+        this.patientByIdState$.next(null);
+
+        return this.patientService.getById(id).pipe(
+            take(1),
+            tap(x => this.patientByIdState$.next(x))
+        );
     }
 }

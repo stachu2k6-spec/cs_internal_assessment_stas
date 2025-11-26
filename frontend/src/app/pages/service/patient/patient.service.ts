@@ -59,8 +59,8 @@ export class PatientService {
 
     }
 
-    getById(id: number): Observable<PatientDto> {
-        return this.http.get<PatientDto>('${this.apiUrl}/${id}');
+    getById(id: String): Observable<PatientDto> {
+        return this.http.get<PatientDto>(this.apiUrl + '/' + id);
     }
 
     create(patient: Omit<PatientDto, 'id'>): Observable<PatientDto> {

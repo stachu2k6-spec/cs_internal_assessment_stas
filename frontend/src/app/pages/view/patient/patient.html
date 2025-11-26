@@ -5,14 +5,14 @@
             <p-splitter layout="vertical" [panelSizes]="[20, 80]">
                 <ng-template #panel>
                     <div class="w-full p-6 bg-surface-0 dark:bg-surface-900 rounded flex justify-between items-center">
-                        <p-image src="https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg" alt="Image" width="150" />
+                        <p-image src="{{ patient.photoUrl }}" alt="Image" width="150" />
 
                         <div class="flex flex-col gap-4 ml-6 flex-1">
                             <div class="flex flex-row justify-between items-start gap-2">
                                 <div>
-                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">PATIENT NAME</span>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{ patient.name }}</span>
                                     <div class="text-lg font-medium mt-1">
-                                        PATIENT SURNAME
+                                        {{ patient.surname }}
                                     </div>
                                 </div>
                             </div>
@@ -74,17 +74,17 @@
 
                                 <div class="flex flex-col gap-2"> <!-- fix  -->
                                     <label for="surname1">Birth Date</label>
-                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.surname" [readonly]="!isEditMode" />
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.birthDate" [readonly]="!isEditMode" />
                                 </div>
 
                                 <div class="flex flex-col gap-2"> <!-- fix  -->
                                     <label for="surname1">Gender</label>
-                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.surname" [readonly]="!isEditMode" />
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.gender" [readonly]="!isEditMode" />
                                 </div>
 
                                 <div class="flex flex-col gap-2">
                                     <label for="phone1">Phone</label>
-                                    <input pInputText id="phone1" type="text" [(ngModel)]="patient.phone" [readonly]="!isEditMode" />
+                                    <input pInputText id="phone1" type="text" [(ngModel)]="patient.phoneNumber" [readonly]="!isEditMode" />
                                 </div>
 
                                 <div class="flex flex-col gap-2">
@@ -94,7 +94,7 @@
 
                                 <div class="flex flex-col gap-2"> <!-- fix  -->
                                     <label for="surname1">Address</label>
-                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.name" [readonly]="!isEditMode" />
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.address" [readonly]="!isEditMode" />
                                 </div>
                             </div>
                         </ng-template>
@@ -125,7 +125,7 @@
                         <p-contextMenu #cm [model]="symptomsCMItems"></p-contextMenu>
 
                         <p-table
-                            [value]="customers2"
+                            [value]="meetings"
                             [scrollable]="true"
                             scrollHeight="200px"
                             styleClass="mt-4"
@@ -173,7 +173,7 @@
                                 <p-tabpanel value="0">
                                     <div class="card">
                                         <p-table
-                                            [value]="customers2"
+                                            [value]="meetings"
                                             [scrollable]="true"
                                             scrollHeight="350px"
                                             styleClass="mt-4"
@@ -205,7 +205,7 @@
                                 <p-tabpanel value="1">
                                     <div class="card">
                                         <p-table
-                                            [value]="customers2"
+                                            [value]="meetings"
                                             [scrollable]="true"
                                             scrollHeight="300px"
                                             styleClass="mt-4"

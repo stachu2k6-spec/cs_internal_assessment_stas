@@ -28,8 +28,11 @@ import { DatePicker } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { Image } from 'primeng/image';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ContextMenu } from 'primeng/contextmenu';
+import { PatientDto } from '@/pages/service/patient/patient.model';
+import { PatientFacade } from '@/pages/service/patient/patient.facade';
+import { take, tap } from 'rxjs';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -60,12 +63,7 @@ interface expandedRows {
         Tab,
         TabPanel,
         TabPanels,
-        CdkTreeNodePadding,
         Textarea,
-        AutoComplete,
-        DatePicker,
-        FloatLabel,
-        InputNumber,
         Image,
         RouterLink,
         ContextMenu
@@ -75,63 +73,22 @@ interface expandedRows {
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
 })
 export class Patient implements OnInit {
-    customers1: Customer[] = [];
-
-    customers2: Customer[] = [];
-
-    customers3: Customer[] = [];
-
-    selectedCustomers1: Customer[] = [];
-
-    selectedCustomer: Customer = {};
-
-    representatives: Representative[] = [];
-
-    statuses: any[] = [];
-
-    products: Product[] = [];
-
-    rowGroupMetadata: any;
-
-    expandedRows: expandedRows = {};
-
-    activityValues: number[] = [0, 100];
 
     selectedSymptom: Customer | null = null;
 
     selectedMeeting: Customer | null = null;
 
-    isExpanded: boolean = false;
-
     symptomsCMItems: any[] = [];
 
     meetingsCMItems: any[] = [];
 
-    balanceFrozen: boolean = false;
-
-    loading: boolean = true;
 
     // inside Patient class (add these properties)
     isEditMode: boolean = false;
 
-// local model for editing
-    patient: {
-        id?: any;
-        name: string;
-        surname: string;
-        age?: number | string;
-        email?: string;
-        phone?: string;
-        notes?: string;
-    } = {
-        // default empty; will be populated in ngOnInit from your source if available
-        name: '',
-        surname: '',
-        age: '',
-        email: '',
-        phone: '',
-        notes: ''
-    };
+    patient: PatientDto = this.createEmptyPatient();  // Patient data to be displayed and edited, initialized to empty
+
+    meetings: any[] = [];
 
     private _patientBackup: any = null;
 
@@ -139,58 +96,39 @@ export class Patient implements OnInit {
     @ViewChild('filter') filter!: ElementRef;
 
     constructor(
-        private customerService: CustomerService,
-        private productService: ProductService
-    ) {}
+        private patientFacade: PatientFacade,
+        private route: ActivatedRoute,
+        private router: Router
+) {}
+
 
     ngOnInit() {
-        this.customerService.getCustomersLarge().then((customers) => {
-            this.customers1 = customers;
-            this.loading = false;
+        const id = this.route.snapshot.paramMap.get('id');
 
-            // @ts-ignore
-            this.customers1.forEach((customer) => (customer.date = new Date(customer.date)));
-        });
-        this.customerService.getCustomersMedium().then((customers) => (this.customers2 = customers));
-        this.customerService.getCustomersLarge().then((customers) => (this.customers3 = customers));
-        this.productService.getProductsWithOrdersSmall().then((data) => (this.products = data));
+        if (!id) {
+            console.warn('No patient id found in route.');
+            this.router.navigate(['/notfound']);
+            return;
+        }
 
-        this.representatives = [
-            { name: 'Amy Elsner', image: 'amyelsner.png' },
-            { name: 'Anna Fali', image: 'annafali.png' },
-            { name: 'Asiya Javayant', image: 'asiyajavayant.png' },
-            { name: 'Bernardo Dominic', image: 'bernardodominic.png' },
-            { name: 'Elwin Sharvill', image: 'elwinsharvill.png' },
-            { name: 'Ioni Bowcher', image: 'ionibowcher.png' },
-            { name: 'Ivan Magalhaes', image: 'ivanmagalhaes.png' },
-            { name: 'Onyama Limba', image: 'onyamalimba.png' },
-            { name: 'Stephen Shaw', image: 'stephenshaw.png' },
-            { name: 'XuXue Feng', image: 'xuxuefeng.png' }
-        ];
+        // clear stale patient before loading
+        this.patient = this.createEmptyPatient();
 
-        this.statuses = [
-            { label: 'Unqualified', value: 'unqualified' },
-            { label: 'Qualified', value: 'qualified' },
-            { label: 'New', value: 'new' },
-            { label: 'Negotiation', value: 'negotiation' },
-            { label: 'Renewal', value: 'renewal' },
-            { label: 'Proposal', value: 'proposal' }
-        ];
-
-        this.symptomsCMItems = [
-            { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteSymptom(this.selectedSymptom) }
-        ];
-
-        this.meetingsCMItems = [
-            { label: 'Edit', icon: 'pi pi-pencil', command: () => this.editMeeting(this.selectedMeeting) },
-            { label: 'Delete', icon: 'pi pi-trash', command: () => this.deleteMeeting(this.selectedMeeting) }
-        ];
+        // subscribe to actual HTTP request
+        this.patientFacade
+            .fetchById(id)
+            .pipe(take(1))
+            .subscribe({
+                next: (dto: PatientDto) => {
+                    this.patient = dto ? dto : this.createEmptyPatient();
+                },
+                error: (err: any) => {
+                    console.error('Failed loading patient', err);
+                    this.router.navigate(['/notfound']);
+                }
+            });
     }
 
-
-    onSort() {
-        this.updateRowGroupMetaData();
-    }
 
     deleteSymptom(symptom: Customer | null) {
         //remove symptom logic here
@@ -234,104 +172,19 @@ export class Patient implements OnInit {
         // If you have a real backend: call service then handle response
         // this.patientService.updatePatient(this.patient).then(...).catch(...)
     }
-
-    updateRowGroupMetaData() {
-        this.rowGroupMetadata = {};
-
-        if (this.customers3) {
-            for (let i = 0; i < this.customers3.length; i++) {
-                const rowData = this.customers3[i];
-                const representativeName = rowData?.representative?.name || '';
-
-                if (i === 0) {
-                    this.rowGroupMetadata[representativeName] = { index: 0, size: 1 };
-                } else {
-                    const previousRowData = this.customers3[i - 1];
-                    const previousRowGroup = previousRowData?.representative?.name;
-                    if (representativeName === previousRowGroup) {
-                        this.rowGroupMetadata[representativeName].size++;
-                    } else {
-                        this.rowGroupMetadata[representativeName] = { index: i, size: 1 };
-                    }
-                }
-            }
-        }
-    }
-
-    expandAll() {
-        if (ObjectUtils.isEmpty(this.expandedRows)) {
-            this.expandedRows = this.products.reduce(
-                (acc, p) => {
-                    if (p.id) {
-                        acc[p.id] = true;
-                    }
-                    return acc;
-                },
-                {} as { [key: string]: boolean }
-            );
-            this.isExpanded = true;
-        } else {
-            this.collapseAll();
-        }
-    }
-
-    collapseAll() {
-        this.expandedRows = {};
-        this.isExpanded = false;
-    }
-
-    formatCurrency(value: number) {
-        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-    }
-
-    onGlobalFilter(table: Table, event: Event) {
-        table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    }
-
-    clear(table: Table) {
-        table.clear();
-        this.filter.nativeElement.value = '';
-    }
-
-    getSeverity(status: string) {
-        switch (status) {
-            case 'qualified':
-            case 'instock':
-            case 'INSTOCK':
-            case 'DELIVERED':
-            case 'delivered':
-                return 'success';
-
-            case 'negotiation':
-            case 'lowstock':
-            case 'LOWSTOCK':
-            case 'PENDING':
-            case 'pending':
-                return 'warn';
-
-            case 'unqualified':
-            case 'outofstock':
-            case 'OUTOFSTOCK':
-            case 'CANCELLED':
-            case 'cancelled':
-                return 'danger';
-
-            default:
-                return 'info';
-        }
-    }
-
-    calculateCustomerTotal(name: string) {
-        let total = 0;
-
-        if (this.customers2) {
-            for (let customer of this.customers2) {
-                if (customer.representative?.name === name) {
-                    total++;
-                }
-            }
-        }
-
-        return total;
+    createEmptyPatient(): PatientDto {
+        return {
+            id: '0',
+            name: '-EMPTY-',
+            surname: '',
+            birthDate: new Date(0o1, 1, 1),
+            gender: '',
+            address: '',
+            phoneNumber: '',
+            email: '',
+            notes: '',
+            activityLevel: '',
+            photoUrl: ''
+        };
     }
 }
