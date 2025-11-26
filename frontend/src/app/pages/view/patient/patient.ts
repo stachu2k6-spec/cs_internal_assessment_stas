@@ -174,17 +174,17 @@ export class Patient implements OnInit {
     }
     createEmptyPatient(): PatientDto {
         return {
-            id: '0',
+            id: '-EMPTY-',
             name: '-EMPTY-',
-            surname: '',
-            birthDate: new Date(0o1, 1, 1),
-            gender: '',
-            address: '',
-            phoneNumber: '',
-            email: '',
-            notes: '',
-            activityLevel: '',
-            photoUrl: ''
+            surname: '-EMPTY-',
+            birthDate: '-EMPTY-',
+            gender: '-EMPTY-',
+            address: '-EMPTY-',
+            phoneNumber: '-EMPTY-',
+            email: '-EMPTY-',
+            notes: '-EMPTY-',
+            activityLevel: '-EMPTY-',
+            photoUrl: '-EMPTY-'
         };
     }
 }

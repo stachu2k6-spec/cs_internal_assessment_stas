@@ -78,7 +78,7 @@
                         <ng-template #body let-meeting>
                             <tr
                                 class="hover-scale cursor-pointer"
-                                [routerLink]="['/view','meeting',]"
+                                [routerLink]="['/view','meeting', meeting.id]"
                             >
                                 <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
@@ -161,7 +161,7 @@
                         <ng-template #body let-meeting>
                             <tr
                                 class="hover-scale cursor-pointer"
-                                [routerLink]="['/view','meeting',]"
+                                [routerLink]="['/view','meeting', meeting.id]"
                             >
                                 <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>

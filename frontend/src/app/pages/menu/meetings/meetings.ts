@@ -100,7 +100,7 @@ export class Meetings implements OnInit {
     }
      */
 
-    /** Format ISO 8601 duration to human-readable format */
+    /** Format ISO 8601 duration to readable format */
      formatDuration(isoDuration: string): string {
         const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
 
