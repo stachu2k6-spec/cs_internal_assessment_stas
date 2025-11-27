@@ -30,7 +30,7 @@
                     <div class="font-semibold text-xl mb-4">Upcoming Meetings</div>
                     <p-table
                         #dt1
-                        [value]="meetings"
+                        [value]="upcomingMeetings"
                         dataKey="id"
                         [rows]="10"
                         [rowHover]="true"
@@ -82,7 +82,7 @@
                             >
                                 <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
-                                    PATIENT NAME
+                                    {{ getPatientNameById(meeting.patientId) }}
                                 </td>
                                 <td>
                                     {{ meeting.date }}
@@ -113,7 +113,7 @@
                     <div class="font-semibold text-xl mb-4">Meeting History</div>
                     <p-table
                         #dt1
-                        [value]="meetings"
+                        [value]="pastMeetings"
                         dataKey="id"
                         [rows]="10"
                         [rowHover]="true"
@@ -165,7 +165,7 @@
                             >
                                 <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
-                                    PATIENT NAME
+                                    {{ getPatientNameById(meeting.patientId) }}
                                 </td>
                                 <td>
                                     {{ meeting.date }}

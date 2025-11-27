@@ -22,6 +22,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { take } from 'rxjs';
+import { PatientDto } from '@/pages/service/patient/patient.model';
+import { PatientFacade } from '@/pages/service/patient/patient.facade';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -64,12 +66,15 @@ export class Meeting implements OnInit {
 
     meeting: MeetingDto = this.createEmptyMeeting(); // Meeting data to be displayed and edited, initialized to empty
 
+    patient: PatientDto = this.createEmptyPatient(); // Associated patient data, initialized to empty
+
     private _meetingBackup: any = null;
 
     @ViewChild('filter') filter!: ElementRef;
 
     constructor(
         private meetingFacade: MeetingFacade,
+        private patientFacade: PatientFacade,
         private route: ActivatedRoute,
         private router: Router
     ) {}
@@ -93,12 +98,25 @@ export class Meeting implements OnInit {
             .subscribe({
                 next: (dto: MeetingDto) => {
                     this.meeting = dto ? dto : this.createEmptyMeeting();
+                    this.patientFacade.fetchById(this.meeting.patientId)
+                        .pipe(take(1))
+                        .subscribe({
+                            next: (dto: PatientDto) => {
+                                this.patient = dto ? dto : this.createEmptyPatient();
+                            },
+                            error: (err: any) => {
+                                console.error('Failed loading patient', err);
+                                // this.router.navigate(['/notfound']);
+                            }
+                        });
                 },
                 error: (err: any) => {
                     console.error('Failed loading meeting', err);
                     this.router.navigate(['/notfound']);
                 }
             });
+
+
     }
 
 
@@ -138,6 +156,7 @@ export class Meeting implements OnInit {
     private createEmptyMeeting() {
         return {
             id: '-EMPTY-',
+            patientId: '-EMPTY-',
             date: '-EMPTY-',
             startTime: '-EMPTY-',
             duration: '-EMPTY-',
@@ -159,5 +178,21 @@ export class Meeting implements OnInit {
 
     get formattedDuration(): string {
         return this.formatDuration(this.meeting.duration);
+    }
+
+    createEmptyPatient(): PatientDto {
+        return {
+            id: '-EMPTY-',
+            name: '-EMPTY-',
+            surname: '-EMPTY-',
+            birthDate: '-EMPTY-',
+            gender: '-EMPTY-',
+            address: '-EMPTY-',
+            phoneNumber: '-EMPTY-',
+            email: '-EMPTY-',
+            notes: '-EMPTY-',
+            activityLevel: '-EMPTY-',
+            photoUrl: '-EMPTY-'
+        };
     }
 }

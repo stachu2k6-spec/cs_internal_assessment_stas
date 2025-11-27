@@ -48,6 +48,7 @@ public class MeetingsFacade {
         MeetingEntity meeting_not_found = meetingRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Meeting not found"));
 
+        meeting_not_found.setPatientId(meetingDto.getPatientId());
         meeting_not_found.setDate(meetingDto.getDate());
         meeting_not_found.setTime(meetingDto.getStartTime());
         meeting_not_found.setDuration(meetingDto.getDuration());

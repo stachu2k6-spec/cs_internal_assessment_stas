@@ -21,6 +21,7 @@ public class MeetingEntity {
     @Id
     @GeneratedValue
     private UUID id;
+    private String patientId;
 
     private String name;
     private LocalDate date;
