@@ -33,6 +33,8 @@ import { ContextMenu } from 'primeng/contextmenu';
 import { PatientDto } from '@/pages/service/patient/patient.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
 import { take, tap } from 'rxjs';
+import { MeetingDto } from '@/pages/service/meeting/meeting.model';
+import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -88,7 +90,11 @@ export class Patient implements OnInit {
 
     patient: PatientDto = this.createEmptyPatient();  // Patient data to be displayed and edited, initialized to empty
 
-    meetings: any[] = [];
+    meetings: MeetingDto[] = [];
+
+    upcomingMeetings: MeetingDto[] = [];
+
+    pastMeetings: MeetingDto[] = [];
 
     private _patientBackup: any = null;
 
@@ -97,6 +103,7 @@ export class Patient implements OnInit {
 
     constructor(
         private patientFacade: PatientFacade,
+        private meetingFacade: MeetingFacade,
         private route: ActivatedRoute,
         private router: Router
 ) {}
@@ -127,6 +134,17 @@ export class Patient implements OnInit {
                     this.router.navigate(['/notfound']);
                 }
             });
+
+        this.meetingFacade.fetchByPatientId(id);
+        this.meetingFacade.meetingState$
+            .pipe(
+                take(1),
+                tap(x => {
+                    this.meetings = x;
+                    this.splitMeetings()
+                })
+            )
+            .subscribe();
     }
 
 
@@ -172,6 +190,32 @@ export class Patient implements OnInit {
         // If you have a real backend: call service then handle response
         // this.patientService.updatePatient(this.patient).then(...).catch(...)
     }
+
+    // method to split and sort meetings into upcoming and past based on current date
+    private splitMeetings() {
+        const now = new Date();
+
+        this.upcomingMeetings = this.meetings
+            .filter(m => new Date(m.date + 'T' + m.startTime) >= now)
+            .sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
+
+        this.pastMeetings = this.meetings
+            .filter(m => new Date(m.date + 'T' + m.startTime) < now)
+            .sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
+    }
+
+    getNextMeetingDate(id: string){
+        // find the next meeting for a patient
+        const nextMeeting = this.upcomingMeetings.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+        return nextMeeting ? nextMeeting.date : null;
+    }
+
+    getPreviousMeetingDate(id: string){
+        // find the previous meeting for a patient
+        const previousMeeting = this.pastMeetings.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+        return previousMeeting ? previousMeeting.date : null;
+    }
+
     createEmptyPatient(): PatientDto {
         return {
             id: '-EMPTY-',

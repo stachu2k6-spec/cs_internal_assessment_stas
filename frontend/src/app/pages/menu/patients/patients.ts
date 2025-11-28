@@ -16,6 +16,8 @@ import { RouterLink } from '@angular/router';
 import { PatientDto } from '@/pages/service/patient/patient.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
 import { tap } from 'rxjs';
+import { MeetingDto } from '@/pages/service/meeting/meeting.model';
+import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -36,8 +38,11 @@ export class Patients implements OnInit {
     /** List of patients */
     patients: PatientDto[] =[]
 
+    meetings: MeetingDto[] =[]
+
     constructor(
-        private patientFacade: PatientFacade
+        private patientFacade: PatientFacade,
+        private meetingFacade: MeetingFacade
     ) {}
 
     ngOnInit() {
@@ -50,22 +55,60 @@ export class Patients implements OnInit {
             )
             .subscribe()
 
+        this.meetingFacade.fetchAllMeetings()
+        this.meetingFacade.meetingState$
+            .pipe(
+                tap(x=> {
+                    this.meetings = x;
+                })
+            )
+            .subscribe()
     }
 
-    getSeverity(product: Product) {
-        switch (product.inventoryStatus) {
-            case 'INSTOCK':
-                return 'success';
-
-            case 'LOWSTOCK':
-                return 'warn';
-
-            case 'OUTOFSTOCK':
-                return 'danger';
-
-            default:
-                return 'info';
-        }
+    getNextMeetingDate(id: string){
+        const patientsMeetings = this.meetings.filter(m => m.patientId === id && new Date(m.date) > new Date());
+        // find the next meeting for a patient
+        const nextMeeting = patientsMeetings.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+        return nextMeeting ? nextMeeting.date : null;
     }
+
+    getPreviousMeetingDate(id: string){
+        const patientsMeetings = this.meetings.filter(m => m.patientId === id && new Date(m.date) < new Date());
+        // find the previous meeting for a patient
+        const previousMeeting = patientsMeetings.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+        return previousMeeting ? previousMeeting.date : null;
+    }
+
+
+
+    //
+
+    /** Format ISO 8601 duration to readable format */
+    formatDuration(isoDuration: string): string {
+        const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+
+        const hours = match?.[1] ? Number(match[1]) : 0;
+        const minutes = match?.[2] ? Number(match[2]) : 0;
+
+        if (hours && minutes) return `${hours}h ${minutes}m`;
+        if (hours) return `${hours}h`;
+        return `${minutes}m`;
+    }
+
+    // getSeverity(product: Product) {
+    //     switch (product.inventoryStatus) {
+    //         case 'INSTOCK':
+    //             return 'success';
+    //
+    //         case 'LOWSTOCK':
+    //             return 'warn';
+    //
+    //         case 'OUTOFSTOCK':
+    //             return 'danger';
+    //
+    //         default:
+    //             return 'info';
+    //     }
+    // }
 }
 

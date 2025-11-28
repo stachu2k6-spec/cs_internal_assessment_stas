@@ -53,6 +53,10 @@ export class MeetingService {
         return this.http.get<MeetingDto>(this.apiUrl + '/' + id);
     }
 
+    getByPatientId(patientId: string): Observable<MeetingDto[]> {
+        return this.http.get<MeetingDto[]>(this.apiUrl + '/' + patientId + '/meetings');
+    }
+
     create(meeting: Omit<MeetingDto, 'id'>): Observable<MeetingDto> {
         return this.http.post<MeetingDto>(this.apiUrl, meeting);
     }

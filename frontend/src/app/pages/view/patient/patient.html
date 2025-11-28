@@ -19,9 +19,9 @@
 
                             <div class="flex flex-col gap-2">
                                 <div>
-                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">LAST MEETING DATE</span>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">Previous meeting: {{ getPreviousMeetingDate(patient.id)}}</span>
                                     <div class="text-lg font-medium mt-1">
-                                        NEXT MEETING DATE
+                                        Next meeting: {{ getNextMeetingDate(patient.id) }}
                                     </div>
                                 </div>
                             </div>
@@ -173,7 +173,7 @@
                                 <p-tabpanel value="0">
                                     <div class="card">
                                         <p-table
-                                            [value]="meetings"
+                                            [value]="upcomingMeetings"
                                             [scrollable]="true"
                                             scrollHeight="350px"
                                             styleClass="mt-4"
@@ -182,20 +182,22 @@
                                         >
                                             <ng-template #header>
                                                 <tr>
-                                                    <th style="min-width:100px">Meeting date</th>
-                                                    <th style="min-width:100px">Meeting time</th>
+                                                    <th style="min-width:100px">Date</th>
+                                                    <th style="min-width:100px">Time</th>
+                                                    <th style="min-width:100px">Duration</th>
                                                 </tr>
                                             </ng-template>
 
-                                            <ng-template #body let-customer>
+                                            <ng-template #body let-meeting>
                                                 <tr
                                                     class="hover-scale cursor-pointer"
-                                                    [routerLink]="['/view','meeting']"
-                                                    [pContextMenuRow]="customer"
+                                                    [routerLink]="['/view','meeting', meeting.id]"
+                                                    [pContextMenuRow]="meeting"
                                                     (contextmenu)="$event.preventDefault()"
                                                 >
-                                                    <td class="font-bold">{{ customer.name }}</td>
-                                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                                    <td class="font-bold">{{ meeting.date }}</td>
+                                                    <td style="min-width:100px">{{ meeting.startTime }}</td>
+                                                    <td style="min-width:100px">{{ meeting.duration }}</td>
                                                 </tr>
                                             </ng-template>
                                         </p-table>
@@ -205,7 +207,7 @@
                                 <p-tabpanel value="1">
                                     <div class="card">
                                         <p-table
-                                            [value]="meetings"
+                                            [value]="pastMeetings"
                                             [scrollable]="true"
                                             scrollHeight="300px"
                                             styleClass="mt-4"
@@ -214,20 +216,22 @@
                                         >
                                             <ng-template #header>
                                                 <tr>
-                                                    <th style="min-width:100px">Meeting date</th>
-                                                    <th style="min-width:100px">Meeting time</th>
+                                                    <th style="min-width:100px">Date</th>
+                                                    <th style="min-width:100px">Time</th>
+                                                    <th style="min-width:100px">Duration</th>
                                                 </tr>
                                             </ng-template>
 
-                                            <ng-template #body let-customer>
+                                            <ng-template #body let-meeting>
                                                 <tr
                                                     class="hover-scale cursor-pointer"
-                                                    [routerLink]="['/view','meeting']"
-                                                    [pContextMenuRow]="customer"
+                                                    [routerLink]="['/view','meeting', meeting.id]"
+                                                    [pContextMenuRow]="meeting"
                                                     (contextmenu)="$event.preventDefault()"
                                                 >
-                                                    <td class="font-bold">{{ customer.name }}</td>
-                                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                                    <td class="font-bold">{{ meeting.date }}</td>
+                                                    <td style="min-width:100px">{{ meeting.startTime }}</td>
+                                                    <td style="min-width:100px">{{ meeting.duration }}</td>
                                                 </tr>
                                             </ng-template>
                                         </p-table>

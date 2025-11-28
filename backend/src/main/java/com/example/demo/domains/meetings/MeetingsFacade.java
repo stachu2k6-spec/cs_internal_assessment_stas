@@ -31,17 +31,25 @@ public class MeetingsFacade {
                 .toList();
     }
 
-    public MeetingDto addMeetings(MeetingDto meetingDto) {
-        MeetingEntity meetingEntity = this.meetingMapper.toEntity(meetingDto);
-        MeetingEntity savedEntity = this.meetingRepository.save(meetingEntity);
-        return meetingMapper.toDto(savedEntity);
-    }
-
     public MeetingDto getMeetingsById(String id) {
 
         return meetingRepository.findById(UUID.fromString(id))
                 .map(meetingMapper::toDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Meeting not found"));
+    }
+
+    public List<MeetingDto> getMeetingsByPatientId(String patientId) {
+        List<MeetingEntity> meetings = meetingRepository.findByPatientId(patientId);
+
+        return meetings.stream()
+                .map(meetingMapper::toDto)
+                .toList();
+    }
+
+    public MeetingDto addMeetings(MeetingDto meetingDto) {
+        MeetingEntity meetingEntity = this.meetingMapper.toEntity(meetingDto);
+        MeetingEntity savedEntity = this.meetingRepository.save(meetingEntity);
+        return meetingMapper.toDto(savedEntity);
     }
 
     public MeetingDto updateMeeting(String id, MeetingDto meetingDto) {
