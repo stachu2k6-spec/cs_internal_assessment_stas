@@ -1,6 +1,7 @@
 package com.example.demo.repository.patients;
 
 import com.example.demo.repository.meetings.MeetingEntity;
+import com.example.demo.repository.symptoms.SymptomEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,10 +26,6 @@ public class PatientEntity {
 
     private LocalDate birthDate;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "patient")
-    @Fetch(value = FetchMode.SUBSELECT)
-    private Set<MeetingEntity> meetings;
-
     private String address;
     private String phoneNumber;
     private String email;
@@ -37,6 +34,17 @@ public class PatientEntity {
     private String activityLevel;
 
     private String photoUrl;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "patient")
+    @Fetch(value = FetchMode.SUBSELECT)
+    private Set<MeetingEntity> meetings;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "PATIENT_BELONG_SYMPTOM",
+            joinColumns = {@JoinColumn(name = "symptomId")},
+            inverseJoinColumns = {@JoinColumn(name = "patientId")})
+    private Set<SymptomEntity> symptoms;
+
 
     public PatientEntity() {}
 
@@ -134,5 +142,13 @@ public class PatientEntity {
 
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    public Set<SymptomEntity> getSymptoms() {
+        return symptoms;
+    }
+
+    public void setSymptoms(Set<SymptomEntity> symptoms) {
+        this.symptoms = symptoms;
     }
 }
