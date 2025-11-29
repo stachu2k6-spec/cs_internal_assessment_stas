@@ -21,16 +21,13 @@ import { ObjectUtils } from 'primeng/utils';
 import { RouterLink } from '@angular/router';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
-import { tap } from 'rxjs';
+import { take, tap } from 'rxjs';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
-
-interface expandedRows {
-    [key: string]: boolean;
-}
+import { PatientDto } from '@/pages/service/patient/patient.model';
 
 @Component({
     selector: 'app-meeting-database',
-    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, CurrencyPipe, DatePipe, MultiSelect, ProgressBar, Select, Slider, TableModule, Tag, FormsModule, RouterLink],
+    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, TableModule, FormsModule, RouterLink],
     templateUrl: './meetings.html',
     styleUrl: './meetings.scss',
     providers: []
@@ -40,12 +37,19 @@ export class Meetings implements OnInit {
     //statuses: any[] = [];
 
     /** List of meetings */
-    meetings: MeetingDto[] =[]
+    meetings: MeetingDto[] =[];
+
+    upcomingMeetings: MeetingDto[] = [];
+
+    pastMeetings: MeetingDto[] = [];
+
+    patients: PatientDto[] = [];
 
     @ViewChild('filter') filter!: ElementRef;
 
     constructor(
-        private meetingFacade: MeetingFacade
+        private meetingFacade: MeetingFacade,
+        private patientFacade: PatientFacade
     ) {}
 
     ngOnInit() {
@@ -54,10 +58,21 @@ export class Meetings implements OnInit {
             .pipe(
                 tap(x=> {
                     this.meetings = x;
+                    this.splitMeetings()
                 })
             )
             .subscribe()
 
+
+
+        this.patientFacade.fetchAllPatients()
+        this.patientFacade.patientState$
+            .pipe(
+                tap(x => {
+                    this.patients = x;
+                })
+            )
+            .subscribe()
     }
 
     onGlobalFilter(table: Table, event: Event) {
@@ -111,4 +126,27 @@ export class Meetings implements OnInit {
         if (hours) return `${hours}h`;
         return `${minutes}m`;
     }
+
+    getPatientNameById(id: string): string {
+        let patient = this.patients.find(p => p.id === id);
+        if (!patient) {
+            return '-Unknown Patient-';
+        }
+        return `${patient.name} ${patient.surname}`;
+    }
+
+    // method to split and sort meetings into upcoming and past based on current date
+    private splitMeetings() {
+        const now = new Date();
+
+        this.upcomingMeetings = this.meetings
+            .filter(m => new Date(m.date + 'T' + m.startTime) >= now)
+            .sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
+
+        this.pastMeetings = this.meetings
+            .filter(m => new Date(m.date + 'T' + m.startTime) < now)
+            .sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
+    }
+
+
 }

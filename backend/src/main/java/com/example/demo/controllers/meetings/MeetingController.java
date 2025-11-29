@@ -20,14 +20,19 @@ public class MeetingController {
         return meetingFacade.getMeetings();
     }
 
-    @PostMapping
-    public MeetingDto addMeeting(@RequestBody MeetingDto meetingDto) {
-        return meetingFacade.addMeetings(meetingDto);
-    }
-
     @GetMapping("/{id}")
     public MeetingDto getMeeting(@PathVariable String id) {
         return meetingFacade.getMeetingsById(id);
+    }
+
+    @GetMapping("/{patientId}/meetings")
+    public List<MeetingDto> getMeetingsByPatientId(@PathVariable String patientId) {
+        return meetingFacade.getMeetingsByPatientId(patientId);
+    }
+
+    @PostMapping
+    public MeetingDto addMeeting(@RequestBody MeetingDto meetingDto) {
+        return meetingFacade.addMeetings(meetingDto);
     }
 
     @PutMapping("/{id}")

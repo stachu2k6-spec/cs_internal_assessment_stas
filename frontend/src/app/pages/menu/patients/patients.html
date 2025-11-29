@@ -60,8 +60,8 @@
                                 </div>
                             </div>
                             <div class="flex flex-col gap-6 mt-6">
-                                <span class="text-2xl font-semibold">NEXT MEETING DATE</span>
-                                <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">LAST MEETING DATE</span>
+                                <span class="text-2xl font-semibold">Next meeting: {{ getNextMeetingDate(p.id) }}</span>
+                                <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">Previous meeting: {{ getPreviousMeetingDate(p.id) }}</span>
                             </div>
                         </div>
                     </div>

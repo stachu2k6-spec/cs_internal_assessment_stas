@@ -18,6 +18,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class MeetingDto {
     private String id;
+    private String patientId;
     private LocalDate date;
     private LocalTime startTime;
     private Duration duration;
