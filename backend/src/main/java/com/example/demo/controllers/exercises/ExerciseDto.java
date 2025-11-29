@@ -1,24 +1,23 @@
-package com.example.demo.controllers.symptoms;
+package com.example.demo.controllers.exercises;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class SymptomDto {
+
+public class ExerciseDto {
     private String id;
     private String name;
     private String notes;
 
+    public ExerciseDto() {
+    }
 
-
-    public SymptomDto(String id, String name, String notes) {
+    public ExerciseDto(String id, String name, String notes) {
         this.id = id;
         this.name = name;
         this.notes = notes;
-    }
-
-    public SymptomDto() {
     }
 
     public String getId() {

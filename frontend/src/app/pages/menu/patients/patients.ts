@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Button, ButtonDirective, ButtonModule } from 'primeng/button';
 import { CommonModule, CurrencyPipe, DatePipe, NgForOf } from '@angular/common';
 import { Tag, TagModule } from 'primeng/tag';
@@ -15,7 +15,7 @@ import { InputText } from 'primeng/inputtext';
 import { RouterLink } from '@angular/router';
 import { PatientDto } from '@/pages/service/patient/patient.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
-import { tap } from 'rxjs';
+import { Subject, takeUntil, tap } from 'rxjs';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 
@@ -26,19 +26,32 @@ interface expandedRows {
 @Component({
     selector: 'app-patients',
     standalone: true,
-    imports: [CommonModule, DataViewModule, FormsModule, SelectButtonModule, PickListModule, OrderListModule, TagModule, ButtonModule, Toolbar, IconField, InputIcon, InputText, RouterLink],
+    imports: [
+        CommonModule,
+        DataViewModule,
+        FormsModule,
+        SelectButtonModule,
+        PickListModule,
+        OrderListModule,
+        TagModule,
+        ButtonModule,
+        Toolbar,
+        IconField,
+        InputIcon,
+        InputText,
+        RouterLink
+    ],
     templateUrl: './patients.html',
     styleUrl: './patients.scss',
 })
-export class Patients implements OnInit {
-    layout: 'grid' | 'list' = 'grid';
+export class Patients implements OnInit, OnDestroy {
+    private destroy$ = new Subject<void>();
 
+    layout: 'grid' | 'list' = 'grid';
     options = ['grid', 'list'];
 
-    /** List of patients */
-    patients: PatientDto[] =[]
-
-    meetings: MeetingDto[] =[]
+    patients: PatientDto[] = [];
+    meetings: MeetingDto[] = [];
 
     constructor(
         private patientFacade: PatientFacade,
@@ -46,47 +59,48 @@ export class Patients implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.patientFacade.fetchAllPatients()
+        this.patientFacade.fetchAllPatients();
         this.patientFacade.patientState$
             .pipe(
-                tap(x=> {
-                    this.patients = x;
-                })
+                tap(x => (this.patients = x)),
+                takeUntil(this.destroy$)
             )
-            .subscribe()
+            .subscribe();
 
-        this.meetingFacade.fetchAllMeetings()
+        this.meetingFacade.fetchAllMeetings();
         this.meetingFacade.meetingState$
             .pipe(
-                tap(x=> {
-                    this.meetings = x;
-                })
+                tap(x => (this.meetings = x)),
+                takeUntil(this.destroy$)
             )
-            .subscribe()
+            .subscribe();
     }
 
-    getNextMeetingDate(id: string){
-        const patientsMeetings = this.meetings.filter(m => m.patientId === id && new Date(m.date) > new Date());
-        // find the next meeting for a patient
-        const nextMeeting = patientsMeetings.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
-        return nextMeeting ? nextMeeting.date : null;
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
-    getPreviousMeetingDate(id: string){
-        const patientsMeetings = this.meetings.filter(m => m.patientId === id && new Date(m.date) < new Date());
-        // find the previous meeting for a patient
-        const previousMeeting = patientsMeetings.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-        return previousMeeting ? previousMeeting.date : null;
+    getNextMeetingDate(id: string) {
+        const patientsMeetings = this.meetings.filter(
+            m => m.patient.id === id && new Date(m.date) > new Date()
+        );
+        return patientsMeetings.sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        )[0]?.date ?? null;
     }
 
+    getPreviousMeetingDate(id: string) {
+        const patientsMeetings = this.meetings.filter(
+            m => m.patient.id === id && new Date(m.date) < new Date()
+        );
+        return patientsMeetings.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        )[0]?.date ?? null;
+    }
 
-
-    //
-
-    /** Format ISO 8601 duration to readable format */
     formatDuration(isoDuration: string): string {
         const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-
         const hours = match?.[1] ? Number(match[1]) : 0;
         const minutes = match?.[2] ? Number(match[2]) : 0;
 

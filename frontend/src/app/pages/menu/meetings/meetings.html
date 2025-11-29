@@ -80,9 +80,8 @@
                                 class="hover-scale cursor-pointer"
                                 [routerLink]="['/view','meeting', meeting.id]"
                             >
-                                <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
-                                    {{ getPatientNameById(meeting.patientId) }}
+                                    {{ meeting.patient.name }} {{ meeting.patient.surname }}
                                 </td>
                                 <td>
                                     {{ meeting.date }}
@@ -165,7 +164,7 @@
                             >
                                 <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
-                                    {{ getPatientNameById(meeting.patientId) }}
+                                    {{ meeting.patient.name }} {{ meeting.patient.surname }}
                                 </td>
                                 <td>
                                     {{ meeting.date }}

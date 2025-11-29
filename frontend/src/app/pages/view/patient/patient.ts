@@ -126,24 +126,24 @@ export class Patient implements OnInit, OnDestroy{
         // subscribe to actual HTTP request
         this.patientFacade
             .fetchById(id)
-            .pipe(take(1))
-            .subscribe({
-                next: (dto: PatientDto) => {
-                    this.patient = dto ? dto : this.createEmptyPatient();
-                },
-                error: (err: any) => {
-                    console.error('Failed loading patient', err);
-                    this.router.navigate(['/notfound']);
-                }
-            });
+            .pipe(
+                takeUntil(this.destroy$), // keep receiving until component destroyed
+                tap(x => {
+                    this.patient = x;
+                })
+            )
+            .subscribe();
 
-        this.meetingFacade.fetchByPatientId(id);
+        // load meetings for this patient
+
+        this.meetingFacade.fetchAllMeetings();
 
         this.meetingFacade.meetingState$
             .pipe(
                 takeUntil(this.destroy$),     // keep receiving until component destroyed
                 tap(list => {
-                    this.meetings = list || [];
+                    this.meetings = list;
+                    this.removeMeetingsOfOtherPatients(id);
                     this.splitMeetings();
                 })
             )
@@ -197,6 +197,10 @@ export class Patient implements OnInit, OnDestroy{
 
         // If you have a real backend: call service then handle response
         // this.patientService.updatePatient(this.patient).then(...).catch(...)
+    }
+
+    removeMeetingsOfOtherPatients(patientId: string) {
+        this.meetings = this.meetings.filter(m => m.patient.id === patientId);
     }
 
     // method to split and sort meetings into upcoming and past based on current date

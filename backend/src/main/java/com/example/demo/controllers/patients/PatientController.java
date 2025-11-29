@@ -1,6 +1,7 @@
 package com.example.demo.controllers.patients;
 
-import com.example.demo.domains.patients.PatientsFacade;
+import com.example.demo.controllers.meetings.MeetingDto;
+import com.example.demo.domains.patients.PatientFacade;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,9 +10,9 @@ import java.util.List;
 @RequestMapping("/patients")
 public class PatientController {
 
-    private final PatientsFacade patientFacade;
+    private final PatientFacade patientFacade;
 
-    public PatientController(PatientsFacade patientFacade) {
+    public PatientController(PatientFacade patientFacade) {
         this.patientFacade = patientFacade;
     }
 

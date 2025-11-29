@@ -1,6 +1,10 @@
 package com.example.demo.domains.patients;
 
+import com.example.demo.controllers.meetings.MeetingDto;
 import com.example.demo.controllers.patients.PatientDto;
+import com.example.demo.domains.meetings.MeetingMapper;
+import com.example.demo.repository.meetings.MeetingEntity;
+import com.example.demo.repository.meetings.MeetingRepository;
 import com.example.demo.repository.patients.PatientEntity;
 import com.example.demo.repository.patients.PatientRepository;
 import org.springframework.http.HttpStatus;
@@ -11,13 +15,16 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class PatientsFacade {
+public class PatientFacade {
 
     private final PatientRepository patientRepository;
+    private final MeetingRepository meetingRepository;
+    private final MeetingMapper meetingMapper = new MeetingMapper(new PatientMapper());
     private final PatientMapper patientMapper;
 
-    public PatientsFacade(PatientRepository patientRepository, PatientMapper patientMapper) {
+    public PatientFacade(PatientRepository patientRepository, MeetingRepository meetingRepository, PatientMapper patientMapper) {
         this.patientRepository = patientRepository;
+        this.meetingRepository = meetingRepository;
         this.patientMapper = patientMapper;
     }
 

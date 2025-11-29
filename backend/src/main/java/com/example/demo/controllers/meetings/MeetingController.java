@@ -1,6 +1,6 @@
 package com.example.demo.controllers.meetings;
 
-import com.example.demo.domains.meetings.MeetingsFacade;
+import com.example.demo.domains.meetings.MeetingFacade;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,9 +9,9 @@ import java.util.List;
 @RequestMapping("/meetings")
 public class MeetingController {
 
-    private final MeetingsFacade meetingFacade;
+    private final MeetingFacade meetingFacade;
 
-    public MeetingController(MeetingsFacade meetingFacade) {
+    public MeetingController(MeetingFacade meetingFacade) {
         this.meetingFacade = meetingFacade;
     }
 
@@ -22,17 +22,12 @@ public class MeetingController {
 
     @GetMapping("/{id}")
     public MeetingDto getMeeting(@PathVariable String id) {
-        return meetingFacade.getMeetingsById(id);
-    }
-
-    @GetMapping("/{patientId}/meetings")
-    public List<MeetingDto> getMeetingsByPatientId(@PathVariable String patientId) {
-        return meetingFacade.getMeetingsByPatientId(patientId);
+        return meetingFacade.getMeetingById(id);
     }
 
     @PostMapping
-    public MeetingDto addMeeting(@RequestBody MeetingDto meetingDto) {
-        return meetingFacade.addMeetings(meetingDto);
+    public MeetingDto createMeeting(@RequestBody CreateMeetingDto createMeetingDto) {
+        return meetingFacade.createMeeting(createMeetingDto);
     }
 
     @PutMapping("/{id}")

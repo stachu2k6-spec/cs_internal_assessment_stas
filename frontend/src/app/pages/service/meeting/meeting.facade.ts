@@ -36,14 +36,4 @@ export class MeetingFacade {
         );
     }
 
-    fetchByPatientId(patientId: string): void {
-        this.meetingService.getByPatientId(patientId)
-            .pipe(
-                take(1),
-                tap(x => {
-                    this.meetingState$.next(x)
-                })
-            )
-            .subscribe()
-    }
 }

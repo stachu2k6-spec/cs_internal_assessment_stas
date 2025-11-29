@@ -9,12 +9,17 @@ import java.util.UUID;
 @Service
 public class PatientMapper {
 
+    /**
+     * DTO → Entity
+     */
     public PatientEntity toEntity(PatientDto dto) {
+        if (dto == null) return null;
+
         PatientEntity entity = new PatientEntity();
 
         // ID from DTO may be null when creating a new patient
-        if (dto.getId() != null && !dto.getId().isEmpty()) {
-            entity.setId(UUID.fromString(dto.getId()));
+        if (dto.getId() != null ) {
+            entity.setId(dto.getId());
         }
 
         entity.setName(dto.getName());
@@ -31,11 +36,16 @@ public class PatientMapper {
         return entity;
     }
 
+    /**
+     * Entity → DTO
+     */
     public PatientDto toDto(PatientEntity entity) {
+        if (entity == null) return null;
+
         PatientDto dto = new PatientDto();
 
         if (entity.getId() != null) {
-            dto.setId(entity.getId().toString());
+            dto.setId(entity.getId());
         }
 
         dto.setName(entity.getName());
@@ -52,4 +62,3 @@ public class PatientMapper {
         return dto;
     }
 }
-

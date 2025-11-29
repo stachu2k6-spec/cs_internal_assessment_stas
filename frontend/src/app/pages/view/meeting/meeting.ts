@@ -98,7 +98,7 @@ export class Meeting implements OnInit {
             .subscribe({
                 next: (dto: MeetingDto) => {
                     this.meeting = dto ? dto : this.createEmptyMeeting();
-                    this.patientFacade.fetchById(this.meeting.patientId)
+                    this.patientFacade.fetchById(this.meeting.patient.id)
                         .pipe(take(1))
                         .subscribe({
                             next: (dto: PatientDto) => {
@@ -156,7 +156,7 @@ export class Meeting implements OnInit {
     private createEmptyMeeting() {
         return {
             id: '-EMPTY-',
-            patientId: '-EMPTY-',
+            patient: this.createEmptyPatient(),
             date: '-EMPTY-',
             startTime: '-EMPTY-',
             duration: '-EMPTY-',

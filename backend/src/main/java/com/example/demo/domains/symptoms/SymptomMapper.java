@@ -12,7 +12,6 @@ public class SymptomMapper {
     public SymptomEntity toEntity(SymptomDto dto) {
         SymptomEntity entity = new SymptomEntity();
 
-        // id z DTO może być null przy tworzeniu nowego pacjenta
         if (dto.getId() != null && !dto.getId().isEmpty()) {
             entity.setId(UUID.fromString(dto.getId()));
         }
