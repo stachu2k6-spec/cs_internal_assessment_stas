@@ -17,7 +17,7 @@ public class MeetingMapper {
             entity.setId(UUID.fromString(dto.getId()));
         }
 
-        entity.setPatientId(dto.getPatientId());
+//        entity.setPatientId(dto.getPatientId());
         entity.setDate(dto.getDate());
         entity.setTime(dto.getStartTime());
         entity.setDuration(dto.getDuration());
@@ -30,7 +30,7 @@ public class MeetingMapper {
         MeetingDto dto = new MeetingDto();
 
         dto.setId(entity.getId().toString());
-        dto.setPatientId(entity.getPatientId());
+//        dto.setPatientId(entity.getPatientId());
         dto.setDate(entity.getDate());
         dto.setStartTime(entity.getTime());
         dto.setDuration(entity.getDuration());

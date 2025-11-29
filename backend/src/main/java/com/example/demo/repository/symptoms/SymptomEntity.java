@@ -9,8 +9,7 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@Getter
-@Setter
+
 @Entity
 @Table(name = "symptoms")
 public class SymptomEntity {
@@ -23,4 +22,33 @@ public class SymptomEntity {
 
     public SymptomEntity() {}
 
+    public SymptomEntity(UUID id, String name, String notes) {
+        this.id = id;
+        this.name = name;
+        this.notes = notes;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 }
