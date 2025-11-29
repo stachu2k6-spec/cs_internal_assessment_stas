@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -32,7 +32,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ContextMenu } from 'primeng/contextmenu';
 import { PatientDto } from '@/pages/service/patient/patient.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
-import { take, tap } from 'rxjs';
+import { Subject, take, takeUntil, tap } from 'rxjs';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 
@@ -74,7 +74,7 @@ interface expandedRows {
     styleUrl: './patient.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
 })
-export class Patient implements OnInit {
+export class Patient implements OnInit, OnDestroy{
 
     selectedSymptom: Customer | null = null;
 
@@ -97,6 +97,8 @@ export class Patient implements OnInit {
     pastMeetings: MeetingDto[] = [];
 
     private _patientBackup: any = null;
+
+    private destroy$ = new Subject<void>();
 
 
     @ViewChild('filter') filter!: ElementRef;
@@ -136,15 +138,21 @@ export class Patient implements OnInit {
             });
 
         this.meetingFacade.fetchByPatientId(id);
+
         this.meetingFacade.meetingState$
             .pipe(
-                take(1),
-                tap(x => {
-                    this.meetings = x;
-                    this.splitMeetings()
+                takeUntil(this.destroy$),     // keep receiving until component destroyed
+                tap(list => {
+                    this.meetings = list || [];
+                    this.splitMeetings();
                 })
             )
             .subscribe();
+    }
+
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
 
