@@ -44,7 +44,8 @@ export class Exercise implements OnInit {
     constructor(
         private exerciseFacade: ExerciseFacade,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private messageService: MessageService
     ) {}
 
     ngOnInit() {
@@ -69,6 +70,7 @@ export class Exercise implements OnInit {
                 },
                 error: (err: any) => {
                     console.error('Failed loading exercise', err);
+                    this.messageService.add({ severity: 'error', summary: 'Load failed', detail: 'Exercise could not be loaded.' });
                     this.router.navigate(['/notfound']);
                 }
             });
@@ -88,28 +90,52 @@ export class Exercise implements OnInit {
         this.isEditMode = false;
     }
 
+    /**
+     * Save changes to the exercise.
+     * Calls exerciseFacade.updateExercise(id) which you said only accepts an id: string.
+     * Handles several possible return types:
+     *  - Observable<ExerciseDto> (updates local model)
+     *  - Observable<any> (assumes success)
+     *  - if updateExercise missing -> fallback to local-only save
+     */
     save() {
-        // TODO: call your API to persist exercise changes
-        // For now, we mock save with a message and toggle mode off
+        // basic validation
+        if (!this.exercise) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No exercise loaded.' });
+            return;
+        }
+
+        if (!this.exercise.name || !this.exercise.name.trim()) {
+            this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Exercise name is required.' });
+            return;
+        }
+
+        // optimistic UI: exit edit mode while saving
+        const prevEditState = this.isEditMode;
         this.isEditMode = false;
-        this._exerciseBackup = null;
 
-        // show a toast (you already have MessageService provider)
-        // this.messageService.add({
-        //     severity: 'success',
-        //     summary: 'Saved',
-        //     detail: 'Patient data saved.'
-        // });
 
-        // If you have a real backend: call service then handle response
-        // this.patientService.updatePatient(this.patient).then(...).catch(...)
+        this.exerciseFacade.updateExercise(this.exercise.id, this.exercise).pipe(take(1)).subscribe({
+            next: (saved: SymptomDto) => {
+                this.exercise = saved ? saved : this.exercise;
+                this._exerciseBackup = null;
+                this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Symptom saved successfully.' });
+            },
+            error: (err: any) => {
+                console.error('Failed to save exercise', err);
+                this.isEditMode = prevEditState;
+                this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+            }
+        });
+
+
     }
 
-    private createEmptyExercise() {
+    private createEmptyExercise(): ExerciseDto {
         return {
             id: '-EMPTY-',
             name: '-EMPTY-',
             notes: '-EMPTY-'
-        }
+        } as ExerciseDto;
     }
 }

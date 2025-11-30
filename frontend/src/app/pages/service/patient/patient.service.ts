@@ -67,8 +67,8 @@ export class PatientService {
         return this.http.post<PatientDto>(this.apiUrl, patient);
     }
 
-    update(id: number, patient: PatientDto): Observable<PatientDto> {
-        return this.http.put<PatientDto>('${this.apiUrl}/${id}', patient);
+    update(id: string, patient: PatientDto): Observable<PatientDto> {
+        return this.http.put<PatientDto>(this.apiUrl + '/' + id, patient);
     }
 
     delete(id: number): Observable<void> {

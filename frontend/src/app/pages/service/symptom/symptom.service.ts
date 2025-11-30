@@ -49,11 +49,11 @@ export class SymptomService {
         return this.http.post<SymptomDto>(this.apiUrl, symptom);
     }
 
-    update(id: number, symptom: SymptomDto): Observable<SymptomDto> {
-        return this.http.put<SymptomDto>('${this.apiUrl}/${id}', symptom);
+    update(id: string, symptom: SymptomDto): Observable<SymptomDto> {
+        return this.http.put<SymptomDto>(this.apiUrl + '/' + id, symptom);
     }
 
-    delete(id: number): Observable<void> {
+    delete(id: string): Observable<void> {
         return this.http.delete<void>('${this.apiUrl}/${id}');
     }
 }

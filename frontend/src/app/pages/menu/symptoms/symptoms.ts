@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Button, ButtonDirective } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -17,11 +17,9 @@ import { ObjectUtils } from 'primeng/utils';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { RouterLink } from '@angular/router';
-import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { SymptomDto } from '@/pages/service/symptom/symptom.model';
-import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { SymptomFacade } from '@/pages/service/symptom/symptom.facade';
-import { tap } from 'rxjs';
+import { Subject, takeUntil, tap } from 'rxjs';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -30,35 +28,42 @@ interface expandedRows {
 @Component({
     selector: 'app-symptoms',
     standalone: true,
-    imports: [Button, IconField, InputIcon, InputText, Toolbar, ButtonDirective, ProgressBar, Slider, TableModule, FormsModule, RouterLink],
+    imports: [
+        Button, IconField, InputIcon, InputText, Toolbar, ButtonDirective,
+        ProgressBar, Slider, TableModule, FormsModule, RouterLink
+    ],
     templateUrl: './symptoms.html',
     styleUrl: './symptoms.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
 })
-export class Symptoms implements OnInit {
+export class Symptoms implements OnInit, OnDestroy {
 
     statuses: any[] = [];
-
     activityValues: number[] = [0, 100];
-
-    symptoms: SymptomDto[] =[]
+    symptoms: SymptomDto[] = [];
 
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(
-        private symptomFacade: SymptomFacade
-    ) {}
+    private destroy$ = new Subject<void>();
+
+    constructor(private symptomFacade: SymptomFacade) {}
 
     ngOnInit() {
-        this.symptomFacade.fetchAllSymptoms()
+        this.symptomFacade.fetchAllSymptoms();
+
         this.symptomFacade.symptomState$
             .pipe(
-                tap(x=> {
+                tap(x => {
                     this.symptoms = x;
-                })
+                }),
+                takeUntil(this.destroy$)
             )
-            .subscribe()
+            .subscribe();
+    }
 
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     onGlobalFilter(table: Table, event: Event) {
@@ -69,6 +74,4 @@ export class Symptoms implements OnInit {
         table.clear();
         this.filter.nativeElement.value = '';
     }
-
 }
-

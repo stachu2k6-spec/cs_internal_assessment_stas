@@ -35,4 +35,21 @@ export class ExerciseFacade {
             tap(x => this.exerciseByIdState$.next(x))
         );
     }
+
+    updateExercise(id: string, exercise: ExerciseDto): Observable<ExerciseDto> {
+        return this.exerciseService.update(id, exercise).pipe(
+            take(1),
+            tap(updatedExercise => {
+                // Update the exerciseByIdState$ if it matches the updated exercise
+                const currentExercise = this.exerciseByIdState$.getValue();
+                if (currentExercise && currentExercise.id === updatedExercise.id) {
+                    this.exerciseByIdState$.next(updatedExercise);
+                }
+                // Optionally, refresh the full list of exercises
+                this.fetchAllExercises();
+            })
+        );
+    }
+
+
 }

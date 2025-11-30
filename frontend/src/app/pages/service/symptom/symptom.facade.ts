@@ -35,4 +35,22 @@ export class SymptomFacade {
             tap(x => this.symptomByIdState$.next(x))
         );
     }
+
+    updateSymptom(id: string, symptom: SymptomDto): Observable<SymptomDto> {
+        return this.symptomService.update(id, symptom).pipe(
+            take(1),
+            tap(updatedSymptom => {
+                // update the symptom in symptomByIdState$
+                this.symptomByIdState$.next(updatedSymptom);
+
+                // update the symptom in symptomState$
+                const currentSymptoms = this.symptomState$.getValue();
+                const index = currentSymptoms.findIndex(s => s.id === updatedSymptom.id);
+                if (index !== -1) {
+                    currentSymptoms[index] = updatedSymptom;
+                    this.symptomState$.next([...currentSymptoms]);
+                }
+            })
+        );
+    }
 }

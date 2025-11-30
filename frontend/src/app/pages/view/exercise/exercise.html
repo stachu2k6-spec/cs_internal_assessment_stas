@@ -46,7 +46,7 @@
                                 <div class="font-semibold text-xl flex items-center justify-center">Info</div>
                                 <div class="flex flex-col gap-2">
                                     <label for="name1">Name</label>
-                                    <input pInputText id="name1" type="text" [(ngModel)]="exercise.name" [readonly]="!isEditMode" />
+                                    <input pInputText id="name1" type="text" [(ngModel)]="exercise.name" [disabled]="!isEditMode" />
                                 </div>
                             </div>
                         </ng-template>
@@ -59,7 +59,7 @@
                                     rows="25"
                                     cols="30"
                                     [(ngModel)]="exercise.notes"
-                                    [readonly]="!isEditMode"
+                                    [disabled]="!isEditMode"
                                 ></textarea>
                             </div>
                         </ng-template>

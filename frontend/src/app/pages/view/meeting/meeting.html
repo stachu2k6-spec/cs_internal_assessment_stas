@@ -1,4 +1,5 @@
 <div class="card">
+    <p-toast position="top-right"></p-toast>
     <div class="font-semibold text-xl mb-4">MEETING VIEW</div>
     <p-splitter [style]="{ height: '800px' }" [panelSizes]="[70, 30]" [minSizes]="[10, 0]" styleClass="mb-8">
         <ng-template #panel>
@@ -63,35 +64,32 @@
                                 <div class="font-semibold text-xl flex items-center justify-center">Info</div>
                                 <div class="flex flex-col gap-2">
                                     <label for="name1">Name</label>
-                                    <input pInputText id="name1" type="text" [(ngModel)]="patient.name" [readonly]="!isEditMode" />
+                                    <input pInputText id="name1" type="text" [(ngModel)]="patient.name" [disabled]="true" />
                                 </div>
 
                                 <div class="flex flex-col gap-2">
                                     <label for="name1">Surname</label>
-                                    <input pInputText id="name1" type="text" [(ngModel)]="patient.surname" [readonly]="!isEditMode" />
+                                    <input pInputText id="name1" type="text" [(ngModel)]="patient.surname" [disabled]="true" />
                                 </div>
 
                                 <div class="flex flex-col gap-2">
                                     <label for="name1">Date</label>
-                                    <input pInputText id="name1" type="text" [(ngModel)]="meeting.date" [readonly]="!isEditMode" />
+                                    <input pInputText id="name1" type="text" [(ngModel)]="meeting.date" [disabled]="!isEditMode" />
                                 </div>
 
                                 <div class="flex flex-col gap-2">
                                     <label for="surname1">Time</label>
-                                    <input pInputText id="surname1" type="text" [(ngModel)]="meeting.startTime" [readonly]="!isEditMode" />
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="meeting.startTime" [disabled]="!isEditMode" />
                                 </div>
-                                <div class="flex flex-col gap-2">
-                                    <label for="age1">Date</label>
-                                    <input pInputText id="age1" type="text" [(ngModel)]="meeting.date" [readonly]="!isEditMode" />
-                                </div>
+
                                 <div class="flex flex-col gap-2">
                                     <label for="email1">Duration</label>
-                                    <input pInputText id="email1" type="text" [ngModel]="formattedDuration" [readonly]="!isEditMode" />
+                                    <input pInputText id="email1" type="text" [ngModel]="formattedDuration" [disabled]="!isEditMode" />
                                 </div>
 
 <!--                                < TODO: div class="flex flex-col gap-2">-->
 <!--                                    <div>Rating</div>-->
-<!--                                    <p-rating [(ngModel)]="meeting.ratingValue" [readonly]="!isEditMode"/>-->
+<!--                                    <p-rating [(ngModel)]="meeting.ratingValue" [disabled]="!isEditMode"/>-->
 <!--                                </div>-->
                             </div>
                         </ng-template>
@@ -104,7 +102,7 @@
                                     rows="25"
                                     cols="30"
                                     [(ngModel)]="meeting.notes"
-                                    [readonly]="!isEditMode"
+                                    [disabled]="!isEditMode"
                                 ></textarea>
                             </div>
                         </ng-template>

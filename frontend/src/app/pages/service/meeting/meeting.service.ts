@@ -57,11 +57,11 @@ export class MeetingService {
         return this.http.post<MeetingDto>(this.apiUrl, meeting);
     }
 
-    update(id: number, meeting: MeetingDto): Observable<MeetingDto> {
-        return this.http.put<MeetingDto>('${this.apiUrl}/${id}', meeting);
+    update(id: string, meeting: MeetingDto): Observable<MeetingDto> {
+        return this.http.put<MeetingDto>(this.apiUrl + '/' + id, meeting);
     }
 
-    delete(id: number): Observable<void> {
+    delete(id: string): Observable<void> {
         return this.http.delete<void>('${this.apiUrl}/${id}');
     }
 }

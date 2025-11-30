@@ -18,6 +18,7 @@ import { SymptomFacade } from '@/pages/service/symptom/symptom.facade';
 import { take } from 'rxjs';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { SymptomDto } from '@/pages/service/symptom/symptom.model';
+import { Toast } from 'primeng/toast';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -25,7 +26,7 @@ interface expandedRows {
 
 @Component({
     selector: 'app-symptom',
-    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink],
+    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink, Toast],
     templateUrl: './symptom.html',
     styleUrl: './symptom.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
@@ -45,7 +46,8 @@ export class Symptom implements OnInit {
     constructor(
         private symptomFacade: SymptomFacade,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private messageService: MessageService
     ) {}
 
     ngOnInit() {
@@ -70,6 +72,7 @@ export class Symptom implements OnInit {
                 },
                 error: (err: any) => {
                     console.error('Failed loading symptom', err);
+                    this.messageService.add({ severity: 'error', summary: 'Load failed', detail: 'Symptom could not be loaded.' });
                     this.router.navigate(['/notfound']);
                 }
             });
@@ -90,27 +93,40 @@ export class Symptom implements OnInit {
     }
 
     save() {
-        // TODO: call your API to persist symptom changes
-        // For now, we mock save with a message and toggle mode off
+        // basic validation
+        if (!this.symptom) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No symptom loaded.' });
+            return;
+        }
+
+        if (!this.symptom.name || !this.symptom.name.trim()) {
+            this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Symptom name is required.' });
+            return;
+        }
+
+        // optimistic UI: exit edit mode while saving
+        const prevEditState = this.isEditMode;
         this.isEditMode = false;
-        this._symptomBackup = null;
 
-        // show a toast (you already have MessageService provider)
-        // this.messageService.add({
-        //     severity: 'success',
-        //     summary: 'Saved',
-        //     detail: 'Patient data saved.'
-        // });
-
-        // If you have a real backend: call service then handle response
-        // this.patientService.updatePatient(this.patient).then(...).catch(...)
+        this.symptomFacade.updateSymptom(this.symptom.id, this.symptom).pipe(take(1)).subscribe({
+            next: (saved: SymptomDto) => {
+                this.symptom = saved ? saved : this.symptom;
+                this._symptomBackup = null;
+                this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Symptom saved successfully.' });
+            },
+            error: (err: any) => {
+                console.error('Failed to save symptom', err);
+                this.isEditMode = prevEditState;
+                this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+            }
+        });
     }
 
-    private createEmptySymptom() {
+    private createEmptySymptom(): SymptomDto {
         return {
             id: '-EMPTY-',
             name: '-EMPTY-',
             notes: '-EMPTY-'
-        }
+        } as SymptomDto;
     }
 }

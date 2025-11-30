@@ -36,4 +36,22 @@ export class MeetingFacade {
         );
     }
 
+    updateMeeting(id: string, meeting: MeetingDto): Observable<MeetingDto> {
+        return this.meetingService.update(id, meeting).pipe(
+            take(1),
+            tap(updatedMeeting => {
+                // update the meeting in meetingByIdState$
+                this.meetingByIdState$.next(updatedMeeting);
+
+                // update the meeting in meetingState$
+                const currentMeetings = this.meetingState$.getValue();
+                const index = currentMeetings.findIndex(m => m.id === updatedMeeting.id);
+                if (index !== -1) {
+                    currentMeetings[index] = updatedMeeting;
+                    this.meetingState$.next([...currentMeetings]);
+                }
+            })
+        );
+    }
+
 }

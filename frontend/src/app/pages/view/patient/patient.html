@@ -1,4 +1,5 @@
 <div class="card">
+    <p-toast position="top-right"></p-toast>
     <div class="font-semibold text-xl mb-4">Patient profile</div>
     <p-splitter [style]="{ height: '800px' }" [panelSizes]="[70, 30]" [minSizes]="[10, 0]" styleClass="mb-8">
         <ng-template #panel>
@@ -64,38 +65,46 @@
 
                                 <div class="flex flex-col gap-2">
                                     <label for="name1">Name</label>
-                                    <input pInputText id="name1" type="text" [(ngModel)]="patient.name" [readonly]="!isEditMode" />
+                                    <input pInputText id="name1" type="text" [(ngModel)]="patient.name" [disabled]="!isEditMode" />
                                 </div>
 
                                 <div class="flex flex-col gap-2">
                                     <label for="surname1">Surname</label>
-                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.surname" [readonly]="!isEditMode" />
-                                </div>
-
-                                <div class="flex flex-col gap-2"> <!-- fix  -->
-                                    <label for="surname1">Birth Date</label>
-                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.birthDate" [readonly]="!isEditMode" />
-                                </div>
-
-                                <div class="flex flex-col gap-2"> <!-- fix  -->
-                                    <label for="surname1">Gender</label>
-                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.gender" [readonly]="!isEditMode" />
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.surname" [disabled]="!isEditMode" />
                                 </div>
 
                                 <div class="flex flex-col gap-2">
-                                    <label for="phone1">Phone</label>
-                                    <input pInputText id="phone1" type="text" [(ngModel)]="patient.phoneNumber" [readonly]="!isEditMode" />
+                                    <div class="font-semibold text-xl">Birth date</div>
+                                    <p-datepicker
+                                        [(ngModel)]="patient.birthDate"
+                                        [disabled]="!isEditMode"
+                                        [showIcon]="true"
+                                        [showButtonBar]="true"
+                                        dateFormat="yy MM dd"
+                                        inputId="birthDatePicker">
+                                    </p-datepicker>
+                                </div>
+
+                                <div class="flex flex-col gap-2">
+                                    <label for="surname1">Gender</label>
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.gender" [disabled]="!isEditMode" />
+                                </div>
+
+                                <div class="flex flex-col gap-2">
+                                    <label for="email1">Phone Number</label>
+                                    <input pInputText id="email1" type="text" [(ngModel)]="patient.phoneNumber" [disabled]="!isEditMode" />
                                 </div>
 
                                 <div class="flex flex-col gap-2">
                                     <label for="email1">Email</label>
-                                    <input pInputText id="email1" type="text" [(ngModel)]="patient.email" [readonly]="!isEditMode" />
+                                    <input pInputText id="email1" type="text" [(ngModel)]="patient.email" [disabled]="!isEditMode" />
                                 </div>
 
-                                <div class="flex flex-col gap-2"> <!-- fix  -->
+                                <div class="flex flex-col gap-2">
                                     <label for="surname1">Address</label>
-                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.address" [readonly]="!isEditMode" />
+                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.address" [disabled]="!isEditMode" />
                                 </div>
+
                             </div>
                         </ng-template>
                         <ng-template #panel>
@@ -108,7 +117,7 @@
                                     rows="30"
                                     cols="30"
                                     [(ngModel)]="patient.notes"
-                                    [readonly]="!isEditMode"
+                                    [disabled]="!isEditMode"
                                 ></textarea>
                             </div>
                         </ng-template>

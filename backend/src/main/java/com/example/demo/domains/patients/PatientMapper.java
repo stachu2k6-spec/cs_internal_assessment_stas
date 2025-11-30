@@ -8,7 +8,6 @@ import java.util.UUID;
 
 @Service
 public class PatientMapper {
-
     /**
      * DTO → Entity
      */

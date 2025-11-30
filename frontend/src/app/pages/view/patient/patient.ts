@@ -1,10 +1,10 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
 import { SliderModule } from 'primeng/slider';
-import { Table, TableModule } from 'primeng/table';
+import { TableModule } from 'primeng/table';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
@@ -16,16 +16,11 @@ import { RippleModule } from 'primeng/ripple';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { TagModule } from 'primeng/tag';
-import { Customer, CustomerService, Representative } from '../../service/customer.service';
-import { Product, ProductService } from '../../service/product.service';
-import {ObjectUtils} from "primeng/utils";
+import { Customer } from '../../service/customer.service';
 import { Splitter } from 'primeng/splitter';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
-import { CdkTreeNodePadding } from '@angular/cdk/tree';
 import { Textarea } from 'primeng/textarea';
-import { AutoComplete } from 'primeng/autocomplete';
 import { DatePicker } from 'primeng/datepicker';
-import { FloatLabel } from 'primeng/floatlabel';
 import { InputNumber } from 'primeng/inputnumber';
 import { Image } from 'primeng/image';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -68,14 +63,15 @@ interface expandedRows {
         Textarea,
         Image,
         RouterLink,
-        ContextMenu
+        ContextMenu,
+        DatePicker,
+        InputNumber
     ],
     templateUrl: './patient.html',
     styleUrl: './patient.scss',
-    providers: [ConfirmationService, MessageService, CustomerService, ProductService]
+    providers: [MessageService]
 })
-export class Patient implements OnInit, OnDestroy{
-
+export class Patient implements OnInit, OnDestroy {
     selectedSymptom: Customer | null = null;
 
     selectedMeeting: Customer | null = null;
@@ -84,11 +80,10 @@ export class Patient implements OnInit, OnDestroy{
 
     meetingsCMItems: any[] = [];
 
-
     // inside Patient class (add these properties)
     isEditMode: boolean = false;
 
-    patient: PatientDto = this.createEmptyPatient();  // Patient data to be displayed and edited, initialized to empty
+    patient: PatientDto = this.createEmptyPatient(); // Patient data to be displayed and edited, initialized to empty
 
     meetings: MeetingDto[] = [];
 
@@ -100,16 +95,15 @@ export class Patient implements OnInit, OnDestroy{
 
     private destroy$ = new Subject<void>();
 
-
     @ViewChild('filter') filter!: ElementRef;
 
     constructor(
         private patientFacade: PatientFacade,
         private meetingFacade: MeetingFacade,
         private route: ActivatedRoute,
-        private router: Router
-) {}
-
+        private router: Router,
+        private messageService: MessageService
+    ) {}
 
     ngOnInit() {
         const id = this.route.snapshot.paramMap.get('id');
@@ -128,20 +122,19 @@ export class Patient implements OnInit, OnDestroy{
             .fetchById(id)
             .pipe(
                 takeUntil(this.destroy$), // keep receiving until component destroyed
-                tap(x => {
+                tap((x) => {
+                    x.birthDate = this.toLocalDate(x.birthDate);
                     this.patient = x;
                 })
             )
             .subscribe();
 
         // load meetings for this patient
-
         this.meetingFacade.fetchAllMeetings();
-
         this.meetingFacade.meetingState$
             .pipe(
-                takeUntil(this.destroy$),     // keep receiving until component destroyed
-                tap(list => {
+                takeUntil(this.destroy$), // keep receiving until component destroyed
+                tap((list) => {
                     this.meetings = list;
                     this.removeMeetingsOfOtherPatients(id);
                     this.splitMeetings();
@@ -154,7 +147,6 @@ export class Patient implements OnInit, OnDestroy{
         this.destroy$.next();
         this.destroy$.complete();
     }
-
 
     deleteSymptom(symptom: Customer | null) {
         //remove symptom logic here
@@ -182,58 +174,88 @@ export class Patient implements OnInit, OnDestroy{
         this.isEditMode = false;
     }
 
-    save() {
-        // TODO: call your API to persist patient changes
-        // For now, we mock save with a message and toggle mode off
-        this.isEditMode = false;
-        this._patientBackup = null;
+    save(): void {
+        // basic client-side validation
+        if (!this.patient) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No patient loaded.' });
+            return;
+        }
 
-        // show a toast (you already have MessageService provider)
-        // this.messageService.add({
-        //     severity: 'success',
-        //     summary: 'Saved',
-        //     detail: 'Patient data saved.'
-        // });
+        if (!this.patient.name?.trim() || !this.patient.surname?.trim()) {
+            this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Name and surname are required.' });
+            return;
+        }
 
-        // If you have a real backend: call service then handle response
-        // this.patientService.updatePatient(this.patient).then(...).catch(...)
+        this.patientFacade
+            .updatePatient(this.patient.id, this.patient)
+            .pipe(take(1))
+            .subscribe({
+                next: (saved: PatientDto) => {
+                    // update local model with server response (in case server modifies the entity)
+                    saved.birthDate = this.toLocalDate(this.patient.birthDate);
+                    this.patient = saved;
+                    this.isEditMode = false;
+                    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Patient profile saved.' });
+                },
+                error: (err) => {
+                    console.error('Failed to save patient', err);
+                    const detail = err?.message ?? 'Unknown error';
+                    this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
+                }
+            });
     }
 
     removeMeetingsOfOtherPatients(patientId: string) {
-        this.meetings = this.meetings.filter(m => m.patient.id === patientId);
+        this.meetings = this.meetings.filter((m) => m.patient.id === patientId);
     }
 
     // method to split and sort meetings into upcoming and past based on current date
     private splitMeetings() {
         const now = new Date();
 
-        this.upcomingMeetings = this.meetings
-            .filter(m => new Date(m.date + 'T' + m.startTime) >= now)
-            .sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
+        this.upcomingMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) >= now).sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
 
-        this.pastMeetings = this.meetings
-            .filter(m => new Date(m.date + 'T' + m.startTime) < now)
-            .sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
+        this.pastMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) < now).sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
     }
 
-    getNextMeetingDate(id: string){
+    getNextMeetingDate(id: string) {
         // find the next meeting for a patient
         const nextMeeting = this.upcomingMeetings.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
         return nextMeeting ? nextMeeting.date : null;
     }
 
-    getPreviousMeetingDate(id: string){
+    getPreviousMeetingDate(id: string) {
         // find the previous meeting for a patient
         const previousMeeting = this.pastMeetings.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
         return previousMeeting ? previousMeeting.date : null;
     }
+
+    toLocalDate(value: string | Date | null): Date {
+        if (!value) return new Date();
+
+        // Already a JS Date → return as-is
+        if (value instanceof Date) return value;
+
+        // Expecting "yyyy-mm-dd"
+        const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (match) {
+            const year = +match[1];
+            const month = +match[2] - 1; // JS months start at 0
+            const day = +match[3];
+            return new Date(year, month, day);
+        }
+
+        // Fallback: attempt normal parsing (not used for your format, but safe to keep)
+        return new Date(value);
+    }
+
 
     createEmptyPatient(): PatientDto {
         return {
             id: '-EMPTY-',
             name: '-EMPTY-',
             surname: '-EMPTY-',
-            birthDate: '-EMPTY-',
+            birthDate: new Date(),
             gender: '-EMPTY-',
             address: '-EMPTY-',
             phoneNumber: '-EMPTY-',

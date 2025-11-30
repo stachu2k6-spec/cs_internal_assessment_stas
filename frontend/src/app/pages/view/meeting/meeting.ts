@@ -24,6 +24,7 @@ import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { take } from 'rxjs';
 import { PatientDto } from '@/pages/service/patient/patient.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
+import { MessageService } from 'primeng/api';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -55,7 +56,7 @@ interface expandedRows {
     ],
     templateUrl: './meeting.html',
     styleUrl: './meeting.scss',
-    providers: []
+    providers: [MessageService] // <--- provide MessageService here (or provide it app-wide)
 })
 export class Meeting implements OnInit {
     customers2: any[] = [];
@@ -76,7 +77,8 @@ export class Meeting implements OnInit {
         private meetingFacade: MeetingFacade,
         private patientFacade: PatientFacade,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private messageService: MessageService
     ) {}
 
     ngOnInit() {
@@ -98,27 +100,30 @@ export class Meeting implements OnInit {
             .subscribe({
                 next: (dto: MeetingDto) => {
                     this.meeting = dto ? dto : this.createEmptyMeeting();
-                    this.patientFacade.fetchById(this.meeting.patient.id)
-                        .pipe(take(1))
-                        .subscribe({
-                            next: (dto: PatientDto) => {
-                                this.patient = dto ? dto : this.createEmptyPatient();
-                            },
-                            error: (err: any) => {
-                                console.error('Failed loading patient', err);
-                                // this.router.navigate(['/notfound']);
-                            }
-                        });
+                    if (this.meeting?.patient?.id) {
+                        this.patientFacade.fetchById(this.meeting.patient.id)
+                            .pipe(take(1))
+                            .subscribe({
+                                next: (dto: PatientDto) => {
+                                    this.patient = dto ? dto : this.createEmptyPatient();
+                                },
+                                error: (err: any) => {
+                                    console.error('Failed loading patient', err);
+                                    // keep page visible even if patient loading fails
+                                    this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Could not load associated patient.' });
+                                }
+                            });
+                    } else {
+                        this.patient = this.createEmptyPatient();
+                    }
                 },
                 error: (err: any) => {
                     console.error('Failed loading meeting', err);
+                    this.messageService.add({ severity: 'error', summary: 'Load failed', detail: 'Meeting could not be loaded.' });
                     this.router.navigate(['/notfound']);
                 }
             });
-
-
     }
-
 
     enterEdit() {
         // create a shallow clone backup so cancel can restore previous state
@@ -134,26 +139,50 @@ export class Meeting implements OnInit {
         this.isEditMode = false;
     }
 
+    /**
+     * Save meeting edits. Uses MeetingFacade.updateMeeting(meetingId, meetingDto)
+     * If your facade exposes a different method name, replace it accordingly.
+     */
     save() {
-        // TODO: call your API to persist patient changes
-        // For now, we mock save with a message and toggle mode off
+        // basic validation example: ensure date & startTime present
+        if (!this.meeting) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No meeting loaded.' });
+            return;
+        }
+
+        if (!this.meeting.date || !this.meeting.startTime) {
+            this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Date and start time are required.' });
+            return;
+        }
+
+        // optimistic UI: disable edit mode while saving
+        const previousEditState = this.isEditMode;
         this.isEditMode = false;
-        this._meetingBackup = null;
 
-        // show a toast (you already have MessageService provider)
-        // this.messageService.add({
-        //     severity: 'success',
-        //     summary: 'Saved',
-        //     detail: 'Patient data saved.'
-        // });
-
-        // If you have a real backend: call service then handle response
-        // this.patientService.updatePatient(this.patient).then(...).catch(...)
+        // guard with take(1) to auto-unsubscribe
+        try {
+            (this.meetingFacade as any).updateMeeting(this.meeting.id, this.meeting)
+                .pipe(take(1))
+                .subscribe({
+                    next: (saved: MeetingDto) => {
+                        this.meeting = saved;
+                        this._meetingBackup = null;
+                        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Meeting saved successfully.' });
+                    },
+                    error: (err: any) => {
+                        console.error('Failed to save meeting', err);
+                        this.isEditMode = previousEditState;
+                        this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+                    }
+                });
+        } catch (err: any) {
+            console.error('Save exception', err);
+            this.isEditMode = previousEditState;
+            this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+        }
     }
 
-
-
-    private createEmptyMeeting() {
+    private createEmptyMeeting(): MeetingDto {
         return {
             id: '-EMPTY-',
             patient: this.createEmptyPatient(),
@@ -161,12 +190,12 @@ export class Meeting implements OnInit {
             startTime: '-EMPTY-',
             duration: '-EMPTY-',
             notes: '-EMPTY-'
-        }
+        } as MeetingDto;
     }
 
     /** Format ISO 8601 duration to readable format */
     formatDuration(isoDuration: string): string {
-        const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
+        const match = isoDuration?.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
 
         const hours = match?.[1] ? Number(match[1]) : 0;
         const minutes = match?.[2] ? Number(match[2]) : 0;
@@ -185,7 +214,7 @@ export class Meeting implements OnInit {
             id: '-EMPTY-',
             name: '-EMPTY-',
             surname: '-EMPTY-',
-            birthDate: '-EMPTY-',
+            birthDate: new Date(),
             gender: '-EMPTY-',
             address: '-EMPTY-',
             phoneNumber: '-EMPTY-',

@@ -56,6 +56,12 @@ public class MeetingMapper {
         entity.setDuration(dto.getDuration());
         entity.setNotes(dto.getNotes());
 
+        // DO NOT map PatientDto -> PatientEntity here.
+        // That must be done in the Facade via lookup in PatientRepository.
+        // Example:
+        // PatientEntity p = patientRepository.findById(dto.getPatient().getId()).get();
+        // entity.setPatient(p);
+
         return entity;
     }
 
