@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { MeetingDto } from '@/pages/service/meeting/meeting.model';
+import { CreateMeetingDto, MeetingDto } from '@/pages/service/meeting/meeting.model';
 
 @Injectable({
     providedIn: 'root'
@@ -53,7 +53,7 @@ export class MeetingService {
         return this.http.get<MeetingDto>(this.apiUrl + '/' + id);
     }
 
-    create(meeting: Omit<MeetingDto, 'id'>): Observable<MeetingDto> {
+    create(meeting: CreateMeetingDto): Observable<MeetingDto> {
         return this.http.post<MeetingDto>(this.apiUrl, meeting);
     }
 

@@ -36,6 +36,20 @@ export class PatientFacade {
         );
     }
 
+    createPatient(patient: PatientDto): Observable<PatientDto> {
+        return this.patientService.create(patient).pipe(
+            take(1),
+            tap(newPatient => {
+                // update the patientState$ with the new patient
+                const currentPatients = this.patientState$.getValue();
+                this.patientState$.next([...currentPatients, newPatient]);
+
+                // set the new patient in patientByIdState$
+                this.patientByIdState$.next(newPatient);
+            })
+        );
+    }
+
     updatePatient(id: string, patient: PatientDto): Observable<PatientDto> {
         return this.patientService.update(id, patient).pipe(
             take(1),

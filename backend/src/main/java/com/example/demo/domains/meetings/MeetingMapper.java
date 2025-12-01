@@ -5,7 +5,6 @@ import com.example.demo.controllers.meetings.MeetingDto;
 import com.example.demo.controllers.patients.PatientDto;
 import com.example.demo.domains.patients.PatientMapper;
 import com.example.demo.repository.meetings.MeetingEntity;
-import com.example.demo.repository.patients.PatientEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -66,7 +65,7 @@ public class MeetingMapper {
     }
 
     /**
-     * Helper method for CreateMeetingDto → MeetingEntity for the create flow.
+     * Helper method for ModifyMeetingDto → MeetingEntity for the create flow.
      */
     public MeetingEntity fromCreate(CreateMeetingDto dto) {
         MeetingEntity entity = new MeetingEntity();

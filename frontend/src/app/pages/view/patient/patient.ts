@@ -21,7 +21,6 @@ import { Splitter } from 'primeng/splitter';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { Textarea } from 'primeng/textarea';
 import { DatePicker } from 'primeng/datepicker';
-import { InputNumber } from 'primeng/inputnumber';
 import { Image } from 'primeng/image';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ContextMenu } from 'primeng/contextmenu';
@@ -65,7 +64,6 @@ interface expandedRows {
         RouterLink,
         ContextMenu,
         DatePicker,
-        InputNumber
     ],
     templateUrl: './patient.html',
     styleUrl: './patient.scss',
@@ -114,12 +112,19 @@ export class Patient implements OnInit, OnDestroy {
             return;
         }
 
+        if( id === 'newPatient') {
+            // new patient mode
+            this.isEditMode = true;
+            this.patient = this.createEmptyPatient();
+            this.patient.id = 'newPatient'; // temporary id to indicate new patient
+            return;
+        }
+
         // clear stale patient before loading
         this.patient = this.createEmptyPatient();
 
         // subscribe to actual HTTP request
-        this.patientFacade
-            .fetchById(id)
+        this.patientFacade.fetchById(id)
             .pipe(
                 takeUntil(this.destroy$), // keep receiving until component destroyed
                 tap((x) => {
@@ -141,6 +146,7 @@ export class Patient implements OnInit, OnDestroy {
                 })
             )
             .subscribe();
+
     }
 
     ngOnDestroy() {
@@ -175,6 +181,26 @@ export class Patient implements OnInit, OnDestroy {
     }
 
     save(): void {
+        if (this.patient.id === 'newPatient') {
+            // create new patient
+            this.patient.id = ''; // clear temporary id before sending to server
+            this.patientFacade.createPatient(this.patient).pipe(takeUntil(this.destroy$))
+                .subscribe({
+                    next: (created: PatientDto) => {
+                        // update local model with server response (in case server modifies the entity)
+                        created.birthDate = this.toLocalDate(this.patient.birthDate);
+                        this.patient = created;
+                        this.isEditMode = false;
+                        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Patient profile saved.' });
+                    },
+                    error: (err) => {
+                        console.error('Failed to save patient', err);
+                        const detail = err?.message ?? 'Unknown error';
+                        this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
+                    }
+                });
+            return;
+        }
         // basic client-side validation
         if (!this.patient) {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No patient loaded.' });
@@ -203,6 +229,8 @@ export class Patient implements OnInit, OnDestroy {
                     this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
                 }
             });
+
+
     }
 
     removeMeetingsOfOtherPatients(patientId: string) {
@@ -252,17 +280,17 @@ export class Patient implements OnInit, OnDestroy {
 
     createEmptyPatient(): PatientDto {
         return {
-            id: '-EMPTY-',
-            name: '-EMPTY-',
-            surname: '-EMPTY-',
+            id: '',
+            name: '',
+            surname: '',
             birthDate: new Date(),
-            gender: '-EMPTY-',
-            address: '-EMPTY-',
-            phoneNumber: '-EMPTY-',
-            email: '-EMPTY-',
-            notes: '-EMPTY-',
-            activityLevel: '-EMPTY-',
-            photoUrl: '-EMPTY-'
+            gender: '',
+            address: '',
+            phoneNumber: '',
+            email: '',
+            notes: '',
+            activityLevel: '',
+            photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
         };
     }
 }

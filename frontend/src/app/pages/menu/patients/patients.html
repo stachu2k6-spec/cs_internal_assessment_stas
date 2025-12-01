@@ -19,8 +19,10 @@
 </div>
 
 <div class="card">
-    <div class="font-semibold text-xl">Patients</div>
-
+    <div class="w-full flex justify-between mt-4">
+        <div class="font-semibold text-xl">Patients</div>
+        <p-button [routerLink]="['/view', 'patient', 'newPatient']" label="Add Patient" icon="pi pi-plus" iconPos="right"></p-button>
+    </div>
     <p-dataview [value]="patients" [layout]="layout">
         <ng-template #header>
             <div class="flex justify-end">

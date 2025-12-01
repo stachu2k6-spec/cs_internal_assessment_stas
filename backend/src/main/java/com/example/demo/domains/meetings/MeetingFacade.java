@@ -77,13 +77,6 @@ public class MeetingFacade {
         MeetingEntity meeting = meetingRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Meeting not found"));
 
-        // If client provided a patient inside MeetingDto, resolve corresponding PatientEntity
-        if (meetingDto.getPatient() != null && meetingDto.getPatient().getId() != null) {
-            UUID patientId = meetingDto.getPatient().getId();
-            PatientEntity patient = patientRepository.findById(patientId)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found: " + patientId));
-            meeting.setPatient(patient);
-        }
 
         meeting.setDate(meetingDto.getDate());
         meeting.setStartTime(meetingDto.getStartTime());

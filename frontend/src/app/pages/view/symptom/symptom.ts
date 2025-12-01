@@ -124,9 +124,9 @@ export class Symptom implements OnInit {
 
     private createEmptySymptom(): SymptomDto {
         return {
-            id: '-EMPTY-',
-            name: '-EMPTY-',
-            notes: '-EMPTY-'
+            id: '',
+            name: '',
+            notes: ''
         } as SymptomDto;
     }
 }

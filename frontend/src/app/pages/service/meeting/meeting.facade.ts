@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, take, tap } from 'rxjs';
 
-import { MeetingDto } from '@/pages/service/meeting/meeting.model';
+import { CreateMeetingDto, MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { MeetingService } from '@/pages/service/meeting/meeting.service';
 
 @Injectable({
@@ -36,6 +36,20 @@ export class MeetingFacade {
         );
     }
 
+    createMeeting(meeting: CreateMeetingDto): Observable<MeetingDto> {
+        return this.meetingService.create(meeting).pipe(
+            take(1),
+            tap(newMeeting => {
+                // update the meetingState$ with the new meeting
+                const currentMeetings = this.meetingState$.getValue();
+                this.meetingState$.next([...currentMeetings, newMeeting]);
+
+                // set the new meeting in meetingByIdState$
+                this.meetingByIdState$.next(newMeeting);
+            })
+        );
+    }
+
     updateMeeting(id: string, meeting: MeetingDto): Observable<MeetingDto> {
         return this.meetingService.update(id, meeting).pipe(
             take(1),
@@ -53,5 +67,4 @@ export class MeetingFacade {
             })
         );
     }
-
 }

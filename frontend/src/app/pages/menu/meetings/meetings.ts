@@ -25,16 +25,16 @@ import { takeUntil, tap } from 'rxjs/operators';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { PatientDto } from '@/pages/service/patient/patient.model';
 import { Subject } from 'rxjs';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
     selector: 'app-meeting-database',
-    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, TableModule, FormsModule, RouterLink],
+    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, TableModule, FormsModule, RouterLink, DatePicker],
     templateUrl: './meetings.html',
     styleUrl: './meetings.scss',
     providers: []
 })
 export class Meetings implements OnInit, OnDestroy {
-
     //statuses: any[] = [];
 
     /** List of meetings */
@@ -60,11 +60,11 @@ export class Meetings implements OnInit, OnDestroy {
         this.meetingFacade.fetchAllMeetings();
         this.meetingFacade.meetingState$
             .pipe(
-                tap(x => {
-                    this.meetings = x;
+                takeUntil(this.destroy$),
+                tap((list) => {
+                    this.meetings = list;
                     this.splitMeetings();
-                }),
-                takeUntil(this.destroy$)
+                })
             )
             .subscribe();
 
@@ -74,7 +74,7 @@ export class Meetings implements OnInit, OnDestroy {
 
         this.patientFacade.patientState$
             .pipe(
-                tap(p => this.patients = p),
+                tap((p) => (this.patients = p)),
                 takeUntil(this.destroy$)
             )
             .subscribe();
@@ -110,12 +110,8 @@ export class Meetings implements OnInit, OnDestroy {
     private splitMeetings() {
         const now = new Date();
 
-        this.upcomingMeetings = this.meetings
-            .filter(m => new Date(m.date + 'T' + m.startTime) >= now)
-            .sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
+        this.upcomingMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) >= now).sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
 
-        this.pastMeetings = this.meetings
-            .filter(m => new Date(m.date + 'T' + m.startTime) < now)
-            .sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
+        this.pastMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) < now).sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
     }
 }

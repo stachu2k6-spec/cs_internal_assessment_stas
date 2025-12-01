@@ -1,8 +1,5 @@
 package com.example.demo.controllers.meetings;
 
-import com.example.demo.controllers.patients.PatientDto;
-import com.example.demo.repository.patients.PatientEntity;
-
 
 import java.time.Duration;
 import java.time.LocalDate;

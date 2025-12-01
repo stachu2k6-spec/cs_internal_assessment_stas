@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
@@ -21,10 +21,15 @@ import { Image } from 'primeng/image';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
-import { take } from 'rxjs';
 import { PatientDto } from '@/pages/service/patient/patient.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
 import { MessageService } from 'primeng/api';
+import { DatePickerModule } from 'primeng/datepicker';
+
+// rxjs
+import { Subject, of, pipe } from 'rxjs';
+import { takeUntil, switchMap, tap, catchError } from 'rxjs/operators';
+import { InputNumber } from 'primeng/inputnumber';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -52,26 +57,35 @@ interface expandedRows {
         Splitter,
         Textarea,
         Image,
-        RouterLink
+        RouterLink,
+        DatePickerModule,
+        InputNumber
     ],
     templateUrl: './meeting.html',
     styleUrl: './meeting.scss',
-    providers: [MessageService] // <--- provide MessageService here (or provide it app-wide)
+    providers: [MessageService]
 })
-export class Meeting implements OnInit {
+export class Meeting implements OnInit, OnDestroy {
     customers2: any[] = [];
 
     statuses: any[] = [];
 
     isEditMode: boolean = false;
 
+    isNewMeetingMode: boolean = false;
+
     meeting: MeetingDto = this.createEmptyMeeting(); // Meeting data to be displayed and edited, initialized to empty
 
     patient: PatientDto = this.createEmptyPatient(); // Associated patient data, initialized to empty
 
+    patients: PatientDto[] = [];
+
     private _meetingBackup: any = null;
 
     @ViewChild('filter') filter!: ElementRef;
+
+    // destroy notifier for takeUntil
+    private destroy$ = new Subject<void>();
 
     constructor(
         private meetingFacade: MeetingFacade,
@@ -90,39 +104,56 @@ export class Meeting implements OnInit {
             return;
         }
 
+        if (id === 'newMeeting') {
+            // new meeting mode
+            this.isEditMode = true;
+            this.isNewMeetingMode = true;
+            this.meeting = this.createEmptyMeeting();
+            this.meeting.id = 'newMeeting'; // assign temporary id
+            this.patient = this.createEmptyPatient();
+
+            // fetch all patients for selection
+            this.patientFacade.fetchAllPatients();
+            this.patientFacade.patientState$
+                .pipe(
+                    tap((x) => (this.patients = x)),
+                    takeUntil(this.destroy$)
+                )
+                .subscribe();
+            return;
+        }
+
         // clear stale meeting before loading
         this.meeting = this.createEmptyMeeting();
 
-        // subscribe to actual HTTP request
+        // fetch meeting, when loaded fetch patient
         this.meetingFacade
             .fetchById(id)
-            .pipe(take(1))
-            .subscribe({
-                next: (dto: MeetingDto) => {
-                    this.meeting = dto ? dto : this.createEmptyMeeting();
-                    if (this.meeting?.patient?.id) {
-                        this.patientFacade.fetchById(this.meeting.patient.id)
-                            .pipe(take(1))
-                            .subscribe({
-                                next: (dto: PatientDto) => {
-                                    this.patient = dto ? dto : this.createEmptyPatient();
-                                },
-                                error: (err: any) => {
-                                    console.error('Failed loading patient', err);
-                                    // keep page visible even if patient loading fails
-                                    this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Could not load associated patient.' });
-                                }
-                            });
-                    } else {
-                        this.patient = this.createEmptyPatient();
-                    }
-                },
-                error: (err: any) => {
-                    console.error('Failed loading meeting', err);
-                    this.messageService.add({ severity: 'error', summary: 'Load failed', detail: 'Meeting could not be loaded.' });
-                    this.router.navigate(['/notfound']);
-                }
-            });
+            .pipe(
+                takeUntil(this.destroy$),
+                tap((x) => {
+                    x.date = this.toLocalDate(x.date);
+                    x.startTime = this.toDateFromTimestamp(x.startTime);
+                    x.duration = this.getMinutesFromIsoDuration(x.duration);
+                    this.meeting = x;
+                    this.patientFacade
+                        .fetchById(this.meeting.patient.id)
+                        .pipe(
+                            takeUntil(this.destroy$),
+                            tap((x) => {
+                                this.patient = x;
+                            })
+                        )
+                        .subscribe();
+                })
+            )
+            .subscribe();
+    }
+
+    ngOnDestroy(): void {
+        // notify all subscribers to complete and free resources
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     enterEdit() {
@@ -141,10 +172,8 @@ export class Meeting implements OnInit {
 
     /**
      * Save meeting edits. Uses MeetingFacade.updateMeeting(meetingId, meetingDto)
-     * If your facade exposes a different method name, replace it accordingly.
      */
     save() {
-        // basic validation example: ensure date & startTime present
         if (!this.meeting) {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No meeting loaded.' });
             return;
@@ -155,16 +184,64 @@ export class Meeting implements OnInit {
             return;
         }
 
-        // optimistic UI: disable edit mode while saving
+        if (this.meeting.id === 'newMeeting') {
+            const patientId = this.patientsId(this.patient.name, this.patient.surname);
+            if (patientId) {
+                // create new meeting
+                const createdMeeting = {
+                    patientId: patientId,
+                    date: this.meeting.date,
+                    startTime: this.getTimeHHMM(this.meeting.startTime),
+                    duration: this.minutesToIsoDuration(this.meeting.duration),
+                    notes: this.meeting.notes
+                };
+                this.meetingFacade
+                    .createMeeting(createdMeeting)
+                    .pipe(takeUntil(this.destroy$))
+                    .subscribe({
+                        next: (created: MeetingDto) => {
+                            created.date = this.toLocalDate(created.date);
+                            created.startTime = this.toDateFromTimestamp(created.startTime);
+                            created.duration = this.getMinutesFromIsoDuration(created.duration);
+                            this.meeting = created;
+                            this._meetingBackup = null;
+                            this.isEditMode = false;
+                            this.isNewMeetingMode = false;
+                            this.messageService.add({ severity: 'success', summary: 'Created', detail: 'Meeting created successfully.' });
+                        },
+                        error: (err: any) => {
+                            console.error('Failed to create meeting', err);
+                            this.messageService.add({ severity: 'error', summary: 'Creation failed', detail: err?.message ?? 'Unknown error' });
+                        }
+                    });
+                return;
+            } else {
+                console.error('Save exception', 'Patient does not exist');
+                this.messageService.add({ severity: 'error', summary: 'Save failed', detail: 'Patient does not exist' });
+                return;
+            }
+        }
+
         const previousEditState = this.isEditMode;
         this.isEditMode = false;
 
-        // guard with take(1) to auto-unsubscribe
         try {
-            (this.meetingFacade as any).updateMeeting(this.meeting.id, this.meeting)
-                .pipe(take(1))
+            const updatedMeeting = {
+                id: this.meeting.id,
+                patient: this.patient,
+                date: this.meeting.date,
+                startTime: this.getTimeHHMM(this.meeting.startTime),
+                duration: this.minutesToIsoDuration(this.meeting.duration),
+                notes: this.meeting.notes
+            };
+            this.meetingFacade
+                .updateMeeting(this.meeting.id, updatedMeeting)
+                .pipe(takeUntil(this.destroy$)) // ensure unsubscribe on destroy
                 .subscribe({
                     next: (saved: MeetingDto) => {
+                        saved.date = this.toLocalDate(this.meeting.date);
+                        saved.startTime = this.toDateFromTimestamp(saved.startTime);
+                        saved.duration =  this.getMinutesFromIsoDuration(this.meeting.duration);
                         this.meeting = saved;
                         this._meetingBackup = null;
                         this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Meeting saved successfully.' });
@@ -182,46 +259,105 @@ export class Meeting implements OnInit {
         }
     }
 
-    private createEmptyMeeting(): MeetingDto {
+    // Return id of patient if exists, else null
+    patientsId(name: string, surname: string): string | null {
+        return this.patients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
+    }
+
+
+
+    /** Format ISO 8601 duration to number format */
+    getMinutesFromIsoDuration(iso: string | number): number {
+        if (typeof iso === 'number') return iso;
+
+        const regex = /PT(?:(\d+)H)?(?:(\d+)M)?/;
+
+        const match = iso.match(regex);
+
+        if (!match) return 0;
+
+        const hours = match[1] ? parseInt(match[1], 10) : 0;
+        const minutes = match[2] ? parseInt(match[2], 10) : 0;
+
+        return hours * 60 + minutes;
+    }
+
+    minutesToIsoDuration(minutes: number | string): string {
+        if (typeof minutes === 'string') {
+            minutes = parseInt(minutes, 10);
+        }
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+
+        let iso = "PT";
+
+        if (hours > 0) iso += `${hours}H`;
+        if (mins > 0) iso += `${mins}M`;
+
+        // ISO requires at least one field
+        if (iso === "PT") iso = "PT0M";
+
+        return iso;
+    }
+
+    toDateFromTimestamp(timestamp: any): Date {
+        const [hours, minutes, seconds] = timestamp.split(':').map(Number);
+
+        const date = new Date();
+        date.setHours(hours, minutes, seconds, 0);
+
+        return date;
+    }
+
+    toLocalDate(value: string | Date | null): Date {
+        if (!value) return new Date();
+
+        if (value instanceof Date) return value;
+
+        const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (match) {
+            const year = +match[1];
+            const month = +match[2] - 1;
+            const day = +match[3];
+            return new Date(year, month, day);
+        }
+
+        return new Date(value);
+    }
+
+    getTimeHHMM(date: Date | string): string {
+        if (typeof date === 'string') {
+            return date;
+        }
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+
+    private createEmptyMeeting() {
         return {
-            id: '-EMPTY-',
+            id: '',
             patient: this.createEmptyPatient(),
-            date: '-EMPTY-',
-            startTime: '-EMPTY-',
-            duration: '-EMPTY-',
-            notes: '-EMPTY-'
-        } as MeetingDto;
-    }
-
-    /** Format ISO 8601 duration to readable format */
-    formatDuration(isoDuration: string): string {
-        const match = isoDuration?.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
-
-        const hours = match?.[1] ? Number(match[1]) : 0;
-        const minutes = match?.[2] ? Number(match[2]) : 0;
-
-        if (hours && minutes) return `${hours}h ${minutes}m`;
-        if (hours) return `${hours}h`;
-        return `${minutes}m`;
-    }
-
-    get formattedDuration(): string {
-        return this.formatDuration(this.meeting.duration);
+            date: new Date(),
+            startTime: new Date(),
+            duration: '0',
+            notes: ''
+        };
     }
 
     createEmptyPatient(): PatientDto {
         return {
-            id: '-EMPTY-',
-            name: '-EMPTY-',
-            surname: '-EMPTY-',
+            id: '',
+            name: '',
+            surname: '',
             birthDate: new Date(),
-            gender: '-EMPTY-',
-            address: '-EMPTY-',
-            phoneNumber: '-EMPTY-',
-            email: '-EMPTY-',
-            notes: '-EMPTY-',
-            activityLevel: '-EMPTY-',
-            photoUrl: '-EMPTY-'
+            gender: '',
+            address: '',
+            phoneNumber: '',
+            email: '',
+            notes: '',
+            activityLevel: '',
+            photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
         };
     }
 }

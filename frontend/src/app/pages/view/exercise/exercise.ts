@@ -133,9 +133,9 @@ export class Exercise implements OnInit {
 
     private createEmptyExercise(): ExerciseDto {
         return {
-            id: '-EMPTY-',
-            name: '-EMPTY-',
-            notes: '-EMPTY-'
+            id: '',
+            name: '',
+            notes: ''
         } as ExerciseDto;
     }
 }
