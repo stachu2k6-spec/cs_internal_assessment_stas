@@ -5,7 +5,7 @@ import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Panel } from 'primeng/panel';
-import { CalendarResizeService } from '../../layout/service/calendar-resize.service';
+import { CalendarResizeService } from '@/layout/service/calendar-resize.service';
 import { Button } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';

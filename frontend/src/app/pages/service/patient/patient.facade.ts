@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, take, tap } from 'rxjs';
 import { PatientDto } from '@/pages/service/patient/patient.model';
 import { PatientService } from '@/pages/service/patient/patient.service';
 import { Patients } from '@/pages/menu/patients/patients';
+import { Patient } from '@/pages/view/patient/patient';
 
 @Injectable({
   providedIn: 'root'
@@ -63,6 +64,24 @@ export class PatientFacade {
                 if (index !== -1) {
                     currentPatients[index] = updatedPatient;
                     this.patientState$.next([...currentPatients]);
+                }
+            })
+        );
+    }
+
+    deletePatient(id: string): Observable<PatientDto> {
+        return this.patientService.delete(id).pipe(
+            take(1),
+            tap(() => {
+                // remove the patient from patientState$
+                const currentPatients = this.patientState$.getValue();
+                const updatedPatients = currentPatients.filter(p => p.id !== id);
+                this.patientState$.next(updatedPatients);
+
+                // clear patientByIdState$ if it matches the deleted patient
+                const currentPatientById = this.patientByIdState$.getValue();
+                if (currentPatientById && currentPatientById.id === id) {
+                    this.patientByIdState$.next(null);
                 }
             })
         );

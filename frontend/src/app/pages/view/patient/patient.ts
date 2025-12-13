@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
@@ -29,6 +29,8 @@ import { PatientFacade } from '@/pages/service/patient/patient.facade';
 import { Subject, take, takeUntil, tap } from 'rxjs';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
+import { ConfirmPopup } from 'primeng/confirmpopup';
+import { Dialog } from 'primeng/dialog';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -64,10 +66,12 @@ interface expandedRows {
         RouterLink,
         ContextMenu,
         DatePicker,
+        ConfirmPopup,
+        Dialog
     ],
     templateUrl: './patient.html',
     styleUrl: './patient.scss',
-    providers: [MessageService]
+    providers: [MessageService, ConfirmationService]
 })
 export class Patient implements OnInit, OnDestroy {
     selectedSymptom: Customer | null = null;
@@ -78,8 +82,11 @@ export class Patient implements OnInit, OnDestroy {
 
     meetingsCMItems: any[] = [];
 
-    // inside Patient class (add these properties)
     isEditMode: boolean = false;
+
+    isNewPatientMode: boolean = false;
+
+    displayConfirmation: boolean = false;
 
     patient: PatientDto = this.createEmptyPatient(); // Patient data to be displayed and edited, initialized to empty
 
@@ -100,7 +107,8 @@ export class Patient implements OnInit, OnDestroy {
         private meetingFacade: MeetingFacade,
         private route: ActivatedRoute,
         private router: Router,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private confirmationService: ConfirmationService
     ) {}
 
     ngOnInit() {
@@ -112,9 +120,10 @@ export class Patient implements OnInit, OnDestroy {
             return;
         }
 
-        if( id === 'newPatient') {
+        if (id === 'newPatient') {
             // new patient mode
             this.isEditMode = true;
+            this.isNewPatientMode = true;
             this.patient = this.createEmptyPatient();
             this.patient.id = 'newPatient'; // temporary id to indicate new patient
             return;
@@ -124,7 +133,8 @@ export class Patient implements OnInit, OnDestroy {
         this.patient = this.createEmptyPatient();
 
         // subscribe to actual HTTP request
-        this.patientFacade.fetchById(id)
+        this.patientFacade
+            .fetchById(id)
             .pipe(
                 takeUntil(this.destroy$), // keep receiving until component destroyed
                 tap((x) => {
@@ -146,7 +156,6 @@ export class Patient implements OnInit, OnDestroy {
                 })
             )
             .subscribe();
-
     }
 
     ngOnDestroy() {
@@ -177,11 +186,16 @@ export class Patient implements OnInit, OnDestroy {
             this.patient = { ...this._patientBackup };
             this._patientBackup = null;
         }
+
+        if (this.isNewPatientMode) {
+            this.router.navigate(['/menu', 'patients']); // navigate back to patient list
+            return;
+        }
+
         this.isEditMode = false;
     }
 
-    save(): void {
-
+    savePatient(): void {
         // basic client-side validation
         if (!this.patient) {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No patient loaded.' });
@@ -196,12 +210,15 @@ export class Patient implements OnInit, OnDestroy {
         if (this.patient.id === 'newPatient') {
             // create new patient
             this.patient.id = ''; // clear temporary id before sending to server
-            this.patientFacade.createPatient(this.patient).pipe(takeUntil(this.destroy$))
+            this.patientFacade
+                .createPatient(this.patient)
+                .pipe(takeUntil(this.destroy$))
                 .subscribe({
                     next: (created: PatientDto) => {
                         // update local model with server response
                         created.birthDate = this.toLocalDate(this.patient.birthDate);
                         this.patient = created;
+                        this.isNewPatientMode = false;
                         this.isEditMode = false;
                         this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Patient profile saved.' });
                         //this.router.navigate(['/view/patient', created.id]);
@@ -230,6 +247,35 @@ export class Patient implements OnInit, OnDestroy {
                 error: (err) => {
                     console.error('Failed to save patient', err);
                     this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+                }
+            });
+    }
+
+    openConfirmation() {
+        this.displayConfirmation = true;
+    }
+
+    closeConfirmation() {
+        this.displayConfirmation = false;
+    }
+
+    deletePatient() {
+        if (!this.patient || !this.patient.id) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No patient loaded.' });
+            return;
+        }
+
+        this.patientFacade
+            .deletePatient(this.patient.id)
+            .pipe(take(1))
+            .subscribe({
+                next: () => {
+                    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Patient profile deleted.' });
+                    this.router.navigate(['/menu', 'patients']); // navigate back to patient list
+                },
+                error: (err) => {
+                    console.error('Failed to delete patient', err);
+                    this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
                 }
             });
     }
@@ -278,7 +324,6 @@ export class Patient implements OnInit, OnDestroy {
         return new Date(value);
     }
 
-
     createEmptyPatient(): PatientDto {
         return {
             id: '',
@@ -294,4 +339,6 @@ export class Patient implements OnInit, OnDestroy {
             photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
         };
     }
+
+    protected readonly confirm = confirm;
 }

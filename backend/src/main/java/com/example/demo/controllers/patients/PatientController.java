@@ -28,7 +28,7 @@ public class PatientController {
 
     @GetMapping("/{id}")
     public PatientDto getPatient(@PathVariable String id) {
-        return patientFacade.getPatientsById(id);
+        return patientFacade.getPatientById(id);
     }
 
     @PutMapping("/{id}")
@@ -37,8 +37,7 @@ public class PatientController {
     }
 
     @DeleteMapping("/{id}")
-    public String deletePatient(@PathVariable String id) {
-        patientFacade.deletePatient(id);
-        return "ok";
+    public PatientDto deletePatient(@PathVariable String id) {
+        return patientFacade.deletePatient(id);
     }
 }

@@ -43,17 +43,38 @@
                                 label="Save"
                                 icon="pi pi-save"
                                 raised
-                                (click)="save()"
+                                (click)="savePatient()"
                             ></p-button>
 
                             <p-button
                                 *ngIf="isEditMode"
                                 label="Cancel"
                                 icon="pi pi-times"
-                                severity="danger"
+                                severity="warn"
                                 raised
                                 (click)="cancelEdit()"
                             ></p-button>
+
+                            <p-button
+                                *ngIf="isEditMode && !isNewPatientMode"
+                                label="Delete"
+                                icon="pi pi-trash"
+                                severity="danger"
+                                raised
+                                (click)="openConfirmation()"
+                            ></p-button>
+
+                            <p-dialog header="Confirmation" [(visible)]="displayConfirmation" [style]="{ width: '350px' }" [modal]="true">
+                                <div class="flex items-center justify-center">
+                                    <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem"> </i>
+                                    <span>Are you sure you want to delete patient?</span>
+                                </div>
+                                <ng-template #footer>
+                                    <p-button label="No" icon="pi pi-times" (click)="closeConfirmation()" text severity="secondary" />
+                                    <p-button label="Yes" icon="pi pi-check" (click)="deletePatient()" severity="danger" outlined autofocus />
+                                </ng-template>
+                            </p-dialog>
+
                         </div>
                     </div>
                 </ng-template>
