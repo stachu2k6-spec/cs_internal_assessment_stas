@@ -7,11 +7,12 @@ import { AppSidebar } from './app.sidebar';
 import { AppFooter } from './app.footer';
 import { LayoutService } from '../service/layout.service';
 import { CalendarResizeService } from '../service/calendar-resize.service';
+import { Toast } from 'primeng/toast';
 
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter],
+    imports: [CommonModule, AppTopbar, AppSidebar, RouterModule, AppFooter, Toast],
     template: `<div class="layout-wrapper" [ngClass]="containerClass">
         <app-topbar></app-topbar>
         <app-sidebar></app-sidebar>
@@ -93,8 +94,12 @@ export class AppLayout implements AfterViewInit, OnDestroy {
         setTimeout(() => {
             try {
                 // trigger calendar resize via service as well as a window resize fallback
-                try { this.calendarResizeService.triggerResize(); } catch (e) {}
-                try { window.dispatchEvent(new Event('resize')); } catch (e) {}
+                try {
+                    this.calendarResizeService.triggerResize();
+                } catch (e) {}
+                try {
+                    window.dispatchEvent(new Event('resize'));
+                } catch (e) {}
             } catch (e) {
                 // ignore in non-browser environments
             }
@@ -149,7 +154,12 @@ export class AppLayout implements AfterViewInit, OnDestroy {
                         if (prop && !/transform|left|right|width|margin|padding/.test(prop)) return;
 
                         // Call the calendar resize API directly (no timeouts)
-                        try { console.log('[layout] sidebar transitionend', prop, new Date().toISOString()); this.calendarResizeService.triggerResize(); } catch (e) { console.error('[layout] triggerResize error', e); }
+                        try {
+                            console.log('[layout] sidebar transitionend', prop, new Date().toISOString());
+                            this.calendarResizeService.triggerResize();
+                        } catch (e) {
+                            console.error('[layout] triggerResize error', e);
+                        }
                     } catch (e) {
                         // ignore
                     }
@@ -167,7 +177,9 @@ export class AppLayout implements AfterViewInit, OnDestroy {
                     const found = document.querySelector('.layout-sidebar');
                     if (found) {
                         attachToSidebar(found);
-                        try { observer.disconnect(); } catch (e) {}
+                        try {
+                            observer.disconnect();
+                        } catch (e) {}
                         this.layoutMutationObserver = undefined;
                     }
                 });

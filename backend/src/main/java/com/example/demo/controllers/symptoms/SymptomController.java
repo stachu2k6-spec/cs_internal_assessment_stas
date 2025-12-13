@@ -1,6 +1,6 @@
 package com.example.demo.controllers.symptoms;
 
-import com.example.demo.domains.symptoms.SymptomsFacade;
+import com.example.demo.domains.symptoms.SymptomFacade;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,9 +9,9 @@ import java.util.List;
 @RequestMapping("/symptoms")
 public class SymptomController {
 
-    private final SymptomsFacade symptomFacade;
+    private final SymptomFacade symptomFacade;
 
-    public SymptomController(SymptomsFacade symptomFacade) {
+    public SymptomController(SymptomFacade symptomFacade) {
         this.symptomFacade = symptomFacade;
     }
 
@@ -36,8 +36,7 @@ public class SymptomController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteSymptom(@PathVariable String id) {
-        symptomFacade.deleteSymptom(id);
-        return "ok";
+    public SymptomDto deleteSymptom(@PathVariable String id) {
+        return symptomFacade.deleteSymptom(id);
     }
 }

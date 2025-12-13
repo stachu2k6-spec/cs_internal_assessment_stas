@@ -1,48 +1,36 @@
-package com.example.demo.repository.meetings;
+package com.example.demo.controllers.meetings;
 
-import com.example.demo.repository.patients.PatientEntity;
-import jakarta.persistence.*;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
 
-@Entity
-@Table(name = "meetings")
-public class MeetingEntity {
-
-    @Id
-    @GeneratedValue
-    private UUID id;
-
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "meetings")
-    private PatientEntity patient;
-
+public class CreateMeetingDto {
+    private UUID patientId;
     private LocalDate date;
     private LocalTime startTime;
     private Duration duration;
     private String notes;
 
-    public MeetingEntity() {}
-
-    public UUID getId() {
-        return id;
+    public CreateMeetingDto() {
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public CreateMeetingDto(String patientId, LocalDate date, LocalTime startTime, Duration duration, String notes) {
+        this.patientId = UUID.fromString(patientId);
+        this.date = date;
+        this.startTime = startTime;
+        this.duration = duration;
+        this.notes = notes;
     }
 
-    public PatientEntity getPatient() {
-        return patient;
+    public UUID getPatientId() {
+        return patientId;
     }
 
-    public void setPatient(PatientEntity patient) {
-        this.patient = patient;
+    public void setPatientId(UUID patientId) {
+        this.patientId = patientId;
     }
-
 
     public LocalDate getDate() {
         return date;
@@ -76,3 +64,4 @@ public class MeetingEntity {
         this.notes = notes;
     }
 }
+

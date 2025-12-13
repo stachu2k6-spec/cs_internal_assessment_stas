@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { SymptomDto } from '@/pages/service/symptom/symptom.model';
+import { SymptomFacade } from '@/pages/service/symptom/symptom.facade';
 
 @Injectable({
     providedIn: 'root'
@@ -49,11 +50,11 @@ export class SymptomService {
         return this.http.post<SymptomDto>(this.apiUrl, symptom);
     }
 
-    update(id: number, symptom: SymptomDto): Observable<SymptomDto> {
-        return this.http.put<SymptomDto>('${this.apiUrl}/${id}', symptom);
+    update(id: string, symptom: SymptomDto): Observable<SymptomDto> {
+        return this.http.put<SymptomDto>(this.apiUrl + '/' + id, symptom);
     }
 
-    delete(id: number): Observable<void> {
-        return this.http.delete<void>('${this.apiUrl}/${id}');
+    delete(id: string): Observable<SymptomDto> {
+        return this.http.delete<SymptomDto>(this.apiUrl + '/' + id);
     }
 }

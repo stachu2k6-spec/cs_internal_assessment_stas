@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Button, ButtonDirective } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -21,7 +21,8 @@ import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { ExerciseDto } from '@/pages/service/exercise/exercise.model';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { ExerciseFacade } from '@/pages/service/exercise/exercise.facade';
-import { tap } from 'rxjs';
+import { Subject, takeUntil, tap } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -35,31 +36,41 @@ interface expandedRows {
     styleUrl: './exercises.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
 })
-export class Exercises implements OnInit {
+export class Exercises implements OnInit, OnDestroy {
 
     statuses: any[] = [];
 
     activityValues: number[] = [0, 100];
 
-    exercises: ExerciseDto[] =[]
+    exercises: ExerciseDto[] = [];
 
     @ViewChild('filter') filter!: ElementRef;
 
-    constructor(
-        private exerciseFacade: ExerciseFacade
-    ) {}
+    private exerciseSub!: Subscription;
+
+    private destroy$ = new Subject<void>();
+
+    constructor(private exerciseFacade: ExerciseFacade) {}
+
 
     ngOnInit() {
-        this.exerciseFacade.fetchAllExercises()
+        this.exerciseFacade.fetchAllExercises();
+
         this.exerciseFacade.exerciseState$
             .pipe(
-                tap(x=> {
+                tap(x => {
                     this.exercises = x;
-                })
+                }),
+                takeUntil(this.destroy$)
             )
-            .subscribe()
-
+            .subscribe();
     }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
 
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
@@ -69,6 +80,4 @@ export class Exercises implements OnInit {
         table.clear();
         this.filter.nativeElement.value = '';
     }
-
 }
-

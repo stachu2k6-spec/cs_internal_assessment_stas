@@ -18,7 +18,10 @@
     </p-toolbar>
 </div>
 <div class="card">
-    <div class="font-semibold text-xl mb-4">Meetings</div>
+    <div class="w-full flex justify-between mt-4">
+        <div class="font-semibold text-xl">Meetings</div>
+        <p-button [routerLink]="['/view', 'meeting', 'newMeeting']" label="Schedule Meeting" icon="pi pi-plus" iconPos="right"></p-button>
+    </div>
     <p-tabs value="0">
         <p-tablist>
             <p-tab value="0">Upcoming</p-tab>
@@ -61,7 +64,7 @@
                                     <div class="flex justify-between items-center">
                                         Date
                                         <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter>
-                                    </div>
+                                </div>
                                 </th>
                                 <th style="min-width: 10rem">
                                     <div class="flex justify-between items-center">
@@ -80,9 +83,8 @@
                                 class="hover-scale cursor-pointer"
                                 [routerLink]="['/view','meeting', meeting.id]"
                             >
-                                <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
-                                    {{ getPatientNameById(meeting.patientId) }}
+                                    {{ meeting.patient.name }} {{ meeting.patient.surname }}
                                 </td>
                                 <td>
                                     {{ meeting.date }}
@@ -165,7 +167,7 @@
                             >
                                 <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
-                                    {{ getPatientNameById(meeting.patientId) }}
+                                    {{ meeting.patient.name }} {{ meeting.patient.surname }}
                                 </td>
                                 <td>
                                     {{ meeting.date }}

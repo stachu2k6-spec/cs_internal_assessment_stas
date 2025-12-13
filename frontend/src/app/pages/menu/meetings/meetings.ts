@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Button, ButtonDirective } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -21,23 +21,24 @@ import { ObjectUtils } from 'primeng/utils';
 import { RouterLink } from '@angular/router';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
-import { take, tap } from 'rxjs';
+import { takeUntil, tap } from 'rxjs/operators';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { PatientDto } from '@/pages/service/patient/patient.model';
+import { Subject } from 'rxjs';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
     selector: 'app-meeting-database',
-    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, TableModule, FormsModule, RouterLink],
+    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, TableModule, FormsModule, RouterLink, DatePicker],
     templateUrl: './meetings.html',
     styleUrl: './meetings.scss',
     providers: []
 })
-export class Meetings implements OnInit {
-
+export class Meetings implements OnInit, OnDestroy {
     //statuses: any[] = [];
 
     /** List of meetings */
-    meetings: MeetingDto[] =[];
+    meetings: MeetingDto[] = [];
 
     upcomingMeetings: MeetingDto[] = [];
 
@@ -47,32 +48,41 @@ export class Meetings implements OnInit {
 
     @ViewChild('filter') filter!: ElementRef;
 
+    private destroy$ = new Subject<void>();
+
     constructor(
         private meetingFacade: MeetingFacade,
         private patientFacade: PatientFacade
     ) {}
 
     ngOnInit() {
-        this.meetingFacade.fetchAllMeetings()
+        // load meetings
+        this.meetingFacade.fetchAllMeetings();
         this.meetingFacade.meetingState$
             .pipe(
-                tap(x=> {
-                    this.meetings = x;
-                    this.splitMeetings()
+                takeUntil(this.destroy$),
+                tap((list) => {
+                    this.meetings = list;
+                    this.splitMeetings();
                 })
             )
-            .subscribe()
+            .subscribe();
 
+        // load patients so getPatientNameById works
+        this.patientFacade.fetchAllPatients?.(); // optional call if facade exposes it
+        // if fetchAllPatients is not present, you can remove the line above
 
-
-        this.patientFacade.fetchAllPatients()
         this.patientFacade.patientState$
             .pipe(
-                tap(x => {
-                    this.patients = x;
-                })
+                tap((p) => (this.patients = p)),
+                takeUntil(this.destroy$)
             )
-            .subscribe()
+            .subscribe();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     onGlobalFilter(table: Table, event: Event) {
@@ -84,39 +94,8 @@ export class Meetings implements OnInit {
         this.filter.nativeElement.value = '';
     }
 
-    /** For future activity stuff??? */
-    /**
-    getSeverity(status: string) {
-        switch (status) {
-            case 'qualified':
-            case 'instock':
-            case 'INSTOCK':
-            case 'DELIVERED':
-            case 'delivered':
-                return 'success';
-
-            case 'negotiation':
-            case 'lowstock':
-            case 'LOWSTOCK':
-            case 'PENDING':
-            case 'pending':
-                return 'warn';
-
-            case 'unqualified':
-            case 'outofstock':
-            case 'OUTOFSTOCK':
-            case 'CANCELLED':
-            case 'cancelled':
-                return 'danger';
-
-            default:
-                return 'info';
-        }
-    }
-     */
-
     /** Format ISO 8601 duration to readable format */
-     formatDuration(isoDuration: string): string {
+    formatDuration(isoDuration: string): string {
         const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
 
         const hours = match?.[1] ? Number(match[1]) : 0;
@@ -127,26 +106,12 @@ export class Meetings implements OnInit {
         return `${minutes}m`;
     }
 
-    getPatientNameById(id: string): string {
-        let patient = this.patients.find(p => p.id === id);
-        if (!patient) {
-            return '-Unknown Patient-';
-        }
-        return `${patient.name} ${patient.surname}`;
-    }
-
     // method to split and sort meetings into upcoming and past based on current date
     private splitMeetings() {
         const now = new Date();
 
-        this.upcomingMeetings = this.meetings
-            .filter(m => new Date(m.date + 'T' + m.startTime) >= now)
-            .sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
+        this.upcomingMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) >= now).sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
 
-        this.pastMeetings = this.meetings
-            .filter(m => new Date(m.date + 'T' + m.startTime) < now)
-            .sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
+        this.pastMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) < now).sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
     }
-
-
 }

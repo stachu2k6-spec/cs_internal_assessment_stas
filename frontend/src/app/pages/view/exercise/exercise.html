@@ -1,5 +1,6 @@
 <div class="card">
-    <div class="font-semibold text-xl mb-4">EXERCISE VIEW</div>
+    <p-toast position="top-right"></p-toast>
+    <div class="font-semibold text-xl mb-4">Exercise Details</div>
     <p-splitter [style]="{ height: '800px' }" [panelSizes]="[70, 30]" [minSizes]="[10, 0]" styleClass="mb-8">
         <ng-template #panel>
             <p-splitter layout="vertical" [panelSizes]="[20, 80]">
@@ -25,17 +26,38 @@
                                 label="Save"
                                 icon="pi pi-save"
                                 raised
-                                (click)="save()"
+                                (click)="saveExercise()"
                             ></p-button>
 
                             <p-button
                                 *ngIf="isEditMode"
                                 label="Cancel"
                                 icon="pi pi-times"
-                                severity="danger"
+                                severity="warn"
                                 raised
                                 (click)="cancelEdit()"
                             ></p-button>
+
+                            <p-button
+                                *ngIf="isEditMode && !isNewExerciseMode"
+                                label="Delete"
+                                icon="pi pi-trash"
+                                severity="danger"
+                                raised
+                                (click)="openConfirmDialog()"
+                            ></p-button>
+
+                            <p-dialog header="Confirmation" [(visible)]="displayConfirmDialog" [style]="{ width: '350px' }" [modal]="true">
+                                <div class="flex items-center justify-center">
+                                    <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem"> </i>
+                                    <span>Are you sure you want to delete symptom?</span>
+                                </div>
+                                <ng-template #footer>
+                                    <p-button label="No" icon="pi pi-times" (click)="closeConfirmDialog()" text severity="secondary" />
+                                    <p-button label="Yes" icon="pi pi-check" (click)="deleteExercise()" severity="danger" outlined autofocus />
+                                </ng-template>
+                            </p-dialog>
+
                         </div>
                     </div>
                 </ng-template>
@@ -46,7 +68,7 @@
                                 <div class="font-semibold text-xl flex items-center justify-center">Info</div>
                                 <div class="flex flex-col gap-2">
                                     <label for="name1">Name</label>
-                                    <input pInputText id="name1" type="text" [(ngModel)]="exercise.name" [readonly]="!isEditMode" />
+                                    <input pInputText id="name1" type="text" [(ngModel)]="exercise.name" [disabled]="!isEditMode" />
                                 </div>
                             </div>
                         </ng-template>
@@ -59,7 +81,7 @@
                                     rows="25"
                                     cols="30"
                                     [(ngModel)]="exercise.notes"
-                                    [readonly]="!isEditMode"
+                                    [disabled]="!isEditMode"
                                 ></textarea>
                             </div>
                         </ng-template>

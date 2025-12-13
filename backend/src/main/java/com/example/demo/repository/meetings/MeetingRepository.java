@@ -6,5 +6,4 @@ import java.util.List;
 import java.util.UUID;
 
 public interface MeetingRepository extends JpaRepository<MeetingEntity, UUID> {
-    List<MeetingEntity> findByPatientId(String patientId);
 }
