@@ -181,26 +181,7 @@ export class Patient implements OnInit, OnDestroy {
     }
 
     save(): void {
-        if (this.patient.id === 'newPatient') {
-            // create new patient
-            this.patient.id = ''; // clear temporary id before sending to server
-            this.patientFacade.createPatient(this.patient).pipe(takeUntil(this.destroy$))
-                .subscribe({
-                    next: (created: PatientDto) => {
-                        // update local model with server response (in case server modifies the entity)
-                        created.birthDate = this.toLocalDate(this.patient.birthDate);
-                        this.patient = created;
-                        this.isEditMode = false;
-                        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Patient profile saved.' });
-                    },
-                    error: (err) => {
-                        console.error('Failed to save patient', err);
-                        const detail = err?.message ?? 'Unknown error';
-                        this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
-                    }
-                });
-            return;
-        }
+
         // basic client-side validation
         if (!this.patient) {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No patient loaded.' });
@@ -209,6 +190,28 @@ export class Patient implements OnInit, OnDestroy {
 
         if (!this.patient.name?.trim() || !this.patient.surname?.trim()) {
             this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Name and surname are required.' });
+            return;
+        }
+
+        if (this.patient.id === 'newPatient') {
+            // create new patient
+            this.patient.id = ''; // clear temporary id before sending to server
+            this.patientFacade.createPatient(this.patient).pipe(takeUntil(this.destroy$))
+                .subscribe({
+                    next: (created: PatientDto) => {
+                        // update local model with server response
+                        created.birthDate = this.toLocalDate(this.patient.birthDate);
+                        this.patient = created;
+                        this.isEditMode = false;
+                        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Patient profile saved.' });
+                        //this.router.navigate(['/view/patient', created.id]);
+                    },
+                    error: (err) => {
+                        console.error('Failed to save patient', err);
+                        const detail = err?.message ?? 'Unknown error';
+                        this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
+                    }
+                });
             return;
         }
 
@@ -221,16 +224,14 @@ export class Patient implements OnInit, OnDestroy {
                     saved.birthDate = this.toLocalDate(this.patient.birthDate);
                     this.patient = saved;
                     this.isEditMode = false;
+                    this._patientBackup = null;
                     this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Patient profile saved.' });
                 },
                 error: (err) => {
                     console.error('Failed to save patient', err);
-                    const detail = err?.message ?? 'Unknown error';
-                    this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
+                    this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
                 }
             });
-
-
     }
 
     removeMeetingsOfOtherPatients(patientId: string) {

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Button, ButtonModule } from 'primeng/button';
 import { InputText, InputTextModule } from 'primeng/inputtext';
 import { Splitter } from 'primeng/splitter';
@@ -11,11 +11,12 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { NgIf } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { take } from 'rxjs';
+import { Subject, take, takeUntil, tap } from 'rxjs';
 import { SymptomDto } from '@/pages/service/symptom/symptom.model';
 import { SymptomFacade } from '@/pages/service/symptom/symptom.facade';
 import { ExerciseDto } from '@/pages/service/exercise/exercise.model';
 import { ExerciseFacade } from '@/pages/service/exercise/exercise.facade';
+import { Toast } from 'primeng/toast';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -23,13 +24,12 @@ interface expandedRows {
 
 @Component({
     selector: 'app-exercise',
-    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink],
+    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink, Toast],
     templateUrl: './exercise.html',
     styleUrl: './exercise.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
 })
-export class Exercise implements OnInit {
-
+export class Exercise implements OnInit, OnDestroy {
     customers2: Customer[] = [];
 
     isEditMode: boolean = false;
@@ -38,6 +38,8 @@ export class Exercise implements OnInit {
     exercise: ExerciseDto = this.createEmptyExercise();
 
     private _exerciseBackup: any = null;
+
+    private destroy$ = new Subject<void>();
 
     @ViewChild('filter') filter!: ElementRef;
 
@@ -57,23 +59,32 @@ export class Exercise implements OnInit {
             return;
         }
 
+        if (id === 'newExercise') {
+            // new exercise mode
+            this.isEditMode = true;
+            this.exercise = this.createEmptyExercise();
+            this.exercise.id = 'newExercise'; // temporary id to indicate new exercise
+            return;
+        }
+
         // clear stale exercise before loading
         this.exercise = this.createEmptyExercise();
 
         // subscribe to actual HTTP request
         this.exerciseFacade
             .fetchById(id)
-            .pipe(take(1))
-            .subscribe({
-                next: (dto: ExerciseDto) => {
-                    this.exercise = dto ? dto : this.createEmptyExercise();
-                },
-                error: (err: any) => {
-                    console.error('Failed loading exercise', err);
-                    this.messageService.add({ severity: 'error', summary: 'Load failed', detail: 'Exercise could not be loaded.' });
-                    this.router.navigate(['/notfound']);
-                }
-            });
+            .pipe(
+                takeUntil(this.destroy$),
+                tap((x) => {
+                    this.exercise = x;
+                })
+            )
+            .subscribe();
+    }
+
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     enterEdit() {
@@ -90,14 +101,6 @@ export class Exercise implements OnInit {
         this.isEditMode = false;
     }
 
-    /**
-     * Save changes to the exercise.
-     * Calls exerciseFacade.updateExercise(id) which you said only accepts an id: string.
-     * Handles several possible return types:
-     *  - Observable<ExerciseDto> (updates local model)
-     *  - Observable<any> (assumes success)
-     *  - if updateExercise missing -> fallback to local-only save
-     */
     save() {
         // basic validation
         if (!this.exercise) {
@@ -110,25 +113,44 @@ export class Exercise implements OnInit {
             return;
         }
 
-        // optimistic UI: exit edit mode while saving
-        const prevEditState = this.isEditMode;
-        this.isEditMode = false;
+        if (this.exercise.id === 'newExercise') {
+            // create new exercise
+            this.exercise.id = ''; // clear temporary id before sending to server
+            this.exerciseFacade
+                .createExercise(this.exercise)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({
+                    next: (created: ExerciseDto) => {
+                        // update local model with server response (in case server modifies the entity)
+                        this.exercise = created;
+                        this.isEditMode = false;
+                        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Exercise saved.' });
+                        //this.router.navigate(['/view/exercise', created.id]);
+                    },
+                    error: (err) => {
+                        console.error('Failed to save exercise', err);
+                        const detail = err?.message ?? 'Unknown error';
+                        this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
+                    }
+                });
+            return;
+        }
 
-
-        this.exerciseFacade.updateExercise(this.exercise.id, this.exercise).pipe(take(1)).subscribe({
-            next: (saved: SymptomDto) => {
-                this.exercise = saved ? saved : this.exercise;
-                this._exerciseBackup = null;
-                this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Symptom saved successfully.' });
-            },
-            error: (err: any) => {
-                console.error('Failed to save exercise', err);
-                this.isEditMode = prevEditState;
-                this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
-            }
-        });
-
-
+        this.exerciseFacade
+            .updateExercise(this.exercise.id, this.exercise)
+            .pipe(take(1))
+            .subscribe({
+                next: (saved: ExerciseDto) => {
+                    this.exercise = saved;
+                    this.isEditMode = false;
+                    this._exerciseBackup = null;
+                    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Exercise saved successfully.' });
+                },
+                error: (err: any) => {
+                    console.error('Failed to save exercise', err);
+                    this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+                }
+            });
     }
 
     private createEmptyExercise(): ExerciseDto {

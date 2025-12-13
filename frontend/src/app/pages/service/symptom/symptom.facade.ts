@@ -36,6 +36,20 @@ export class SymptomFacade {
         );
     }
 
+    createSymptom(symptom: SymptomDto): Observable<SymptomDto> {
+        return this.symptomService.create(symptom).pipe(
+            take(1),
+            tap(newSymptom => {
+                // add the new symptom to symptomState$
+                const currentSymptoms = this.symptomState$.getValue();
+                this.symptomState$.next([...currentSymptoms, newSymptom]);
+
+                // set the new symptom in symptomByIdState$
+                this.symptomByIdState$.next(newSymptom);
+            })
+        );
+    }
+
     updateSymptom(id: string, symptom: SymptomDto): Observable<SymptomDto> {
         return this.symptomService.update(id, symptom).pipe(
             take(1),

@@ -19,7 +19,10 @@
 </div>
 
 <div class="card">
-    <div class="font-semibold text-xl mb-4">Exercises</div>
+    <div class="w-full flex justify-between mt-4 mb-3">
+        <div class="font-semibold text-xl">Exercises</div>
+        <p-button [routerLink]="['/view', 'exercise', 'newExercise']" label="Add Exercise" icon="pi pi-plus" iconPos="right"></p-button>
+    </div>
     <p-table
         #dt1
         [value]="exercises"

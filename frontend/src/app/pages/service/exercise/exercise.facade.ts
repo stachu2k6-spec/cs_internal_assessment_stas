@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable, take, tap } from 'rxjs';
 
 import { ExerciseDto } from '@/pages/service/exercise/exercise.model';
 import { ExerciseService } from '@/pages/service/exercise/exercise.service';
+import { SymptomDto } from '@/pages/service/symptom/symptom.model';
 
 @Injectable({
     providedIn: 'root'
@@ -33,6 +34,20 @@ export class ExerciseFacade {
         return this.exerciseService.getById(id).pipe(
             take(1),
             tap(x => this.exerciseByIdState$.next(x))
+        );
+    }
+
+    createExercise(exercise: ExerciseDto): Observable<ExerciseDto> {
+        return this.exerciseService.create(exercise).pipe(
+            take(1),
+            tap(newExercise => {
+                // add the new exercise to exerciseState$
+                const currentExercises = this.exerciseState$.getValue();
+                this.exerciseState$.next([...currentExercises, newExercise]);
+
+                // set the new exercise in exerciseByIdState$
+                this.exerciseByIdState$.next(newExercise);
+            })
         );
     }
 

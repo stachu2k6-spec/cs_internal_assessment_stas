@@ -20,7 +20,10 @@
 
 
 <div class="card">
-    <div class="font-semibold text-xl mb-4">Symptoms</div>
+    <div class="w-full flex justify-between mt-4 mb-3">
+        <div class="font-semibold text-xl">Symptoms</div>
+        <p-button [routerLink]="['/view', 'symptom', 'newSymptom']" label="Add Symptom" icon="pi pi-plus" iconPos="right"></p-button>
+    </div>
     <p-table
         #dt1
         [value]="symptoms"

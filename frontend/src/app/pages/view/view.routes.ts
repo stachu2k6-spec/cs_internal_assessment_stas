@@ -10,6 +10,8 @@ export default [
     { path: 'meeting/:id', data: { breadcrumb: 'Meeting' }, component: Meeting },
     { path: 'meeting/newMeeting', data: { breadcrumb: 'Meeting' }, component: Meeting },
     { path: 'symptom/:id', data: { breadcrumb: 'Symptom' }, component: Symptom },
+    { path: 'symptom/newSymptom', data: { breadcrumb: 'Symptom' }, component: Symptom },
     { path: 'exercise/:id', data: { breadcrumb: 'Exercise' }, component: Exercise },
+    { path: 'exercise/newExercise', data: { breadcrumb: 'Exercise' }, component: Exercise },
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;
