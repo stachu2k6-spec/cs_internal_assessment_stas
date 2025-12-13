@@ -194,7 +194,7 @@ export class Meeting implements OnInit, OnDestroy {
             return;
         }
 
-        if (this.meeting.id === 'newMeeting') {
+        if (this.isNewMeetingMode) {
             const patientId = this.patientsId(this.patient.name, this.patient.surname);
             if (patientId) {
                 // create new meeting

@@ -20,6 +20,7 @@ import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { SymptomDto } from '@/pages/service/symptom/symptom.model';
 import { Toast } from 'primeng/toast';
 import { PatientDto } from '@/pages/service/patient/patient.model';
+import { Dialog } from 'primeng/dialog';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -27,7 +28,7 @@ interface expandedRows {
 
 @Component({
     selector: 'app-symptom',
-    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink, Toast],
+    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink, Toast, Dialog],
     templateUrl: './symptom.html',
     styleUrl: './symptom.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
@@ -36,6 +37,10 @@ export class Symptom implements OnInit, OnDestroy {
     tempData: any[] = [];
 
     isEditMode: boolean = false;
+
+    isNewSymptomMode: boolean = false;
+
+    displayConfirmDialog: boolean = false;
 
     // local model for editing
     symptom: SymptomDto = this.createEmptySymptom();
@@ -62,9 +67,10 @@ export class Symptom implements OnInit, OnDestroy {
             return;
         }
 
-        if( id === 'newSymptom' ) {
+        if (id === 'newSymptom') {
             // new symptom mode
             this.isEditMode = true;
+            this.isNewSymptomMode = true;
             this.symptom = this.createEmptySymptom();
             this.symptom.id = 'newSymptom'; // temporary id to indicate new symptom
             return;
@@ -101,10 +107,16 @@ export class Symptom implements OnInit, OnDestroy {
             this.symptom = { ...this._symptomBackup };
             this._symptomBackup = null;
         }
+
+        if (this.isNewSymptomMode) {
+            this.router.navigate(['/menu', 'symptoms']);
+            return;
+        }
+
         this.isEditMode = false;
     }
 
-    save() {
+    saveSymptom() {
         // basic validation
         if (!this.symptom) {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No symptom loaded.' });
@@ -116,14 +128,17 @@ export class Symptom implements OnInit, OnDestroy {
             return;
         }
 
-        if (this.symptom.id === 'newSymptom') {
+        if (this.isNewSymptomMode) {
             // create new symptom
             this.symptom.id = ''; // clear temporary id before sending to server
-            this.symptomFacade.createSymptom(this.symptom).pipe(takeUntil(this.destroy$))
+            this.symptomFacade
+                .createSymptom(this.symptom)
+                .pipe(takeUntil(this.destroy$))
                 .subscribe({
                     next: (created: SymptomDto) => {
-                        // update local model with server response (in case server modifies the entity)
+                        // update local model with server response
                         this.symptom = created;
+                        this.isNewSymptomMode = false;
                         this.isEditMode = false;
                         this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Symptom profile saved.' });
                         //this.router.navigate(['/view/symptom', created.id]);
@@ -142,14 +157,43 @@ export class Symptom implements OnInit, OnDestroy {
             .pipe(take(1))
             .subscribe({
                 next: (saved: SymptomDto) => {
-                this.symptom = saved;
-                this.isEditMode = false;
-                this._symptomBackup = null;
-                this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Symptom saved successfully.' });
-            },
+                    this.symptom = saved;
+                    this.isEditMode = false;
+                    this._symptomBackup = null;
+                    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Symptom saved successfully.' });
+                },
                 error: (err: any) => {
-                console.error('Failed to save symptom', err);
-                this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+                    console.error('Failed to save symptom', err);
+                    this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+                }
+            });
+    }
+
+    openConfirmDialog() {
+        this.displayConfirmDialog = true;
+    }
+
+    closeConfirmDialog() {
+        this.displayConfirmDialog = false;
+    }
+
+    deleteSymptom() {
+        if (!this.symptom || !this.symptom.id) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No symptom loaded.' });
+            return;
+        }
+
+        this.symptomFacade
+            .deleteSymptom(this.symptom.id)
+            .pipe(take(1))
+            .subscribe({
+                next: () => {
+                    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Symptom profile deleted.' });
+                    this.router.navigate(['/menu', 'symptoms']); // navigate back to symptom list
+                },
+                error: (err) => {
+                    console.error('Failed to delete symptom', err);
+                    this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
                 }
             });
     }

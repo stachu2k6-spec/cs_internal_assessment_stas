@@ -207,7 +207,7 @@ export class Patient implements OnInit, OnDestroy {
             return;
         }
 
-        if (this.patient.id === 'newPatient') {
+        if (this.isNewPatientMode) {
             // create new patient
             this.patient.id = ''; // clear temporary id before sending to server
             this.patientFacade

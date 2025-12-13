@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class SymptomsFacade {
+public class SymptomFacade {
 
     private final SymptomRepository symptomRepository;
     private final SymptomMapper symptomMapper;
 
-    public SymptomsFacade(SymptomRepository symptomRepository, SymptomMapper symptomMapper) {
+    public SymptomFacade(SymptomRepository symptomRepository, SymptomMapper symptomMapper) {
         this.symptomRepository = symptomRepository;
         this.symptomMapper = symptomMapper;
     }
@@ -56,7 +56,17 @@ public class SymptomsFacade {
         return symptomMapper.toDto(symptomEntity);
     }
 
-    public void deleteSymptom(String id) {
+    public SymptomDto deleteSymptom(String id) {
+        UUID uuid = UUID.fromString(id);
+
+        if (!symptomRepository.existsById(uuid)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Symptom not found");
+        }
+
+        SymptomDto deletedSymptom = getSymptomsById(id);
+
         this.symptomRepository.deleteById(UUID.fromString(id));
+
+        return deletedSymptom;
     }
 }
