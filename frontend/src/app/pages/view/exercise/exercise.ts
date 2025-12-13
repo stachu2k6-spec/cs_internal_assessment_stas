@@ -17,6 +17,7 @@ import { SymptomFacade } from '@/pages/service/symptom/symptom.facade';
 import { ExerciseDto } from '@/pages/service/exercise/exercise.model';
 import { ExerciseFacade } from '@/pages/service/exercise/exercise.facade';
 import { Toast } from 'primeng/toast';
+import { Dialog } from 'primeng/dialog';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -24,7 +25,7 @@ interface expandedRows {
 
 @Component({
     selector: 'app-exercise',
-    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink, Toast],
+    imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink, Toast, Dialog],
     templateUrl: './exercise.html',
     styleUrl: './exercise.scss',
     providers: [ConfirmationService, MessageService, CustomerService, ProductService]
@@ -33,6 +34,10 @@ export class Exercise implements OnInit, OnDestroy {
     customers2: Customer[] = [];
 
     isEditMode: boolean = false;
+
+    isNewExerciseMode: boolean = false;
+
+    displayConfirmDialog: boolean = false;
 
     // local model for editing
     exercise: ExerciseDto = this.createEmptyExercise();
@@ -62,6 +67,7 @@ export class Exercise implements OnInit, OnDestroy {
         if (id === 'newExercise') {
             // new exercise mode
             this.isEditMode = true;
+            this.isNewExerciseMode = true;
             this.exercise = this.createEmptyExercise();
             this.exercise.id = 'newExercise'; // temporary id to indicate new exercise
             return;
@@ -98,10 +104,16 @@ export class Exercise implements OnInit, OnDestroy {
             this.exercise = { ...this._exerciseBackup };
             this._exerciseBackup = null;
         }
+
+        if (this.isNewExerciseMode) {
+            this.router.navigate(['/menu', 'exercises']);
+            return;
+        }
+
         this.isEditMode = false;
     }
 
-    save() {
+    saveExercise() {
         // basic validation
         if (!this.exercise) {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No exercise loaded.' });
@@ -113,7 +125,7 @@ export class Exercise implements OnInit, OnDestroy {
             return;
         }
 
-        if (this.exercise.id === 'newExercise') {
+        if (this.isNewExerciseMode) {
             // create new exercise
             this.exercise.id = ''; // clear temporary id before sending to server
             this.exerciseFacade
@@ -149,6 +161,35 @@ export class Exercise implements OnInit, OnDestroy {
                 error: (err: any) => {
                     console.error('Failed to save exercise', err);
                     this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+                }
+            });
+    }
+
+    openConfirmDialog() {
+        this.displayConfirmDialog = true;
+    }
+
+    closeConfirmDialog() {
+        this.displayConfirmDialog = false;
+    }
+
+    deleteExercise() {
+        if (!this.exercise || !this.exercise.id) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No exercise loaded.' });
+            return;
+        }
+
+        this.exerciseFacade
+            .deleteExercise(this.exercise.id)
+            .pipe(take(1))
+            .subscribe({
+                next: () => {
+                    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Exercise profile deleted.' });
+                    this.router.navigate(['/menu', 'exercises']); // navigate back to exercise list
+                },
+                error: (err) => {
+                    console.error('Failed to delete exercise', err);
+                    this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
                 }
             });
     }

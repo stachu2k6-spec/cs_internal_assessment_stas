@@ -66,5 +66,21 @@ export class ExerciseFacade {
         );
     }
 
+    deleteExercise(id: string): Observable<ExerciseDto> {
+        return this.exerciseService.delete(id).pipe(
+            take(1),
+            tap(() => {
+                // remove the exercise from exerciseState$
+                const currentExercises = this.exerciseState$.getValue();
+                const updatedExercises = currentExercises.filter(p => p.id !== id);
+                this.exerciseState$.next(updatedExercises);
 
+                // clear exerciseByIdState$ if it matches the deleted exercise
+                const currentExerciseById = this.exerciseByIdState$.getValue();
+                if (currentExerciseById && currentExerciseById.id === id) {
+                    this.exerciseByIdState$.next(null);
+                }
+            })
+        );
+    }
 }

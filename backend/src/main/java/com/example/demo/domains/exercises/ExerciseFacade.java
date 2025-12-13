@@ -2,6 +2,7 @@ package com.example.demo.domains.exercises;
 
 
 import com.example.demo.controllers.exercises.ExerciseDto;
+import com.example.demo.controllers.patients.PatientDto;
 import com.example.demo.repository.exercises.ExerciseEntity;
 import com.example.demo.repository.exercises.ExerciseRepository;
 import org.springframework.http.HttpStatus;
@@ -56,7 +57,17 @@ public class ExerciseFacade {
         return exerciseMapper.toDto(exerciseEntity);
     }
 
-    public void deleteExercise(String id) {
-        this.exerciseRepository.deleteById(UUID.fromString(id));
+    public ExerciseDto deleteExercise(String id) {
+        UUID uuid = UUID.fromString(id);
+
+        if (!exerciseRepository.existsById(uuid)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found");
+        }
+
+        ExerciseDto deletedExercise = getExercisesById(id);
+
+        exerciseRepository.deleteById(uuid);
+
+        return deletedExercise;
     }
 }
