@@ -88,7 +88,17 @@ public class MeetingFacade {
         return meetingMapper.toDto(saved);
     }
 
-    public void deleteMeeting(String id) {
+    public MeetingDto deleteMeeting(String id) {
+        UUID uuid = UUID.fromString(id);
+
+        if (!meetingRepository.existsById(uuid)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Meeting not found");
+        }
+
+        MeetingDto meetingDto = getMeetingById(id);
+
         this.meetingRepository.deleteById(UUID.fromString(id));
+
+        return meetingDto;
     }
 }

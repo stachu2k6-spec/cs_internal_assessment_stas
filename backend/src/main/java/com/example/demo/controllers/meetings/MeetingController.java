@@ -36,8 +36,7 @@ public class MeetingController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteMeeting(@PathVariable String id) {
-        meetingFacade.deleteMeeting(id);
-        return "ok";
+    public MeetingDto deleteMeeting(@PathVariable String id) {
+        return meetingFacade.deleteMeeting(id);
     }
 }

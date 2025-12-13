@@ -27,9 +27,10 @@ import { MessageService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
 
 // rxjs
-import { Subject, of, pipe } from 'rxjs';
+import { Subject, of, pipe, take } from 'rxjs';
 import { takeUntil, switchMap, tap, catchError } from 'rxjs/operators';
 import { InputNumber } from 'primeng/inputnumber';
+import { Dialog } from 'primeng/dialog';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -59,7 +60,8 @@ interface expandedRows {
         Image,
         RouterLink,
         DatePickerModule,
-        InputNumber
+        InputNumber,
+        Dialog
     ],
     templateUrl: './meeting.html',
     styleUrl: './meeting.scss',
@@ -73,6 +75,8 @@ export class Meeting implements OnInit, OnDestroy {
     isEditMode: boolean = false;
 
     isNewMeetingMode: boolean = false;
+
+    displayConfirmDialog: boolean = false;
 
     meeting: MeetingDto = this.createEmptyMeeting(); // Meeting data to be displayed and edited, initialized to empty
 
@@ -167,13 +171,19 @@ export class Meeting implements OnInit, OnDestroy {
             this.meeting = { ...this._meetingBackup };
             this._meetingBackup = null;
         }
+
+        if (this.isNewMeetingMode) {
+            this.router.navigate(['/menu', 'meetings']); // navigate back to meeting list
+            return;
+        }
+
         this.isEditMode = false;
     }
 
     /**
      * Save meeting edits. Uses MeetingFacade.updateMeeting(meetingId, meetingDto)
      */
-    save() {
+    saveMeeting() {
         if (!this.meeting) {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No meeting loaded.' });
             return;
@@ -241,7 +251,7 @@ export class Meeting implements OnInit, OnDestroy {
                     next: (saved: MeetingDto) => {
                         saved.date = this.toLocalDate(this.meeting.date);
                         saved.startTime = this.toDateFromTimestamp(saved.startTime);
-                        saved.duration =  this.getMinutesFromIsoDuration(this.meeting.duration);
+                        saved.duration = this.getMinutesFromIsoDuration(this.meeting.duration);
                         this.meeting = saved;
                         this._meetingBackup = null;
                         this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Meeting saved successfully.' });
@@ -259,12 +269,40 @@ export class Meeting implements OnInit, OnDestroy {
         }
     }
 
+    openConfirmDialog() {
+        this.displayConfirmDialog = true;
+    }
+
+    closeConfirmDialog() {
+        this.displayConfirmDialog = false;
+    }
+
+    deleteMeeting() {
+        if (!this.meeting || !this.meeting.id) {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No meeting loaded.' });
+            return;
+        }
+
+        this.meetingFacade
+            .deleteMeeting(this.meeting.id)
+            .pipe(take(1))
+            .subscribe({
+                next: () => {
+                    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Meeting profile deleted.' });
+                    this.router.navigate(['/menu', 'meetings']); // navigate back to meeting list
+                },
+                error: (err) => {
+                    console.error('Failed to delete meeting', err);
+                    this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
+                }
+            });
+    }
+
+
     // Return id of patient if exists, else null
     patientsId(name: string, surname: string): string | null {
         return this.patients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
     }
-
-
 
     /** Format ISO 8601 duration to number format */
     getMinutesFromIsoDuration(iso: string | number): number {
@@ -289,13 +327,13 @@ export class Meeting implements OnInit, OnDestroy {
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
 
-        let iso = "PT";
+        let iso = 'PT';
 
         if (hours > 0) iso += `${hours}H`;
         if (mins > 0) iso += `${mins}M`;
 
         // ISO requires at least one field
-        if (iso === "PT") iso = "PT0M";
+        if (iso === 'PT') iso = 'PT0M';
 
         return iso;
     }

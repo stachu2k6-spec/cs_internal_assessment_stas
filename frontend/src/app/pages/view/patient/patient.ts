@@ -86,7 +86,7 @@ export class Patient implements OnInit, OnDestroy {
 
     isNewPatientMode: boolean = false;
 
-    displayConfirmation: boolean = false;
+    displayConfirmDialog: boolean = false;
 
     patient: PatientDto = this.createEmptyPatient(); // Patient data to be displayed and edited, initialized to empty
 
@@ -251,12 +251,12 @@ export class Patient implements OnInit, OnDestroy {
             });
     }
 
-    openConfirmation() {
-        this.displayConfirmation = true;
+    openConfirmDialog() {
+        this.displayConfirmDialog = true;
     }
 
-    closeConfirmation() {
-        this.displayConfirmation = false;
+    closeConfirmDialog() {
+        this.displayConfirmDialog = false;
     }
 
     deletePatient() {
