@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 import java.util.List;
+import java.util.UUID;
 
 public class MeetingRepositoryImpl implements MeetingRepositoryCustom{
 
@@ -11,7 +12,7 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom{
     EntityManager entityManager;
 
     @Override
-    public List<MeetingEntity> getPatientMeetingsById(String patientId) {
+    public List<MeetingEntity> getPatientMeetingsById(UUID patientId) {
 
        String query ="SELECT meetingEntity FROM MeetingEntity meetingEntity " +
                "LEFT JOIN FETCH meetingEntity.patient patient " +

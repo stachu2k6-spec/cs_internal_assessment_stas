@@ -105,7 +105,9 @@ public class MeetingFacade {
 
     public List<MeetingDto> getPatientMeetingsById(String patientId) {
 
-        return meetingRepository.getPatientMeetingsById(patientId)
+
+
+        return meetingRepository.getPatientMeetingsById(UUID.fromString(patientId))
                 .stream()
                 .map(meetingMapper::toDto)
                 .collect(Collectors.toList());
