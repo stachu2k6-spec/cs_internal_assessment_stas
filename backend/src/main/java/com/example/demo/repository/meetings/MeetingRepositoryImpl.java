@@ -1,0 +1,27 @@
+package com.example.demo.repository.meetings;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
+import java.util.List;
+
+public class MeetingRepositoryImpl implements MeetingRepositoryCustom{
+
+    @PersistenceContext
+    EntityManager entityManager;
+
+    @Override
+    public List<MeetingEntity> getPatientMeetingsById(String patientId) {
+
+       String query ="SELECT meetingEntity FROM MeetingEntity meetingEntity " +
+               "LEFT JOIN FETCH meetingEntity.patient patient " +
+               "WHERE patient.id = (:patientId)";
+
+
+        return entityManager.createQuery(query, MeetingEntity.class)
+                .setParameter("patientId", patientId)
+                .getResultList();
+
+
+    }
+}

@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class MeetingFacade {
@@ -100,5 +101,15 @@ public class MeetingFacade {
         this.meetingRepository.deleteById(UUID.fromString(id));
 
         return meetingDto;
+    }
+
+    public List<MeetingDto> getPatientMeetingsById(String patientId) {
+
+        return meetingRepository.getPatientMeetingsById(patientId)
+                .stream()
+                .map(meetingMapper::toDto)
+                .collect(Collectors.toList());
+
+
     }
 }

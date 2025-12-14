@@ -25,6 +25,11 @@ public class MeetingController {
         return meetingFacade.getMeetingById(id);
     }
 
+    @PostMapping("/patients/{patientId}")
+    public List<MeetingDto> getPatientMeetings(@PathVariable String patientId) {
+        return meetingFacade.getPatientMeetingsById(patientId);
+    }
+
     @PostMapping
     public MeetingDto createMeeting(@RequestBody CreateMeetingDto createMeetingDto) {
         return meetingFacade.createMeeting(createMeetingDto);
