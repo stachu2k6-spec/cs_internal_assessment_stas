@@ -21,6 +21,10 @@ export class MeetingService {
         return this.http.get<MeetingDto>(this.apiUrl + '/' + id);
     }
 
+    getByPatientId(patientId: string): Observable<MeetingDto[]> {
+        return this.http.get<MeetingDto[]>(this.apiUrl + '/patients/' + patientId);
+    }
+
     create(meeting: CreateMeetingDto): Observable<MeetingDto> {
         return this.http.post<MeetingDto>(this.apiUrl, meeting);
     }
@@ -29,7 +33,7 @@ export class MeetingService {
         return this.http.put<MeetingDto>(this.apiUrl + '/' + id, meeting);
     }
 
-    delete(id: string): Observable<MeetingDto> {
-        return this.http.delete<MeetingDto>(this.apiUrl + '/' + id);
+    delete(id: string): Observable<string> {
+        return this.http.delete<string>(this.apiUrl + '/' + id);
     }
 }

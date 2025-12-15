@@ -56,17 +56,13 @@ public class SymptomFacade {
         return symptomMapper.toDto(symptomEntity);
     }
 
-    public SymptomDto deleteSymptom(String id) {
+    public void deleteSymptom(String id) {
         UUID uuid = UUID.fromString(id);
 
         if (!symptomRepository.existsById(uuid)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Symptom not found");
         }
 
-        SymptomDto deletedSymptom = getSymptomsById(id);
-
         this.symptomRepository.deleteById(UUID.fromString(id));
-
-        return deletedSymptom;
     }
 }

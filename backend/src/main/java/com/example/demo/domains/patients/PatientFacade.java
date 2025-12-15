@@ -72,17 +72,13 @@ public class PatientFacade {
         return patientMapper.toDto(updated);
     }
 
-    public PatientDto deletePatient(String id) {
+    public void deletePatient(String id) {
         UUID uuid = UUID.fromString(id);
 
         if (!patientRepository.existsById(uuid)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found");
         }
 
-        PatientDto deletedPatient = getPatientById(id);
-
         patientRepository.deleteById(uuid);
-
-        return deletedPatient;
     }
 }

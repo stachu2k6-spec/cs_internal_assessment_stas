@@ -145,13 +145,12 @@ export class Patient implements OnInit, OnDestroy {
             .subscribe();
 
         // load meetings for this patient
-        this.meetingFacade.fetchAllMeetings();
+        this.meetingFacade.fetchByPatientId(id);
         this.meetingFacade.meetingState$
             .pipe(
                 takeUntil(this.destroy$), // keep receiving until component destroyed
                 tap((list) => {
                     this.meetings = list;
-                    this.removeMeetingsOfOtherPatients(id);
                     this.splitMeetings();
                 })
             )
@@ -278,10 +277,6 @@ export class Patient implements OnInit, OnDestroy {
                     this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
                 }
             });
-    }
-
-    removeMeetingsOfOtherPatients(patientId: string) {
-        this.meetings = this.meetings.filter((m) => m.patient.id === patientId);
     }
 
     // method to split and sort meetings into upcoming and past based on current date

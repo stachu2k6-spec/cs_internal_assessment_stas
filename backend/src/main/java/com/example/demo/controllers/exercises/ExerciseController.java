@@ -36,7 +36,8 @@ public class ExerciseController {
     }
 
     @DeleteMapping("/{id}")
-    public ExerciseDto deleteExercise(@PathVariable String id) {
-        return exerciseFacade.deleteExercise(id);
+    public String deleteExercise(@PathVariable String id) {
+        exerciseFacade.deleteExercise(id);
+        return "ok";
     }
 }

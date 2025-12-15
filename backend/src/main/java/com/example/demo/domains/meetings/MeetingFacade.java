@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class MeetingFacade {
@@ -88,17 +89,25 @@ public class MeetingFacade {
         return meetingMapper.toDto(saved);
     }
 
-    public MeetingDto deleteMeeting(String id) {
+    public void deleteMeeting(String id) {
         UUID uuid = UUID.fromString(id);
 
         if (!meetingRepository.existsById(uuid)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Meeting not found");
         }
 
-        MeetingDto meetingDto = getMeetingById(id);
-
         this.meetingRepository.deleteById(UUID.fromString(id));
-
-        return meetingDto;
     }
+
+    public List<MeetingDto> getPatientMeetingsById(String patientId) {
+        UUID uuid = UUID.fromString(patientId);
+
+        return meetingRepository.getPatientMeetingsById(uuid)
+                .stream()
+                .map(meetingMapper::toDto)
+                .collect(Collectors.toList());
+
+
+    }
+
 }
