@@ -87,11 +87,9 @@ export class Meeting implements OnInit, OnDestroy {
 
     patients: PatientDto[] = [];
 
-    patientsNames: any[] = [];
+    patientsNames: string[] = [];
 
-    patientsSurnames: any[] = [];
-
-    filteredValues: any[] = [];
+    patientsSurnames: string[] = [];
 
     private _meetingBackup: any = null;
 
@@ -321,26 +319,6 @@ export class Meeting implements OnInit, OnDestroy {
         this.patientsSurnames = patients.map((p) => p.surname);
     }
 
-    filterNames(event: any) {
-        return this.filter(this.patientsNames, event.query);
-    }
-
-    filterSurnames(event: any) {
-        this.filter(this.patientsSurnames, event.query);
-    }
-
-    filter(array: string[], query: string) {
-        const filtered: string[] = [];
-        const lowerQuery = query.toLowerCase();
-        for (let i = 0; i < array.length; i++) {
-            const item = array[i];
-            if (item.toLowerCase().indexOf(lowerQuery) === 0) {
-                filtered.push(item);
-            }
-        }
-        this.filteredValues = filtered;
-    }
-
     patientsId(name: string, surname: string): string | null {
         return this.patients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
     }
@@ -413,7 +391,7 @@ export class Meeting implements OnInit, OnDestroy {
         return `${hours}:${minutes}`;
     }
 
-    private createEmptyMeeting() {
+    createEmptyMeeting() {
         return {
             id: '',
             patient: this.createEmptyPatient(),

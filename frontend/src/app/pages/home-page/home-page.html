@@ -1,4 +1,5 @@
 <div class="card">
+    <p-toast position="top-right"></p-toast>
     <div class="font-semibold text-xl mb-4">SEARCH BAR AND UTIL BUTTONS</div>
     <p-toolbar>
         <ng-template #start>
@@ -24,7 +25,82 @@
             MEETING DETAILS GO HERE
         </p>
     </p-panel>
+
+    <p-dialog header="Quick Schedule" [(visible)]="isQuickScheduleVisible"  [modal]="true">
+        <div class="flex items-center justify-center">
+            <div class="card flex flex-row gap-4">
+                <div class="card flex flex-col gap-4">
+                    <div class="font-semibold text-xl flex items-center justify-center">Meeting Info</div>
+                    <div class="flex flex-col gap-2">
+                        <label for="name1">Patient Name</label>
+                        <p-select [(ngModel)]="patient.name" [options]="patientsNames" placeholder="Select" />                                </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label for="name1">Patient Surname</label>
+                        <p-select [(ngModel)]="patient.surname" [options]="patientsSurnames" placeholder="Select" />
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label>Date</label>
+                        <p-datepicker
+                            [(ngModel)]="meeting.date"
+                            [disabled]="true"
+                            [showIcon]="true"
+                            [showButtonBar]="true"
+                            dateFormat="yy MM dd"
+                            inputId="datePicker">
+                        </p-datepicker>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label for="surname1">Time</label>
+                        <p-datepicker inputId="calendar-timeonly" [(ngModel)]="meeting.startTime" [timeOnly]="true" ></p-datepicker>
+                        <!--                                    <input pInputText id="surname1" type="text" [(ngModel)]="meeting.startTime" [disabled]="!isEditMode" />-->
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label for="email1">Minutes</label>
+                        <p-inputnumber [(ngModel)]="meeting.duration" showButtons mode="decimal"></p-inputnumber>
+                    </div>
+
+                    <!--                                < TODO: div class="flex flex-col gap-2">-->
+                    <!--                                    <div>Rating</div>-->
+                    <!--                                    <p-rating [(ngModel)]="meeting.ratingValue" [disabled]="!isEditMode"/>-->
+                    <!--                                </div>-->
+                </div>
+                <div class="card flex flex-col gap-4">
+                    <div class="col flex items-center justify-center font-semibold text-xl">Notes</div>
+                    <textarea
+                        pTextarea placeholder="Meeting notes here..."
+                        [autoResize]="true"
+                        rows="25"
+                        cols="30"
+                        [(ngModel)]="meeting.notes"
+                    ></textarea>
+                </div>
+            </div>
+
+
+        </div>
+        <ng-template #footer>
+            <p-button
+                label="Save"
+                icon="pi pi-save"
+                raised
+                (click)="saveMeeting()"
+            ></p-button>
+            <p-button
+                label="Cancel"
+                icon="pi pi-times"
+                severity="warn"
+                raised
+                (click)="cancelScheduling()"
+            ></p-button>
+        </ng-template>
+    </p-dialog>
 </div>
+
+
 
 <ng-container *ngIf="showCalendar">
     <full-calendar #calendar [options]="calendarOptions" [events]="events"></full-calendar>
