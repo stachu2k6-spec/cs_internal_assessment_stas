@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, take, tap } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable, take, tap } from 'rxjs';
 
 import { CreateMeetingDto, MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { MeetingService } from '@/pages/service/meeting/meeting.service';
@@ -39,6 +39,17 @@ export class MeetingFacade {
 
     fetchByPatientId(patientId: string): void {
         this.meetingService.getByPatientId(patientId)
+            .pipe(
+                take(1),
+                tap(x => {
+                    this.meetingState$.next(x)
+                })
+            )
+            .subscribe()
+    }
+
+    fetchByMonth(year: number, month: number): void {
+        this.meetingService.getMonthMeetings(year, month)
             .pipe(
                 take(1),
                 tap(x => {
@@ -96,5 +107,16 @@ export class MeetingFacade {
                 }
             })
         );
+    }
+
+    fetchMultipleMonths(months: { year: number; month: number }[]): void {
+        forkJoin(
+            months.map(m =>
+                this.meetingService.getMonthMeetings(m.year, m.month).pipe(take(1))
+            )
+        ).subscribe(results => {
+            const merged = results.flat();
+            this.meetingState$.next(merged);
+        });
     }
 }

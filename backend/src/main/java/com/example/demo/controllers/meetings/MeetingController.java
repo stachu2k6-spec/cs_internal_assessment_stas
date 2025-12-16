@@ -30,6 +30,11 @@ public class MeetingController {
         return meetingFacade.getPatientMeetingsById(patientId);
     }
 
+    @GetMapping("/{year}/{month}")
+    public  List<MeetingDto> getMonthMeetings(@PathVariable int year, @PathVariable int month) {
+        return meetingFacade.getMonthMeetings(year, month);
+    }
+
     @PostMapping
     public MeetingDto createMeeting(@RequestBody CreateMeetingDto createMeetingDto) {
         return meetingFacade.createMeeting(createMeetingDto);

@@ -1,16 +1,21 @@
-import { Component, ViewChild, AfterViewInit, OnDestroy, ElementRef } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, OnDestroy, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
-import { CalendarOptions } from '@fullcalendar/core';
+import { CalendarOptions, DatesSetArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Panel } from 'primeng/panel';
-import { CalendarResizeService } from '@/layout/service/calendar-resize.service';
 import { Button } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { Toolbar } from 'primeng/toolbar';
+import { Subject, takeUntil, tap } from 'rxjs';
+import { List } from 'postcss/lib/list';
+import { MeetingDto } from '@/pages/service/meeting/meeting.model';
+import { MeetingService } from '@/pages/service/meeting/meeting.service';
+import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-home-page',
@@ -19,105 +24,120 @@ import { Toolbar } from 'primeng/toolbar';
     templateUrl: './home-page.html',
     styleUrl: './home-page.scss'
 })
-export class HomePage implements AfterViewInit, OnDestroy {
+export class HomePage implements OnInit, OnDestroy {
     @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
     @ViewChild('calendar', { read: ElementRef }) calendarEl!: ElementRef;
 
-    // Keeps the calendar mounted for API-driven resizing; template uses this in *ngIf
-    // Exposed to the template so *ngIf="showCalendar" compiles
-    public showCalendar: boolean = true;
-    private layoutListener: any;
-    private resizeObserver?: ResizeObserver;
-    private sidebarTransitionListener?: (ev: TransitionEvent) => void;
+    showCalendar: boolean = true;
 
-    constructor(private calendarResizeService: CalendarResizeService) {}
+    prevMonthMeetings: MeetingDto[] = [];
+
+    thisMonthMeetings: MeetingDto[] = [];
+
+    nextMonthMeetings: MeetingDto[] = [];
+
+    events: EventInput[] = [];
+
+    destroy$ = new Subject<void>();
+
+    constructor(
+        private meetingFacade: MeetingFacade,
+        private router: Router
+    ) {}
 
     calendarOptions: CalendarOptions = {
         plugins: [dayGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
         selectable: true,
-        events: [
-            { title: 'Today', start: new Date().toISOString().slice(0, 10) },
-            { title: 'Demo Event', start: '2025-11-07', end: '2025-11-10' }
-        ],
-        dateClick: this.handleDateClick.bind(this)
+        eventClick: this.handleEventClick.bind(this),
+        dateClick: this.handleDateClick.bind(this),
+        datesSet: this.handleDatesSet.bind(this)
     };
 
-    // Attach ResizeObserver to the current calendar host element (disconnects previous observer)
-
-    private attachResizeObserver() {
-        try {
-            if (this.resizeObserver) {
-                try {
-                    this.resizeObserver.disconnect();
-                } catch (e) {}
-                this.resizeObserver = undefined;
-            }
-
-            if (typeof ResizeObserver === 'undefined') return;
-            const target = this.calendarEl?.nativeElement || null;
-            if (!target) return;
-
-            this.resizeObserver = new ResizeObserver(() => {
-                try {
-                    try {
-                        console.log('[home] ResizeObserver fired', new Date().toISOString());
-                    } catch (e) {}
-                    this.calendarComponent?.getApi()?.updateSize();
-                } catch (e) {}
+    ngOnInit() {
+        this.meetingFacade.meetingState$
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(meetings => {
+                this.events = this.meetingsToEvents(meetings);
             });
-
-            this.resizeObserver.observe(target);
-        } catch (e) {
-            // ignore
-        }
-    }
-
-    ngAfterViewInit() {
-        // Register API with the CalendarResizeService and listen for the layoutMenuToggled event
-        try {
-            const api = this.calendarComponent?.getApi();
-            if (api) this.calendarResizeService.register(api);
-            try {
-                console.log('[home] registered calendar api with service:', !!api, new Date().toISOString());
-            } catch (e) {}
-        } catch (e) {}
-
-        this.layoutListener = () => {
-            try {
-                try {
-                    console.log('[home] layoutMenuToggled received - calling service', new Date().toISOString());
-                } catch (e) {}
-                this.calendarResizeService.triggerResize();
-            } catch (e) {}
-        };
-
-        window.addEventListener('layoutMenuToggled', this.layoutListener);
-
-        // initial attach observer after view init
-        setTimeout(() => this.attachResizeObserver(), 0);
     }
 
     ngOnDestroy() {
-        try {
-            window.removeEventListener('layoutMenuToggled', this.layoutListener);
-        } catch (e) {}
-        this.layoutListener = null;
-
-        // unregister API and cleanup observers/listeners
-        try {
-            this.calendarResizeService.unregister();
-        } catch (e) {}
-
-        if (this.resizeObserver) {
-            try {
-                this.resizeObserver.disconnect();
-            } catch (e) {}
-            this.resizeObserver = undefined;
-        }
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     handleDateClick(arg: any) {
         alert('Date clicked: ' + arg.dateStr);
     }
+
+    handleEventClick(arg: any) {
+        this.router.navigate(['/view/meeting', arg.event.id]);
+    }
+
+    handleDatesSet(arg: DatesSetArg) {
+        const d = arg.view.currentStart;
+        const year = d.getFullYear();
+        const month = d.getMonth() + 1;
+
+        this.loadSurroundingMeetings(year, month);
+    }
+
+    loadSurroundingMeetings(year: number, month: number) {
+        const { prev, current, next } = this.getSurroundingMonths(year, month);
+
+        this.meetingFacade.fetchMultipleMonths([
+            prev,
+            current,
+            next
+        ]);
+    }
+    meetingsToEvents(meetings: MeetingDto[]): EventInput[] {
+        return meetings.map(meeting => {
+            const start = this.buildStartDate(meeting.date, meeting.startTime);
+
+            return {
+                id: meeting.id,
+                title: `${meeting.patient.surname}`,
+                start,
+                extendedProps: {
+                    notes: meeting.notes,
+                    patient: meeting.patient
+                }
+            };
+        });
+    }
+
+    private getSurroundingMonths(year: number, month: number) {
+        const current = { year, month };
+
+        const prevDate = new Date(year, month - 2, 1); // month is 1-based
+        const nextDate = new Date(year, month, 1);
+
+        return {
+            prev: { year: prevDate.getFullYear(), month: prevDate.getMonth() + 1 },
+            current,
+            next: { year: nextDate.getFullYear(), month: nextDate.getMonth() + 1 }
+        };
+    }
+
+    buildStartDate(date: Date, startTime: string | Date): Date {
+        const baseDate = new Date(date);
+
+        if (typeof startTime === 'string') {
+            const [h, m, s = '0'] = startTime.split(':');
+            baseDate.setHours(+h, +m, +s, 0);
+        } else {
+            baseDate.setHours(
+                startTime.getHours(),
+                startTime.getMinutes(),
+                startTime.getSeconds(),
+                0
+            );
+        }
+        return baseDate;
+    }
+
 }
+
+

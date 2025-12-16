@@ -25,6 +25,10 @@ export class MeetingService {
         return this.http.get<MeetingDto[]>(this.apiUrl + '/patients/' + patientId);
     }
 
+    getMonthMeetings(year: number, month: number): Observable<MeetingDto[]> {
+        return this.http.get<MeetingDto[]>(this.apiUrl + '/' + year + '/' + month);
+    }
+
     create(meeting: CreateMeetingDto): Observable<MeetingDto> {
         return this.http.post<MeetingDto>(this.apiUrl, meeting);
     }

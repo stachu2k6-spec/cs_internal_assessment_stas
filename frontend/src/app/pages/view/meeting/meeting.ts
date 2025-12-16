@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { SelectModule } from 'primeng/select';
@@ -31,6 +31,8 @@ import { Subject, of, pipe, take } from 'rxjs';
 import { takeUntil, switchMap, tap, catchError } from 'rxjs/operators';
 import { InputNumber } from 'primeng/inputnumber';
 import { Dialog } from 'primeng/dialog';
+import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
+import { CountryService } from '@/pages/service/country.service';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -61,11 +63,12 @@ interface expandedRows {
         RouterLink,
         DatePickerModule,
         InputNumber,
-        Dialog
+        Dialog,
+        AutoComplete
     ],
     templateUrl: './meeting.html',
     styleUrl: './meeting.scss',
-    providers: [MessageService]
+    providers: [MessageService, CountryService]
 })
 export class Meeting implements OnInit, OnDestroy {
     customers2: any[] = [];
@@ -84,9 +87,16 @@ export class Meeting implements OnInit, OnDestroy {
 
     patients: PatientDto[] = [];
 
+    patientsNames: any[] = [];
+
+    patientsSurnames: any[] = [];
+
+    filteredValues: any[] = [];
+
     private _meetingBackup: any = null;
 
-    @ViewChild('filter') filter!: ElementRef;
+
+
 
     // destroy notifier for takeUntil
     private destroy$ = new Subject<void>();
@@ -120,7 +130,10 @@ export class Meeting implements OnInit, OnDestroy {
             this.patientFacade.fetchAllPatients();
             this.patientFacade.patientState$
                 .pipe(
-                    tap((x) => (this.patients = x)),
+                    tap((x) => {
+                        this.patients = x;
+                        this.getNames(x);
+                        this.getSurnames(x); }),
                     takeUntil(this.destroy$)
                 )
                 .subscribe();
@@ -152,6 +165,8 @@ export class Meeting implements OnInit, OnDestroy {
                 })
             )
             .subscribe();
+
+
     }
 
     ngOnDestroy(): void {
@@ -249,7 +264,7 @@ export class Meeting implements OnInit, OnDestroy {
                 .pipe(takeUntil(this.destroy$)) // ensure unsubscribe on destroy
                 .subscribe({
                     next: (saved: MeetingDto) => {
-                        saved.date = this.toLocalDate(this.meeting.date);
+                        saved.date = this.toLocalDate(saved.date);
                         saved.startTime = this.toDateFromTimestamp(saved.startTime);
                         saved.duration = this.getMinutesFromIsoDuration(this.meeting.duration);
                         this.meeting = saved;
@@ -298,8 +313,34 @@ export class Meeting implements OnInit, OnDestroy {
             });
     }
 
+    getNames(patients: PatientDto[]) {
+        this.patientsNames = patients.map((p) => p.name);
+    }
 
-    // Return id of patient if exists, else null
+    getSurnames(patients: PatientDto[]) {
+        this.patientsSurnames = patients.map((p) => p.surname);
+    }
+
+    filterNames(event: any) {
+        return this.filter(this.patientsNames, event.query);
+    }
+
+    filterSurnames(event: any) {
+        this.filter(this.patientsSurnames, event.query);
+    }
+
+    filter(array: string[], query: string) {
+        const filtered: string[] = [];
+        const lowerQuery = query.toLowerCase();
+        for (let i = 0; i < array.length; i++) {
+            const item = array[i];
+            if (item.toLowerCase().indexOf(lowerQuery) === 0) {
+                filtered.push(item);
+            }
+        }
+        this.filteredValues = filtered;
+    }
+
     patientsId(name: string, surname: string): string | null {
         return this.patients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
     }
@@ -398,4 +439,5 @@ export class Meeting implements OnInit, OnDestroy {
             photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
         };
     }
+
 }

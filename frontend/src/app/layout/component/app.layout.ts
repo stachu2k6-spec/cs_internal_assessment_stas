@@ -6,7 +6,6 @@ import { AppTopbar } from './app.topbar';
 import { AppSidebar } from './app.sidebar';
 import { AppFooter } from './app.footer';
 import { LayoutService } from '../service/layout.service';
-import { CalendarResizeService } from '../service/calendar-resize.service';
 import { Toast } from 'primeng/toast';
 
 @Component({
@@ -43,7 +42,6 @@ export class AppLayout implements AfterViewInit, OnDestroy {
         public layoutService: LayoutService,
         public renderer: Renderer2,
         public router: Router,
-        private calendarResizeService: CalendarResizeService
     ) {
         this.overlayMenuOpenSubscription = this.layoutService.overlayOpen$.subscribe(() => {
             if (!this.menuOutsideClickListener) {
@@ -58,15 +56,6 @@ export class AppLayout implements AfterViewInit, OnDestroy {
                 this.blockBodyScroll();
             }
 
-            // give layout transition a moment, then trigger a resize so components like FullCalendar adjust
-            setTimeout(() => {
-                try {
-                    // trigger the calendar resize via the shared service
-                    this.calendarResizeService.triggerResize();
-                } catch (e) {
-                    // ignore in non-browser environments
-                }
-            }, 800);
         });
 
         this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
@@ -90,20 +79,6 @@ export class AppLayout implements AfterViewInit, OnDestroy {
         }
         this.unblockBodyScroll();
 
-        // trigger resize after menu closes so components like FullCalendar recalculate layout
-        setTimeout(() => {
-            try {
-                // trigger calendar resize via service as well as a window resize fallback
-                try {
-                    this.calendarResizeService.triggerResize();
-                } catch (e) {}
-                try {
-                    window.dispatchEvent(new Event('resize'));
-                } catch (e) {}
-            } catch (e) {
-                // ignore in non-browser environments
-            }
-        }, 300);
     }
 
     blockBodyScroll(): void {
@@ -156,7 +131,6 @@ export class AppLayout implements AfterViewInit, OnDestroy {
                         // Call the calendar resize API directly (no timeouts)
                         try {
                             console.log('[layout] sidebar transitionend', prop, new Date().toISOString());
-                            this.calendarResizeService.triggerResize();
                         } catch (e) {
                             console.error('[layout] triggerResize error', e);
                         }

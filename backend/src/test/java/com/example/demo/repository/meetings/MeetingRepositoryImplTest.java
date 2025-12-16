@@ -8,8 +8,6 @@ import static org.mockito.Mockito.*;
 import java.util.List;
 import java.util.UUID;
 
-import com.example.demo.repository.meetings.MeetingEntity;
-import com.example.demo.repository.meetings.MeetingRepositoryImpl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,31 +37,63 @@ class MeetingRepositoryImplTest {
     }
 
     @Test
-    void getPatientMeetingsById_returnsMeetingsForPatient() {
+    void getPatientMeetingsById_returnsMeetings() {
         // given
-        List<MeetingEntity> expectedMeetings = List.of(
+        List<MeetingEntity> expected = List.of(
                 new MeetingEntity(),
                 new MeetingEntity()
         );
 
         when(entityManager.createQuery(anyString(), eq(MeetingEntity.class)))
                 .thenReturn(typedQuery);
-        when(typedQuery.setParameter(eq("patientId"), eq(patientId)))
+        when(typedQuery.setParameter("patientId", patientId))
                 .thenReturn(typedQuery);
         when(typedQuery.getResultList())
-                .thenReturn(expectedMeetings);
+                .thenReturn(expected);
 
         // when
         List<MeetingEntity> result = repository.getPatientMeetingsById(patientId);
 
         // then
-        assertEquals(expectedMeetings, result);
-
+        assertEquals(expected, result);
         verify(entityManager).createQuery(
-                contains("FROM MeetingEntity"),
+                contains("LEFT JOIN FETCH meetingEntity.patient"),
                 eq(MeetingEntity.class)
         );
         verify(typedQuery).setParameter("patientId", patientId);
+        verify(typedQuery).getResultList();
+    }
+
+    @Test
+    void getMonthMeetings_returnsMeetingsForMonthAndYear() {
+        // given
+        int month = 5;
+        int year = 2025;
+
+        List<MeetingEntity> expected = List.of(
+                new MeetingEntity()
+        );
+
+        when(entityManager.createQuery(anyString(), eq(MeetingEntity.class)))
+                .thenReturn(typedQuery);
+        when(typedQuery.setParameter("month", month))
+                .thenReturn(typedQuery);
+        when(typedQuery.setParameter("year", year))
+                .thenReturn(typedQuery);
+        when(typedQuery.getResultList())
+                .thenReturn(expected);
+
+        // when
+        List<MeetingEntity> result = repository.getMonthMeetings(year, month);
+
+        // then
+        assertEquals(expected, result);
+        verify(entityManager).createQuery(
+                contains("FUNCTION('MONTH'"),
+                eq(MeetingEntity.class)
+        );
+        verify(typedQuery).setParameter("month", month);
+        verify(typedQuery).setParameter("year", year);
         verify(typedQuery).getResultList();
     }
 }

@@ -110,4 +110,10 @@ public class MeetingFacade {
 
     }
 
+    public List<MeetingDto> getMonthMeetings(int year, int month) {
+        return meetingRepository.getMonthMeetings(year, month)
+                .stream()
+                .map(meetingMapper::toDto)
+                .collect(Collectors.toList());
+    }
 }

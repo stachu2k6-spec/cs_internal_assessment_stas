@@ -23,6 +23,20 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom{
                 .setParameter("patientId", patientId)
                 .getResultList();
 
-
     }
+
+    public List<MeetingEntity> getMonthMeetings(int year, int month) {
+
+        String query =
+                "SELECT meetingEntity FROM MeetingEntity meetingEntity " +
+                        "LEFT JOIN FETCH meetingEntity.patient patient " +
+                        "WHERE EXTRACT(MONTH FROM meetingEntity.date) = :month " +
+                        "AND EXTRACT(YEAR FROM meetingEntity.date) = :year";
+
+        return entityManager.createQuery(query, MeetingEntity.class)
+                .setParameter("month", month)
+                .setParameter("year", year)
+                .getResultList();
+    }
+
 }
