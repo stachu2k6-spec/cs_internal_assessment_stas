@@ -1,10 +1,5 @@
 package com.example.demo.controllers.exercises;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 
 public class ExerciseDto {
     private String id;

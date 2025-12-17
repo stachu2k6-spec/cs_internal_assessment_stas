@@ -31,6 +31,8 @@ import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { ConfirmPopup } from 'primeng/confirmpopup';
 import { Dialog } from 'primeng/dialog';
+import { SymptomDto } from '@/pages/service/symptom/symptom.model';
+import { PatientSymptomObjectDto } from '@/pages/service/patient-symptom/patient-symptom.model';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -91,6 +93,8 @@ export class Patient implements OnInit, OnDestroy {
     patient: PatientDto = this.createEmptyPatient(); // Patient data to be displayed and edited, initialized to empty
 
     meetings: MeetingDto[] = [];
+
+    symptoms: PatientSymptomObjectDto[] = [];
 
     upcomingMeetings: MeetingDto[] = [];
 

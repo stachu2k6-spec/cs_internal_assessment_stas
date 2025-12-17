@@ -22,7 +22,13 @@
     <div class="font-semibold text-xl mb-4">Next meeting</div>
     <p-panel header="Info" [toggleable]="true">
         <p class="m-0">
-            MEETING DETAILS GO HERE
+            Patient: {{nextMeeting.patient.name}} {{nextMeeting.patient.surname}}
+        </p>
+        <p class="m-0">
+            Meeting Date: {{ nextMeeting.date | date:'yyyy-MM-dd' }}
+        </p>
+        <p class="m-0">
+            Meeting Time: {{ nextMeeting.startTime | date: 'HH:mm' }}
         </p>
     </p-panel>
 

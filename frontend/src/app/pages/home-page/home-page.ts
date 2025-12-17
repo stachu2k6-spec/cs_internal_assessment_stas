@@ -43,6 +43,8 @@ export class HomePage implements OnInit, OnDestroy {
 
     events: EventInput[] = [];
 
+    nextMeeting: MeetingDto = this.createEmptyMeeting();
+
     isQuickScheduleVisible: boolean = false;
 
     meeting: MeetingDto = this.createEmptyMeeting(); // Meeting data to be displayed and edited, initialized to empty
@@ -76,6 +78,7 @@ export class HomePage implements OnInit, OnDestroy {
     ngOnInit() {
         this.meetingFacade.meetingState$.pipe(takeUntil(this.destroy$)).subscribe((meetings) => {
             this.events = this.meetingsToEvents(meetings);
+            this.nextMeeting = this.getNextMeeting(meetings);
         });
     }
 
@@ -315,6 +318,20 @@ export class HomePage implements OnInit, OnDestroy {
         const minutes = match[2] ? parseInt(match[2], 10) : 0;
 
         return hours * 60 + minutes;
+    }
+
+    getNextMeeting(meetings: MeetingDto[]): MeetingDto {
+        const now = new Date();
+
+        const upcoming = meetings
+            .map(meeting => ({
+                meeting,
+                start: this.buildStartDate(meeting.date, meeting.startTime)
+            }))
+            .filter(x => x.start > now)
+            .sort((a, b) => a.start.getTime() - b.start.getTime());
+
+        return upcoming[0].meeting;
     }
 }
 

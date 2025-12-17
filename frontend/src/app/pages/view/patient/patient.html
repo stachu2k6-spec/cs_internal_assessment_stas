@@ -147,15 +147,15 @@
             </p-splitter>
         </ng-template>
             <ng-template #panel>
-            <p-splitter layout="vertical" [panelSizes]="[35, 65]">
+            <p-splitter layout="vertical" [panelSizes]="[45, 55]">
                 <ng-template #panel>
                     <div class="card">
-
+                        <div class="font-semibold text-xl mb-4">Symptoms</div>
                         <!-- context menu instance (one only) -->
                         <p-contextMenu #cm [model]="symptomsCMItems"></p-contextMenu>
 
                         <p-table
-                            [value]="meetings"
+                            [value]="symptoms"
                             [scrollable]="true"
                             scrollHeight="200px"
                             styleClass="mt-4"
@@ -164,18 +164,20 @@
                         >
                             <ng-template pTemplate="header">
                                 <tr>
-                                    <th class="text-xl" style="min-width:100px">Symptoms</th>
+                                    <th class="text-xl" style="min-width:100px">Name</th>
+                                    <th class="text-xl" style="min-width:100px">Severity</th>
                                 </tr>
                             </ng-template>
 
-                            <ng-template pTemplate="body" let-customer>
+                            <ng-template pTemplate="body" let-symptom>
                                 <tr
                                     class="hover-scale cursor-pointer"
-                                    [routerLink]="['/view','symptom']"
+                                    [routerLink]="['/view','symptom', ]"
                                     (contextmenu)="$event.preventDefault()"
-                                    [pContextMenuRow]="customer">
+                                    [pContextMenuRow]="symptom">
                                       <!-- this ties the row to the context menu -->
-                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                    <td style="min-width:100px">{{ symptom.name }}</td>
+                                    <td style="min-width:100px">{{ symptom.severity }}</td>
                                 </tr>
                             </ng-template>
                         </p-table>
