@@ -1,13 +1,24 @@
-package com.example.demo.controllers.patientSymptom;
+package com.example.demo.repository.patientSymptom;
+
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.util.UUID;
 
-public class PatientSymptomDto {
+
+@Entity
+@Table(name = "patientSymptoms")
+public class PatientSymptomEntity {
+
+    @Id
     private UUID patientId;
     private UUID symptomId;
     private int severity;
 
-    public PatientSymptomDto() {}
+    public PatientSymptomEntity() {}
+
 
     public UUID getPatientId() {
         return patientId;
@@ -33,3 +44,5 @@ public class PatientSymptomDto {
         this.severity = severity;
     }
 }
+
+

@@ -45,13 +45,13 @@ public class SymptomFacade {
     }
 
     public SymptomDto updateSymptom(String id, SymptomDto symptomsDto) {
-        SymptomEntity symptom_not_found = symptomRepository.findById(UUID.fromString(id))
+        SymptomEntity symptom = symptomRepository.findById(UUID.fromString(id))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Symptom not found"));
 
-        symptom_not_found.setName(symptomsDto.getName());
-        symptom_not_found.setNotes(symptomsDto.getNotes());
+        symptom.setName(symptomsDto.getName());
+        symptom.setNotes(symptomsDto.getNotes());
 
-        SymptomEntity symptomEntity = symptomRepository.save(symptom_not_found);
+        SymptomEntity symptomEntity = symptomRepository.save(symptom);
 
         return symptomMapper.toDto(symptomEntity);
     }
