@@ -25,6 +25,16 @@ public class MeetingController {
         return meetingFacade.getMeetingById(id);
     }
 
+    @GetMapping("/patients/{patientId}")
+    public List<MeetingDto> getPatientMeetings(@PathVariable String patientId) {
+        return meetingFacade.getPatientMeetingsById(patientId);
+    }
+
+    @GetMapping("/{year}/{month}")
+    public  List<MeetingDto> getMonthMeetings(@PathVariable int year, @PathVariable int month) {
+        return meetingFacade.getMonthMeetings(year, month);
+    }
+
     @PostMapping
     public MeetingDto createMeeting(@RequestBody CreateMeetingDto createMeetingDto) {
         return meetingFacade.createMeeting(createMeetingDto);
@@ -36,7 +46,8 @@ public class MeetingController {
     }
 
     @DeleteMapping("/{id}")
-    public MeetingDto deleteMeeting(@PathVariable String id) {
-        return meetingFacade.deleteMeeting(id);
+    public String deleteMeeting(@PathVariable String id) {
+         meetingFacade.deleteMeeting(id);
+         return "ok";
     }
 }

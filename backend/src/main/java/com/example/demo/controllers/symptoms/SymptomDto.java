@@ -5,14 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 public class SymptomDto {
-    private String id;
+    private UUID id;
     private String name;
     private String notes;
 
 
 
-    public SymptomDto(String id, String name, String notes) {
+    public SymptomDto(UUID id, String name, String notes) {
         this.id = id;
         this.name = name;
         this.notes = notes;
@@ -21,11 +23,11 @@ public class SymptomDto {
     public SymptomDto() {
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

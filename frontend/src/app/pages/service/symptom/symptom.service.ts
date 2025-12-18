@@ -54,7 +54,7 @@ export class SymptomService {
         return this.http.put<SymptomDto>(this.apiUrl + '/' + id, symptom);
     }
 
-    delete(id: string): Observable<SymptomDto> {
-        return this.http.delete<SymptomDto>(this.apiUrl + '/' + id);
+    delete(id: string): Observable<string> {
+        return this.http.delete<string>(this.apiUrl + '/' + id);
     }
 }

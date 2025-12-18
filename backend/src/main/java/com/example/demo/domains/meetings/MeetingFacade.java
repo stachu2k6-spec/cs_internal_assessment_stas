@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class MeetingFacade {
@@ -78,6 +80,13 @@ public class MeetingFacade {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Meeting not found"));
 
 
+        PatientEntity patient = patientRepository.findById(meetingDto.getPatient().getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Patient not found: " + meetingDto.getPatient().getId()
+        ));
+
+        meeting.setPatient(patient);
         meeting.setDate(meetingDto.getDate());
         meeting.setStartTime(meetingDto.getStartTime());
         meeting.setDuration(meetingDto.getDuration());
@@ -88,17 +97,31 @@ public class MeetingFacade {
         return meetingMapper.toDto(saved);
     }
 
-    public MeetingDto deleteMeeting(String id) {
+    public void deleteMeeting(String id) {
         UUID uuid = UUID.fromString(id);
 
         if (!meetingRepository.existsById(uuid)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Meeting not found");
         }
 
-        MeetingDto meetingDto = getMeetingById(id);
-
         this.meetingRepository.deleteById(UUID.fromString(id));
+    }
 
-        return meetingDto;
+    public List<MeetingDto> getPatientMeetingsById(String patientId) {
+        UUID uuid = UUID.fromString(patientId);
+
+        return meetingRepository.getPatientMeetingsById(uuid)
+                .stream()
+                .map(meetingMapper::toDto)
+                .collect(Collectors.toList());
+
+
+    }
+
+    public List<MeetingDto> getMonthMeetings(int year, int month) {
+        return meetingRepository.getMonthMeetings(year, month)
+                .stream()
+                .map(meetingMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

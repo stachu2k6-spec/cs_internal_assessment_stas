@@ -1,0 +1,9 @@
+:host ::ng-deep .fc-daygrid-day {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+:host ::ng-deep .fc-daygrid-day:hover {
+    transform: scale(1.03);
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}

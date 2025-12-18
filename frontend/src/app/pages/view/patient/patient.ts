@@ -31,6 +31,10 @@ import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { ConfirmPopup } from 'primeng/confirmpopup';
 import { Dialog } from 'primeng/dialog';
+import { SymptomDto } from '@/pages/service/symptom/symptom.model';
+import { PatientSymptomDto } from '@/pages/service/patient-symptom/patient-symptom.model';
+import { PatientSymptomFacade } from '@/pages/service/patient-symptom/patient-symptom.facade';
+import { SymptomFacade } from '@/pages/service/symptom/symptom.facade';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -66,7 +70,6 @@ interface expandedRows {
         RouterLink,
         ContextMenu,
         DatePicker,
-        ConfirmPopup,
         Dialog
     ],
     templateUrl: './patient.html',
@@ -88,9 +91,23 @@ export class Patient implements OnInit, OnDestroy {
 
     displayConfirmDialog: boolean = false;
 
+    displayAddSymptomDialog: boolean = false;
+
     patient: PatientDto = this.createEmptyPatient(); // Patient data to be displayed and edited, initialized to empty
 
     meetings: MeetingDto[] = [];
+
+    patientSymptoms: PatientSymptomDto[] = [];
+
+    symptoms: SymptomDto[] = [];
+
+    symptomNames: string[] = [];
+
+    severities: number[] = [1,2,3]
+
+    symptom: SymptomDto = this.createEmptySymptom();
+
+    patientSymptom: PatientSymptomDto = this.createEmptyPatientSymptom();
 
     upcomingMeetings: MeetingDto[] = [];
 
@@ -105,6 +122,8 @@ export class Patient implements OnInit, OnDestroy {
     constructor(
         private patientFacade: PatientFacade,
         private meetingFacade: MeetingFacade,
+        private symptomFacade: SymptomFacade,
+        private patientSymptomFacade: PatientSymptomFacade,
         private route: ActivatedRoute,
         private router: Router,
         private messageService: MessageService,
@@ -145,17 +164,27 @@ export class Patient implements OnInit, OnDestroy {
             .subscribe();
 
         // load meetings for this patient
-        this.meetingFacade.fetchAllMeetings();
+        this.meetingFacade.fetchByPatientId(id);
         this.meetingFacade.meetingState$
             .pipe(
                 takeUntil(this.destroy$), // keep receiving until component destroyed
                 tap((list) => {
                     this.meetings = list;
-                    this.removeMeetingsOfOtherPatients(id);
                     this.splitMeetings();
                 })
             )
             .subscribe();
+
+
+        this.patientSymptomFacade.fetchByPatientId(id);
+        this.patientSymptomFacade.patientSymptomState$
+            .pipe(
+                takeUntil(this.destroy$),
+                tap((list) => {
+                    this.patientSymptoms = list;
+                })
+            )
+            .subscribe()
     }
 
     ngOnDestroy() {
@@ -259,6 +288,29 @@ export class Patient implements OnInit, OnDestroy {
         this.displayConfirmDialog = false;
     }
 
+    closeAddSymptomDialog() {
+        this.displayAddSymptomDialog = false;
+    }
+
+    protected addSymptom() {
+        this.displayAddSymptomDialog = true;
+
+        this.patientSymptom = this.createEmptyPatientSymptom()
+
+        // fetch all symptoms for selection
+        this.symptomFacade.fetchAllSymptoms();
+        this.symptomFacade.symptomState$
+            .pipe(
+                tap((x) => {
+                    this.symptoms = x;
+                    this.getSymptomNames(x);
+                }),
+                takeUntil(this.destroy$)
+            )
+            .subscribe();
+
+    }
+
     deletePatient() {
         if (!this.patient || !this.patient.id) {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No patient loaded.' });
@@ -278,10 +330,6 @@ export class Patient implements OnInit, OnDestroy {
                     this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
                 }
             });
-    }
-
-    removeMeetingsOfOtherPatients(patientId: string) {
-        this.meetings = this.meetings.filter((m) => m.patient.id === patientId);
     }
 
     // method to split and sort meetings into upcoming and past based on current date
@@ -341,4 +389,63 @@ export class Patient implements OnInit, OnDestroy {
     }
 
     protected readonly confirm = confirm;
+
+
+    private createEmptySymptom(): SymptomDto {
+        return {
+            id: '',
+            name: '',
+            notes: ''
+        }
+    }
+
+    private createEmptyPatientSymptom(): PatientSymptomDto {
+        return {
+            id: '',
+            patient: this.patient,
+            symptom: this.symptom,
+            severity: 0
+        }
+    }
+
+    getSymptomNames(symptoms: SymptomDto[]) {
+        this.symptomNames = symptoms.map((p) => p.name).filter(
+            name => !this.patientSymptoms.some(ps => ps.symptom.name === name));
+    }
+
+    protected saveAddedSymptom() {
+        // create new meeting
+        const createdPatientSymptom = this.patientSymptom;
+        const selectedSymptom = this.findSymptomByName(this.symptom.name)
+
+        if(selectedSymptom) {
+            createdPatientSymptom.symptom = selectedSymptom;
+        } else {
+            console.error('Failed to add symptom');
+            this.messageService.add({ severity: 'error', summary: 'Creation failed' });
+            return;
+        }
+
+        this.patientSymptomFacade
+            .createPatientSymptom(createdPatientSymptom)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (created: PatientSymptomDto) => {
+                    this.patientSymptom = created;
+                    this.displayAddSymptomDialog = false;
+                    this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Symptom added successfully.' });
+                },
+                error: (err: any) => {
+                    console.error('Failed to add symptom', err);
+                    this.messageService.add({ severity: 'error', summary: 'Adding failed', detail: err?.message ?? 'Unknown error' });
+                }
+            });
+    }
+
+    findSymptomByName(
+        name: string
+    ): SymptomDto | undefined {
+        return this.symptoms.find(s => s.name === name)
+    }
+
 }

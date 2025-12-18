@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { MenuItem } from 'primeng/api';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
@@ -64,17 +64,21 @@ import { LayoutService } from '../service/layout.service';
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
+                    <button type="button" [routerLink]="['/view', 'patient', 'newPatient']" class="layout-topbar-action">
+                        <i class="pi pi-user">+</i>
+                        <span>Patient</span>
+                    </button>
+                    <button type="button" [routerLink]="['/view', 'meeting', 'newMeeting']" class="layout-topbar-action">
+                        <i class="pi pi-calendar">+</i>
                         <span>Calendar</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-inbox"></i>
-                        <span>Messages</span>
+                    <button type="button" [routerLink]="['/view', 'symptom', 'newSymptom']" class="layout-topbar-action">
+                        <i class="pi pi-exclamation-circle">+</i>
+                        <span>Symptoms</span>
                     </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-user"></i>
-                        <span>Profile</span>
+                    <button type="button" [routerLink]="['/view', 'exercise', 'newExercise']" class="layout-topbar-action">
+                        <i class="pi pi-comment">+</i>
+                        <span>Exercises</span>
                     </button>
                 </div>
             </div>
@@ -84,7 +88,10 @@ import { LayoutService } from '../service/layout.service';
 export class AppTopbar {
     items!: MenuItem[];
 
-    constructor(public layoutService: LayoutService) {}
+    constructor(
+        public layoutService: LayoutService,
+        private router: Router
+    ) {}
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));

@@ -11,7 +11,7 @@ export interface MeetingDto {
 
 export interface CreateMeetingDto {
     patientId: string;      // Associated patient ID
-    date: Date;            // ISO date: '2025-11-24'
+    date: Date;
     startTime: string;       // ISO time: '14:30:00'
     duration: string;        // ISO-8601 duration: 'PT60M' (1 hour)
     notes: string;

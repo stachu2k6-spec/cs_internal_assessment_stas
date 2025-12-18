@@ -12,8 +12,8 @@ public class SymptomMapper {
     public SymptomEntity toEntity(SymptomDto dto) {
         SymptomEntity entity = new SymptomEntity();
 
-        if (dto.getId() != null && !dto.getId().isEmpty()) {
-            entity.setId(UUID.fromString(dto.getId()));
+        if (dto.getId() != null) {
+            entity.setId(dto.getId());
         }
 
         entity.setName(dto.getName());
@@ -25,7 +25,7 @@ public class SymptomMapper {
     public SymptomDto toDto(SymptomEntity entity) {
         SymptomDto dto = new SymptomDto();
 
-        dto.setId(entity.getId().toString());
+        dto.setId(entity.getId());
         dto.setName(entity.getName());
         dto.setNotes(entity.getNotes());
 
