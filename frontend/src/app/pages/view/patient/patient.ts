@@ -184,6 +184,7 @@ export class Patient implements OnInit, OnDestroy {
                     this.patientSymptoms = list;
                 })
             )
+            .subscribe()
     }
 
     ngOnDestroy() {
@@ -408,10 +409,43 @@ export class Patient implements OnInit, OnDestroy {
     }
 
     getSymptomNames(symptoms: SymptomDto[]) {
-        this.symptomNames = symptoms.map((p) => p.name);
+        this.symptomNames = symptoms.map((p) => p.name).filter(
+            name => !this.patientSymptoms.some(ps => ps.symptom.name === name));
     }
 
     protected saveAddedSymptom() {
+        // create new meeting
+        const createdPatientSymptom = this.patientSymptom;
+        const selectedSymptom = this.findSymptomByName(this.symptom.name)
 
+        if(selectedSymptom) {
+            createdPatientSymptom.symptom = selectedSymptom;
+        } else {
+            console.error('Failed to add symptom');
+            this.messageService.add({ severity: 'error', summary: 'Creation failed' });
+            return;
+        }
+
+        this.patientSymptomFacade
+            .createPatientSymptom(createdPatientSymptom)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (created: PatientSymptomDto) => {
+                    this.patientSymptom = created;
+                    this.displayAddSymptomDialog = false;
+                    this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Symptom added successfully.' });
+                },
+                error: (err: any) => {
+                    console.error('Failed to add symptom', err);
+                    this.messageService.add({ severity: 'error', summary: 'Adding failed', detail: err?.message ?? 'Unknown error' });
+                }
+            });
     }
+
+    findSymptomByName(
+        name: string
+    ): SymptomDto | undefined {
+        return this.symptoms.find(s => s.name === name)
+    }
+
 }

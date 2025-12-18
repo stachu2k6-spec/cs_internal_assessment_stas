@@ -169,15 +169,15 @@
                                 </tr>
                             </ng-template>
 
-                            <ng-template pTemplate="body" let-symptom>
+                            <ng-template pTemplate="body" let-patientSymptom>
                                 <tr
                                     class="hover-scale cursor-pointer"
                                     [routerLink]="['/view','symptom', ]"
                                     (contextmenu)="$event.preventDefault()"
                                     [pContextMenuRow]="symptom">
                                       <!-- this ties the row to the context menu -->
-                                    <td style="min-width:100px">{{ symptom.name }}</td>
-                                    <td style="min-width:100px">{{ symptom.severity }}</td>
+                                    <td style="min-width:100px">{{ patientSymptom.symptom.name }}</td>
+                                    <td style="min-width:100px">{{ patientSymptom.severity }}</td>
                                 </tr>
                             </ng-template>
                         </p-table>
@@ -186,7 +186,7 @@
                             <p-button (onClick)="addSymptom()" label="Add Symptom" icon="pi pi-plus" iconPos="right"></p-button>
 
                             <p-dialog header="Add symptom" [(visible)]="displayAddSymptomDialog"  [modal]="true">
-                                <div class="card flex flex-row gap-4">
+                                <div class="card flex flex-row gap-4 " [style]="{ height: '300px'}">
                                     <div class="card flex flex-col gap-4">
                                         <div class="font-semibold text-xl flex items-center justify-center">Select Symptom</div>
                                         <div class="flex flex-col gap-2">
@@ -201,8 +201,8 @@
                                     </div>
                                 </div>
                                 <ng-template #footer>
-                                    <p-button label="No" icon="pi pi-times" (click)="closeAddSymptomDialog()" text severity="secondary" />
-                                    <p-button label="Yes" icon="pi pi-check" (click)="saveAddedSymptom()" severity="danger" outlined autofocus />
+                                    <p-button label="Cancel" icon="pi pi-times" (click)="closeAddSymptomDialog()" text severity="danger" />
+                                    <p-button label="Add" icon="pi pi-check" (click)="saveAddedSymptom()" severity="success" outlined autofocus />
                                 </ng-template>
                             </p-dialog>
                         </div>

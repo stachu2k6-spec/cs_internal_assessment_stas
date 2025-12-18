@@ -44,7 +44,7 @@ export class PatientSymptomFacade {
 
     /* ===================== CREATE ===================== */
 
-    create(patientSymptom: PatientSymptomDto): Observable<PatientSymptomDto> {
+    createPatientSymptom(patientSymptom: PatientSymptomDto): Observable<PatientSymptomDto> {
         return this.patientSymptomService.create(patientSymptom).pipe(
             take(1),
             tap(created => {
@@ -59,7 +59,7 @@ export class PatientSymptomFacade {
 
     /* ===================== UPDATE ===================== */
 
-    update(id: string, patientSymptom: PatientSymptomDto): Observable<PatientSymptomDto> {
+    updatePatientSymptom(id: string, patientSymptom: PatientSymptomDto): Observable<PatientSymptomDto> {
         return this.patientSymptomService.update(id, patientSymptom).pipe(
             take(1),
             tap(updated => {
@@ -76,7 +76,7 @@ export class PatientSymptomFacade {
 
     /* ===================== DELETE ===================== */
 
-    delete(id: string): Observable<void> {
+    deletePatientSymptom(id: string): Observable<void> {
         return this.patientSymptomService.delete(id).pipe(
             take(1),
             tap(() => {

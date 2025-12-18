@@ -31,15 +31,14 @@ public class PatientSymptomMapper {
 
     public PatientSymptomEntity toEntity(PatientSymptomDto dto) {
         PatientSymptomEntity entity = new PatientSymptomEntity();
-        
-        entity.getPatient().setId(dto.getSymptom().getId());
-        entity.setSeverity(dto.getSeverity());
 
         PatientEntity p = patientRepository.findById(dto.getPatient().getId()).get();
         entity.setPatient(p);
         
         SymptomEntity s = symptomRepository.findById(dto.getSymptom().getId()).get();
         entity.setSymptom(s);
+
+        entity.setSeverity(dto.getSeverity());
 
         return entity;
     }
