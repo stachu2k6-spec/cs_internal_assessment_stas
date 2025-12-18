@@ -36,7 +36,8 @@ public class SymptomController {
     }
 
     @DeleteMapping("/{id}")
-    public SymptomDto deleteSymptom(@PathVariable String id) {
-        return symptomFacade.deleteSymptom(id);
+    public String deleteSymptom(@PathVariable String id) {
+        symptomFacade.deleteSymptom(id);
+        return "ok";
     }
 }

@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, take, tap } from 'rxjs';
-
 import { ExerciseDto } from '@/pages/service/exercise/exercise.model';
 import { ExerciseService } from '@/pages/service/exercise/exercise.service';
-import { SymptomDto } from '@/pages/service/symptom/symptom.model';
+
 
 @Injectable({
     providedIn: 'root'

@@ -69,7 +69,7 @@ export class SymptomFacade {
         );
     }
 
-    deleteSymptom(id: string): Observable<SymptomDto> {
+    deleteSymptom(id: string): Observable<string> {
         return this.symptomService.delete(id).pipe(
             take(1),
             tap(() => {

@@ -17,7 +17,7 @@ public class MeetingEntity {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "meetings")
+    @JoinColumn(name = "patient")
     private PatientEntity patient;
 
     private LocalDate date;

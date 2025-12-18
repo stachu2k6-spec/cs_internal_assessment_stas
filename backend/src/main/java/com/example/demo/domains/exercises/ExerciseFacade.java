@@ -57,17 +57,13 @@ public class ExerciseFacade {
         return exerciseMapper.toDto(exerciseEntity);
     }
 
-    public ExerciseDto deleteExercise(String id) {
+    public void deleteExercise(String id) {
         UUID uuid = UUID.fromString(id);
 
         if (!exerciseRepository.existsById(uuid)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Patient not found");
         }
 
-        ExerciseDto deletedExercise = getExercisesById(id);
-
         exerciseRepository.deleteById(uuid);
-
-        return deletedExercise;
     }
 }

@@ -84,13 +84,12 @@
                             <div class="card flex flex-col gap-4">
                                 <div class="font-semibold text-xl flex items-center justify-center">Info</div>
                                 <div class="flex flex-col gap-2">
-                                    <label for="name1">Name</label>
-                                    <input pInputText id="name1" type="text" [(ngModel)]="patient.name" [disabled]="!isNewMeetingMode" />
-                                </div>
+                                    <label for="name1">Patient Name</label>
+                                    <p-select [(ngModel)]="patient.name" [options]="patientsNames" placeholder="Select" [disabled]="!isNewMeetingMode"/>                                </div>
 
                                 <div class="flex flex-col gap-2">
-                                    <label for="name1">Surname</label>
-                                    <input pInputText id="name1" type="text" [(ngModel)]="patient.surname" [disabled]="!isNewMeetingMode" />
+                                    <label for="name1">Patient Surname</label>
+                                    <p-select [(ngModel)]="patient.surname" [options]="patientsSurnames" placeholder="Select" [disabled]="!isNewMeetingMode"/>
                                 </div>
 
                                 <div class="flex flex-col gap-2">

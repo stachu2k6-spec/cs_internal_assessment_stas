@@ -5,6 +5,8 @@ import com.example.demo.controllers.meetings.MeetingDto;
 import com.example.demo.controllers.patients.PatientDto;
 import com.example.demo.domains.patients.PatientMapper;
 import com.example.demo.repository.meetings.MeetingEntity;
+import com.example.demo.repository.patients.PatientEntity;
+import com.example.demo.repository.patients.PatientRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -13,9 +15,11 @@ import java.util.UUID;
 public class MeetingMapper {
 
     private final PatientMapper patientMapper;
+    private final PatientRepository patientRepository;
 
-    public MeetingMapper(PatientMapper patientMapper) {
+    public MeetingMapper(PatientMapper patientMapper, PatientRepository patientRepository) {
         this.patientMapper = patientMapper;
+        this.patientRepository = patientRepository;
     }
 
     /**
@@ -55,11 +59,8 @@ public class MeetingMapper {
         entity.setDuration(dto.getDuration());
         entity.setNotes(dto.getNotes());
 
-        // DO NOT map PatientDto -> PatientEntity here.
-        // That must be done in the Facade via lookup in PatientRepository.
-        // Example:
-        // PatientEntity p = patientRepository.findById(dto.getPatient().getId()).get();
-        // entity.setPatient(p);
+         PatientEntity p = patientRepository.findById(dto.getPatient().getId()).get();
+         entity.setPatient(p);
 
         return entity;
     }

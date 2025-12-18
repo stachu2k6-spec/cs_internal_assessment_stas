@@ -1,123 +1,338 @@
-import { Component, ViewChild, AfterViewInit, OnDestroy, ElementRef } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, OnDestroy, ElementRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FullCalendarModule, FullCalendarComponent } from '@fullcalendar/angular';
-import { CalendarOptions } from '@fullcalendar/core';
+import { CalendarOptions, DatesSetArg, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { Panel } from 'primeng/panel';
-import { CalendarResizeService } from '@/layout/service/calendar-resize.service';
 import { Button } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { Toolbar } from 'primeng/toolbar';
+import { Subject, takeUntil, tap } from 'rxjs';
+import { List } from 'postcss/lib/list';
+import { MeetingDto } from '@/pages/service/meeting/meeting.model';
+import { MeetingService } from '@/pages/service/meeting/meeting.service';
+import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
+import { Router } from '@angular/router';
+import { Dialog } from 'primeng/dialog';
+import { DatePicker } from 'primeng/datepicker';
+import { InputNumber } from 'primeng/inputnumber';
+import { Select } from 'primeng/select';
+import { PatientDto } from '@/pages/service/patient/patient.model';
+import { PatientFacade } from '@/pages/service/patient/patient.facade';
+import { FormsModule } from '@angular/forms';
+import { Textarea } from 'primeng/textarea';
+import { Toast } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-home-page',
     standalone: true,
-    imports: [CommonModule, FullCalendarModule, Panel, Button, IconField, InputIcon, InputText, Toolbar],
+    imports: [CommonModule, FullCalendarModule, Panel, Button, IconField, InputIcon, InputText, Toolbar, Dialog, DatePicker, InputNumber, Select, FormsModule, Textarea, Toast],
     templateUrl: './home-page.html',
-    styleUrl: './home-page.scss'
+    styleUrl: './home-page.scss',
+    providers: [MessageService]
 })
-export class HomePage implements AfterViewInit, OnDestroy {
+export class HomePage implements OnInit, OnDestroy {
     @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
     @ViewChild('calendar', { read: ElementRef }) calendarEl!: ElementRef;
 
-    // Keeps the calendar mounted for API-driven resizing; template uses this in *ngIf
-    // Exposed to the template so *ngIf="showCalendar" compiles
-    public showCalendar: boolean = true;
-    private layoutListener: any;
-    private resizeObserver?: ResizeObserver;
-    private sidebarTransitionListener?: (ev: TransitionEvent) => void;
+    showCalendar: boolean = true;
 
-    constructor(private calendarResizeService: CalendarResizeService) {}
+    events: EventInput[] = [];
+
+    nextMeeting: MeetingDto = this.createEmptyMeeting();
+
+    isQuickScheduleVisible: boolean = false;
+
+    meeting: MeetingDto = this.createEmptyMeeting(); // Meeting data to be displayed and edited, initialized to empty
+
+    patient: PatientDto = this.createEmptyPatient(); // Associated patient data, initialized to empty
+
+    patients: PatientDto[] = [];
+
+    patientsNames: string[] = [];
+
+    patientsSurnames: string[] = [];
+
+    destroy$ = new Subject<void>();
+
+    constructor(
+        private meetingFacade: MeetingFacade,
+        private patientFacade: PatientFacade,
+        private messageService: MessageService,
+        private router: Router
+    ) {}
 
     calendarOptions: CalendarOptions = {
         plugins: [dayGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
         selectable: true,
-        events: [
-            { title: 'Today', start: new Date().toISOString().slice(0, 10) },
-            { title: 'Demo Event', start: '2025-11-07', end: '2025-11-10' }
-        ],
-        dateClick: this.handleDateClick.bind(this)
+        eventClick: this.handleEventClick.bind(this),
+        dateClick: this.handleDateClick.bind(this),
+        datesSet: this.handleDatesSet.bind(this)
     };
 
-    // Attach ResizeObserver to the current calendar host element (disconnects previous observer)
-
-    private attachResizeObserver() {
-        try {
-            if (this.resizeObserver) {
-                try {
-                    this.resizeObserver.disconnect();
-                } catch (e) {}
-                this.resizeObserver = undefined;
-            }
-
-            if (typeof ResizeObserver === 'undefined') return;
-            const target = this.calendarEl?.nativeElement || null;
-            if (!target) return;
-
-            this.resizeObserver = new ResizeObserver(() => {
-                try {
-                    try {
-                        console.log('[home] ResizeObserver fired', new Date().toISOString());
-                    } catch (e) {}
-                    this.calendarComponent?.getApi()?.updateSize();
-                } catch (e) {}
-            });
-
-            this.resizeObserver.observe(target);
-        } catch (e) {
-            // ignore
-        }
-    }
-
-    ngAfterViewInit() {
-        // Register API with the CalendarResizeService and listen for the layoutMenuToggled event
-        try {
-            const api = this.calendarComponent?.getApi();
-            if (api) this.calendarResizeService.register(api);
-            try {
-                console.log('[home] registered calendar api with service:', !!api, new Date().toISOString());
-            } catch (e) {}
-        } catch (e) {}
-
-        this.layoutListener = () => {
-            try {
-                try {
-                    console.log('[home] layoutMenuToggled received - calling service', new Date().toISOString());
-                } catch (e) {}
-                this.calendarResizeService.triggerResize();
-            } catch (e) {}
-        };
-
-        window.addEventListener('layoutMenuToggled', this.layoutListener);
-
-        // initial attach observer after view init
-        setTimeout(() => this.attachResizeObserver(), 0);
+    ngOnInit() {
+        this.meetingFacade.meetingState$.pipe(takeUntil(this.destroy$)).subscribe((meetings) => {
+            this.events = this.meetingsToEvents(meetings);
+            this.nextMeeting = this.getNextMeeting(meetings);
+        });
     }
 
     ngOnDestroy() {
-        try {
-            window.removeEventListener('layoutMenuToggled', this.layoutListener);
-        } catch (e) {}
-        this.layoutListener = null;
-
-        // unregister API and cleanup observers/listeners
-        try {
-            this.calendarResizeService.unregister();
-        } catch (e) {}
-
-        if (this.resizeObserver) {
-            try {
-                this.resizeObserver.disconnect();
-            } catch (e) {}
-            this.resizeObserver = undefined;
-        }
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     handleDateClick(arg: any) {
-        alert('Date clicked: ' + arg.dateStr);
+        this.quickScheduleMeeting(arg.date);
+    }
+
+    handleEventClick(arg: any) {
+        this.router.navigate(['/view/meeting', arg.event.id]);
+    }
+
+    handleDatesSet(arg: DatesSetArg) {
+        const d = arg.view.currentStart;
+        const year = d.getFullYear();
+        const month = d.getMonth() + 1;
+
+        this.loadSurroundingMeetings(year, month);
+    }
+
+    loadSurroundingMeetings(year: number, month: number) {
+        const { prev, current, next } = this.getSurroundingMonths(year, month);
+
+        this.meetingFacade.fetchMultipleMonths([prev, current, next]);
+    }
+    meetingsToEvents(meetings: MeetingDto[]): EventInput[] {
+        return meetings.map((meeting) => {
+            const start = this.buildStartDate(meeting.date, meeting.startTime);
+
+            return {
+                id: meeting.id,
+                title: `${meeting.patient.surname}`,
+                start,
+                extendedProps: {
+                    notes: meeting.notes,
+                    patient: meeting.patient
+                }
+            };
+        });
+    }
+
+    private getSurroundingMonths(year: number, month: number) {
+        const current = { year, month };
+
+        const prevDate = new Date(year, month - 2, 1); // month is 1-based
+        const nextDate = new Date(year, month, 1);
+
+        return {
+            prev: { year: prevDate.getFullYear(), month: prevDate.getMonth() + 1 },
+            current,
+            next: { year: nextDate.getFullYear(), month: nextDate.getMonth() + 1 }
+        };
+    }
+
+    buildStartDate(date: Date, startTime: string | Date): Date {
+        const baseDate = new Date(date);
+
+        if (typeof startTime === 'string') {
+            const [h, m, s = '0'] = startTime.split(':');
+            baseDate.setHours(+h, +m, +s, 0);
+        } else {
+            baseDate.setHours(startTime.getHours(), startTime.getMinutes(), startTime.getSeconds(), 0);
+        }
+        return baseDate;
+    }
+
+    test() {}
+
+    private quickScheduleMeeting(date: any) {
+        this.isQuickScheduleVisible = true;
+        this.meeting = this.createEmptyMeeting();
+        this.meeting.id = 'newMeeting'; // assign temporary id
+        this.meeting.date = date;
+        this.patient = this.createEmptyPatient();
+
+        // fetch all patients for selection
+        this.patientFacade.fetchAllPatients();
+        this.patientFacade.patientState$
+            .pipe(
+                tap((x) => {
+                    this.patients = x;
+                    this.getNames(x);
+                    this.getSurnames(x);
+                }),
+                takeUntil(this.destroy$)
+            )
+            .subscribe();
+    }
+
+    saveMeeting() {
+        const patientId = this.patientsId(this.patient.name, this.patient.surname);
+        if (patientId) {
+            // create new meeting
+            const createdMeeting = {
+                patientId: patientId,
+                date: this.meeting.date,
+                startTime: this.getTimeHHMM(this.meeting.startTime),
+                duration: this.minutesToIsoDuration(this.meeting.duration),
+                notes: this.meeting.notes
+            };
+            this.meetingFacade
+                .createMeeting(createdMeeting)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({
+                    next: (created: MeetingDto) => {
+                        created.date = this.toLocalDate(created.date);
+                        created.startTime = this.toDateFromTimestamp(created.startTime);
+                        created.duration = this.getMinutesFromIsoDuration(created.duration);
+                        this.meeting = created;
+                        this.isQuickScheduleVisible = false;
+                        this.messageService.add({ severity: 'success', summary: 'Created', detail: 'Meeting created successfully.' });
+                    },
+                    error: (err: any) => {
+                        console.error('Failed to create meeting', err);
+                        this.messageService.add({ severity: 'error', summary: 'Creation failed', detail: err?.message ?? 'Unknown error' });
+                    }
+                });
+            return;
+        } else {
+            console.error('Save exception', 'Patient does not exist');
+            this.messageService.add({ severity: 'error', summary: 'Save failed', detail: 'Patient does not exist' });
+            return;
+        }
+    }
+
+    cancelScheduling() {
+        this.isQuickScheduleVisible = false;
+    }
+
+
+    getNames(patients: PatientDto[]) {
+        this.patientsNames = patients.map((p) => p.name);
+    }
+
+    getSurnames(patients: PatientDto[]) {
+        this.patientsSurnames = patients.map((p) => p.surname);
+    }
+
+    createEmptyMeeting() {
+        return {
+            id: '',
+            patient: this.createEmptyPatient(),
+            date: new Date(),
+            startTime: new Date(),
+            duration: '0',
+            notes: ''
+        };
+    }
+
+    createEmptyPatient(): PatientDto {
+        return {
+            id: '',
+            name: '',
+            surname: '',
+            birthDate: new Date(),
+            gender: '',
+            address: '',
+            phoneNumber: '',
+            email: '',
+            notes: '',
+            activityLevel: '',
+            photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
+        };
+    }
+
+    patientsId(name: string, surname: string): string | null {
+        return this.patients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
+    }
+
+    getTimeHHMM(date: Date | string): string {
+        if (typeof date === 'string') {
+            return date;
+        }
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+
+    minutesToIsoDuration(minutes: number | string): string {
+        if (typeof minutes === 'string') {
+            minutes = parseInt(minutes, 10);
+        }
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+
+        let iso = 'PT';
+
+        if (hours > 0) iso += `${hours}H`;
+        if (mins > 0) iso += `${mins}M`;
+
+        // ISO requires at least one field
+        if (iso === 'PT') iso = 'PT0M';
+
+        return iso;
+    }
+
+    toLocalDate(value: string | Date | null): Date {
+        if (!value) return new Date();
+
+        if (value instanceof Date) return value;
+
+        const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (match) {
+            const year = +match[1];
+            const month = +match[2] - 1;
+            const day = +match[3];
+            return new Date(year, month, day);
+        }
+
+        return new Date(value);
+    }
+
+    toDateFromTimestamp(timestamp: any): Date {
+        const [hours, minutes, seconds] = timestamp.split(':').map(Number);
+
+        const date = new Date();
+        date.setHours(hours, minutes, seconds, 0);
+
+        return date;
+    }
+
+    /** Format ISO 8601 duration to number format */
+    getMinutesFromIsoDuration(iso: string | number): number {
+        if (typeof iso === 'number') return iso;
+
+        const regex = /PT(?:(\d+)H)?(?:(\d+)M)?/;
+
+        const match = iso.match(regex);
+
+        if (!match) return 0;
+
+        const hours = match[1] ? parseInt(match[1], 10) : 0;
+        const minutes = match[2] ? parseInt(match[2], 10) : 0;
+
+        return hours * 60 + minutes;
+    }
+
+    getNextMeeting(meetings: MeetingDto[]): MeetingDto {
+        const now = new Date();
+
+        const upcoming = meetings
+            .map(meeting => ({
+                meeting,
+                start: this.buildStartDate(meeting.date, meeting.startTime)
+            }))
+            .filter(x => x.start > now)
+            .sort((a, b) => a.start.getTime() - b.start.getTime());
+
+        return upcoming[0].meeting;
     }
 }
+
+
