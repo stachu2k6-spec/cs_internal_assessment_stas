@@ -32,8 +32,9 @@ import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { ConfirmPopup } from 'primeng/confirmpopup';
 import { Dialog } from 'primeng/dialog';
 import { SymptomDto } from '@/pages/service/symptom/symptom.model';
-import { PatientSymptomDto, PatientSymptomObjectDto } from '@/pages/service/patient-symptom/patient-symptom.model';
+import { PatientSymptomDto } from '@/pages/service/patient-symptom/patient-symptom.model';
 import { PatientSymptomFacade } from '@/pages/service/patient-symptom/patient-symptom.facade';
+import { SymptomFacade } from '@/pages/service/symptom/symptom.facade';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -69,7 +70,6 @@ interface expandedRows {
         RouterLink,
         ContextMenu,
         DatePicker,
-        ConfirmPopup,
         Dialog
     ],
     templateUrl: './patient.html',
@@ -91,11 +91,23 @@ export class Patient implements OnInit, OnDestroy {
 
     displayConfirmDialog: boolean = false;
 
+    displayAddSymptomDialog: boolean = false;
+
     patient: PatientDto = this.createEmptyPatient(); // Patient data to be displayed and edited, initialized to empty
 
     meetings: MeetingDto[] = [];
 
-    symptoms: PatientSymptomDto[] = [];
+    patientSymptoms: PatientSymptomDto[] = [];
+
+    symptoms: SymptomDto[] = [];
+
+    symptomNames: string[] = [];
+
+    severities: number[] = [1,2,3]
+
+    symptom: SymptomDto = this.createEmptySymptom();
+
+    patientSymptom: PatientSymptomDto = this.createEmptyPatientSymptom();
 
     upcomingMeetings: MeetingDto[] = [];
 
@@ -110,6 +122,7 @@ export class Patient implements OnInit, OnDestroy {
     constructor(
         private patientFacade: PatientFacade,
         private meetingFacade: MeetingFacade,
+        private symptomFacade: SymptomFacade,
         private patientSymptomFacade: PatientSymptomFacade,
         private route: ActivatedRoute,
         private router: Router,
@@ -162,7 +175,15 @@ export class Patient implements OnInit, OnDestroy {
             )
             .subscribe();
 
+
         this.patientSymptomFacade.fetchByPatientId(id);
+        this.patientSymptomFacade.patientSymptomState$
+            .pipe(
+                takeUntil(this.destroy$),
+                tap((list) => {
+                    this.patientSymptoms = list;
+                })
+            )
     }
 
     ngOnDestroy() {
@@ -266,6 +287,29 @@ export class Patient implements OnInit, OnDestroy {
         this.displayConfirmDialog = false;
     }
 
+    closeAddSymptomDialog() {
+        this.displayAddSymptomDialog = false;
+    }
+
+    protected addSymptom() {
+        this.displayAddSymptomDialog = true;
+
+        this.patientSymptom = this.createEmptyPatientSymptom()
+
+        // fetch all symptoms for selection
+        this.symptomFacade.fetchAllSymptoms();
+        this.symptomFacade.symptomState$
+            .pipe(
+                tap((x) => {
+                    this.symptoms = x;
+                    this.getSymptomNames(x);
+                }),
+                takeUntil(this.destroy$)
+            )
+            .subscribe();
+
+    }
+
     deletePatient() {
         if (!this.patient || !this.patient.id) {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No patient loaded.' });
@@ -344,4 +388,30 @@ export class Patient implements OnInit, OnDestroy {
     }
 
     protected readonly confirm = confirm;
+
+
+    private createEmptySymptom(): SymptomDto {
+        return {
+            id: '',
+            name: '',
+            notes: ''
+        }
+    }
+
+    private createEmptyPatientSymptom(): PatientSymptomDto {
+        return {
+            id: '',
+            patient: this.patient,
+            symptom: this.symptom,
+            severity: 0
+        }
+    }
+
+    getSymptomNames(symptoms: SymptomDto[]) {
+        this.symptomNames = symptoms.map((p) => p.name);
+    }
+
+    protected saveAddedSymptom() {
+
+    }
 }

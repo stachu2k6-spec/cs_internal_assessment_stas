@@ -155,7 +155,7 @@
                         <p-contextMenu #cm [model]="symptomsCMItems"></p-contextMenu>
 
                         <p-table
-                            [value]="symptoms"
+                            [value]="patientSymptoms"
                             [scrollable]="true"
                             scrollHeight="200px"
                             styleClass="mt-4"
@@ -183,7 +183,28 @@
                         </p-table>
 
                         <div class="w-full flex justify-center mt-4">
-                            <p-button label="Add Symptom" icon="pi pi-plus" iconPos="right"></p-button>
+                            <p-button (onClick)="addSymptom()" label="Add Symptom" icon="pi pi-plus" iconPos="right"></p-button>
+
+                            <p-dialog header="Add symptom" [(visible)]="displayAddSymptomDialog"  [modal]="true">
+                                <div class="card flex flex-row gap-4">
+                                    <div class="card flex flex-col gap-4">
+                                        <div class="font-semibold text-xl flex items-center justify-center">Select Symptom</div>
+                                        <div class="flex flex-col gap-2">
+                                            <p-select [(ngModel)]="symptom.name" [options]="symptomNames" placeholder="Select" />
+                                        </div>
+                                    </div>
+                                    <div class="card flex flex-col gap-4">
+                                        <div class="font-semibold text-xl flex items-center justify-center">Select Severity</div>
+                                        <div class="flex flex-col gap-2">
+                                            <p-select [(ngModel)]="patientSymptom.severity" [options]="severities" placeholder="Select" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <ng-template #footer>
+                                    <p-button label="No" icon="pi pi-times" (click)="closeAddSymptomDialog()" text severity="secondary" />
+                                    <p-button label="Yes" icon="pi pi-check" (click)="saveAddedSymptom()" severity="danger" outlined autofocus />
+                                </ng-template>
+                            </p-dialog>
                         </div>
                     </div>
                 </ng-template>
