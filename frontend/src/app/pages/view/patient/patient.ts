@@ -32,7 +32,8 @@ import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { ConfirmPopup } from 'primeng/confirmpopup';
 import { Dialog } from 'primeng/dialog';
 import { SymptomDto } from '@/pages/service/symptom/symptom.model';
-import { PatientSymptomObjectDto } from '@/pages/service/patient-symptom/patient-symptom.model';
+import { PatientSymptomDto, PatientSymptomObjectDto } from '@/pages/service/patient-symptom/patient-symptom.model';
+import { PatientSymptomFacade } from '@/pages/service/patient-symptom/patient-symptom.facade';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -94,7 +95,7 @@ export class Patient implements OnInit, OnDestroy {
 
     meetings: MeetingDto[] = [];
 
-    symptoms: PatientSymptomObjectDto[] = [];
+    symptoms: PatientSymptomDto[] = [];
 
     upcomingMeetings: MeetingDto[] = [];
 
@@ -109,6 +110,7 @@ export class Patient implements OnInit, OnDestroy {
     constructor(
         private patientFacade: PatientFacade,
         private meetingFacade: MeetingFacade,
+        private patientSymptomFacade: PatientSymptomFacade,
         private route: ActivatedRoute,
         private router: Router,
         private messageService: MessageService,
@@ -159,6 +161,8 @@ export class Patient implements OnInit, OnDestroy {
                 })
             )
             .subscribe();
+
+        this.patientSymptomFacade.fetchByPatientId(id);
     }
 
     ngOnDestroy() {

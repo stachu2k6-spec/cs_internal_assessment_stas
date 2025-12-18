@@ -1,9 +1,10 @@
 package com.example.demo.repository.patientSymptom;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.example.demo.controllers.patients.PatientDto;
+import com.example.demo.repository.patients.PatientEntity;
+import com.example.demo.repository.symptoms.SymptomEntity;
+import jakarta.persistence.*;
 
 import java.util.UUID;
 
@@ -13,27 +14,41 @@ import java.util.UUID;
 public class PatientSymptomEntity {
 
     @Id
-    private UUID patientId;
-    private UUID symptomId;
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "patient")
+    private PatientEntity patient;
+
+    @ManyToOne
+    @JoinColumn(name = "symptom")
+    private SymptomEntity symptom;
     private int severity;
 
     public PatientSymptomEntity() {}
 
-
-    public UUID getPatientId() {
-        return patientId;
+    public PatientEntity getPatient() {
+        return patient;
     }
 
-    public void setPatientId(UUID patientId) {
-        this.patientId = patientId;
+    public void setPatient(PatientEntity patient) {
+        this.patient = patient;
     }
 
-    public UUID getSymptomId() {
-        return symptomId;
+    public UUID getId() {
+        return id;
     }
 
-    public void setSymptomId(UUID symptomId) {
-        this.symptomId = symptomId;
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public SymptomEntity getSymptom() {
+        return symptom;
+    }
+
+    public void setSymptom(SymptomEntity symptom) {
+        this.symptom = symptom;
     }
 
     public int getSeverity() {

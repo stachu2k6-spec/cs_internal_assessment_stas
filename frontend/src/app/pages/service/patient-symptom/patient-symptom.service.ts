@@ -16,30 +16,28 @@ export class PatientSymptomService {
         return this.http.get<PatientSymptomDto[]>(this.apiUrl);
     }
 
-    getByKey(patientId: string, symptomId: string): Observable<PatientSymptomDto> {
-        return this.http.get<PatientSymptomDto>(
-            `${this.apiUrl}/${patientId}/${symptomId}`
-        );
+    getByPatientId(patientId: string) {
+        return this.http.get<PatientSymptomDto[]>(this.apiUrl + '/patient/' + patientId);
+    }
+
+    getById(id: string): Observable<PatientSymptomDto> {
+        return this.http.get<PatientSymptomDto>(this.apiUrl + '/' + id);
     }
 
     create(payload: PatientSymptomDto): Observable<PatientSymptomDto> {
         return this.http.post<PatientSymptomDto>(this.apiUrl, payload);
     }
 
-    update(
-        patientId: string,
-        symptomId: string,
-        payload: PatientSymptomDto
-    ): Observable<PatientSymptomDto> {
+    update(id: string, payload: PatientSymptomDto): Observable<PatientSymptomDto> {
         return this.http.put<PatientSymptomDto>(
-            `${this.apiUrl}/${patientId}/${symptomId}`,
+            this.apiUrl + '/' + id,
             payload
         );
     }
 
-    delete(patientId: string, symptomId: string): Observable<void> {
-        return this.http.delete<void>(
-            `${this.apiUrl}/${patientId}/${symptomId}`
-        );
+    delete(id: string): Observable<void> {
+        return this.http.delete<void>(this.apiUrl + '/' + id);
     }
+
+
 }

@@ -18,13 +18,10 @@ import java.util.UUID;
 public class PatientFacade {
 
     private final PatientRepository patientRepository;
-    private final MeetingRepository meetingRepository;
-    private final MeetingMapper meetingMapper = new MeetingMapper(new PatientMapper());
     private final PatientMapper patientMapper;
 
-    public PatientFacade(PatientRepository patientRepository, MeetingRepository meetingRepository, PatientMapper patientMapper) {
+    public PatientFacade(PatientRepository patientRepository, PatientMapper patientMapper) {
         this.patientRepository = patientRepository;
-        this.meetingRepository = meetingRepository;
         this.patientMapper = patientMapper;
     }
 

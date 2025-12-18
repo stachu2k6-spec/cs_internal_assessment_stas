@@ -1,7 +1,11 @@
 package com.example.demo.controllers.patientSymptom;
 
+import com.example.demo.controllers.meetings.MeetingDto;
+import com.example.demo.controllers.patientSymptom.PatientSymptomDto;
+import com.example.demo.domains.patientSymptom.PatientSymptomFacade;
 import com.example.demo.domains.patientSymptom.PatientSymptomFacade;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -14,48 +18,34 @@ public class PatientSymptomController {
         this.patientSymptomFacade = patientSymptomFacade;
     }
 
-    /* ===================== GET ===================== */
-
     @GetMapping
-    public List<PatientSymptomDto> getAll() {
-        return patientSymptomFacade.getAll();
+    public List<PatientSymptomDto> getPatientSymptoms() {
+        return patientSymptomFacade.getPatientSymptoms();
     }
 
-    @GetMapping("/{patientId}/{symptomId}")
-    public PatientSymptomDto getByKey(
-            @PathVariable String patientId,
-            @PathVariable String symptomId
-    ) {
-        return patientSymptomFacade.getByKey(patientId, symptomId);
+    @GetMapping("/{id}")
+    public PatientSymptomDto getPatientSymptom(@PathVariable String id) {
+        return patientSymptomFacade.getPatientSymptomById(id);
     }
 
-    /* ===================== CREATE ===================== */
-
-    @PostMapping
-    public PatientSymptomDto create(
-            @RequestBody PatientSymptomDto dto
-    ) {
-        return patientSymptomFacade.create(dto);
+    @GetMapping("/patient/{patientId}")
+    public List<PatientSymptomDto> getPatientSymptomsByPatientId(@PathVariable String patientId) {
+        return patientSymptomFacade.getPatientSymptomsByPatientId(patientId);
     }
 
-    /* ===================== UPDATE ===================== */
-
-    @PutMapping("/{patientId}/{symptomId}")
-    public PatientSymptomDto update(
-            @PathVariable String patientId,
-            @PathVariable String symptomId,
-            @RequestBody PatientSymptomDto dto
-    ) {
-        return patientSymptomFacade.update(patientId, symptomId, dto);
+    @PostMapping()
+    public PatientSymptomDto addPatientSymptom(@RequestBody PatientSymptomDto patientSymptomDto) {
+        return patientSymptomFacade.addPatientSymptom(patientSymptomDto);
     }
 
-    /* ===================== DELETE ===================== */
+    @PutMapping("/{id}")
+    public PatientSymptomDto updatePatientSymptom(@PathVariable String id, @RequestBody PatientSymptomDto patientSymptomDto) {
+        return patientSymptomFacade.updatePatientSymptom(id, patientSymptomDto);
+    }
 
-    @DeleteMapping("/{patientId}/{symptomId}")
-    public void delete(
-            @PathVariable String patientId,
-            @PathVariable String symptomId
-    ) {
-        patientSymptomFacade.delete(patientId, symptomId);
+    @DeleteMapping("/{id}")
+    public String deletePatientSymptom(@PathVariable String id) {
+        patientSymptomFacade.deletePatientSymptom(id);
+        return "ok";
     }
 }

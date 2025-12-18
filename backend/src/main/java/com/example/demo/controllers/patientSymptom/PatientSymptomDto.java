@@ -1,28 +1,40 @@
 package com.example.demo.controllers.patientSymptom;
 
+import com.example.demo.controllers.patients.PatientDto;
+import com.example.demo.controllers.symptoms.SymptomDto;
+
 import java.util.UUID;
 
 public class PatientSymptomDto {
-    private UUID patientId;
-    private UUID symptomId;
+    private UUID id;
+    private PatientDto patient;
+    private SymptomDto symptom;
     private int severity;
 
     public PatientSymptomDto() {}
 
-    public UUID getPatientId() {
-        return patientId;
+    public UUID getId() {
+        return id;
     }
 
-    public void setPatientId(UUID patientId) {
-        this.patientId = patientId;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
-    public UUID getSymptomId() {
-        return symptomId;
+    public PatientDto getPatient() {
+        return patient;
     }
 
-    public void setSymptomId(UUID symptomId) {
-        this.symptomId = symptomId;
+    public void setPatient(PatientDto patient) {
+        this.patient = patient;
+    }
+
+    public SymptomDto getSymptom() {
+        return symptom;
+    }
+
+    public void setSymptom(SymptomDto symptom) {
+        this.symptom = symptom;
     }
 
     public int getSeverity() {

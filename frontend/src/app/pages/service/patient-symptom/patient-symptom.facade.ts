@@ -9,7 +9,7 @@ import { PatientSymptomService } from '@/pages/service/patient-symptom/patient-s
 export class PatientSymptomFacade {
 
     patientSymptomState$ = new BehaviorSubject<PatientSymptomDto[]>([]);
-    patientSymptomByKeyState$ = new BehaviorSubject<PatientSymptomDto | null>(null);
+    patientSymptomByIdState$ = new BehaviorSubject<PatientSymptomDto | null>(null);
 
     constructor(private patientSymptomService: PatientSymptomService) {}
 
@@ -24,13 +24,22 @@ export class PatientSymptomFacade {
             .subscribe();
     }
 
-    fetchByKey(patientId: string, symptomId: string): Observable<PatientSymptomDto> {
-        this.patientSymptomByKeyState$.next(null);
+    fetchById(id: string): Observable<PatientSymptomDto> {
+        this.patientSymptomByIdState$.next(null);
 
-        return this.patientSymptomService.getByKey(patientId, symptomId).pipe(
+        return this.patientSymptomService.getById(id).pipe(
             take(1),
-            tap(x => this.patientSymptomByKeyState$.next(x))
+            tap(x => this.patientSymptomByIdState$.next(x))
         );
+    }
+
+    fetchByPatientId(patientId: string) {
+        this.patientSymptomService.getByPatientId(patientId)
+            .pipe(
+                take(1),
+                tap(x => this.patientSymptomState$.next(x))
+            )
+            .subscribe();
     }
 
     /* ===================== CREATE ===================== */
@@ -43,56 +52,47 @@ export class PatientSymptomFacade {
                     ...this.patientSymptomState$.getValue(),
                     created
                 ]);
-                this.patientSymptomByKeyState$.next(created);
+                this.patientSymptomByIdState$.next(created);
             })
         );
     }
 
     /* ===================== UPDATE ===================== */
 
-    update(patientSymptom: PatientSymptomDto): Observable<PatientSymptomDto> {
-        const { patientId, symptomId } = patientSymptom;
+    update(id: string, patientSymptom: PatientSymptomDto): Observable<PatientSymptomDto> {
+        return this.patientSymptomService.update(id, patientSymptom).pipe(
+            take(1),
+            tap(updated => {
+                this.patientSymptomByIdState$.next(updated);
 
-        return this.patientSymptomService
-            .update(patientId, symptomId, patientSymptom)
-            .pipe(
-                take(1),
-                tap(updated => {
-                    this.patientSymptomByKeyState$.next(updated);
+                const updatedList = this.patientSymptomState$
+                    .getValue()
+                    .map(ps => ps.id === updated.id ? updated : ps);
 
-                    const updatedList = this.patientSymptomState$.getValue().map(ps =>
-                        ps.patientId === updated.patientId &&
-                        ps.symptomId === updated.symptomId
-                            ? updated
-                            : ps
-                    );
-
-                    this.patientSymptomState$.next(updatedList);
-                })
-            );
+                this.patientSymptomState$.next(updatedList);
+            })
+        );
     }
 
     /* ===================== DELETE ===================== */
 
-    delete(patientId: string, symptomId: string): Observable<void> {
-        return this.patientSymptomService.delete(patientId, symptomId).pipe(
+    delete(id: string): Observable<void> {
+        return this.patientSymptomService.delete(id).pipe(
             take(1),
             tap(() => {
                 this.patientSymptomState$.next(
-                    this.patientSymptomState$.getValue().filter(ps =>
-                        !(ps.patientId === patientId && ps.symptomId === symptomId)
-                    )
+                    this.patientSymptomState$
+                        .getValue()
+                        .filter(ps => ps.id !== id)
                 );
 
-                const current = this.patientSymptomByKeyState$.getValue();
-                if (
-                    current &&
-                    current.patientId === patientId &&
-                    current.symptomId === symptomId
-                ) {
-                    this.patientSymptomByKeyState$.next(null);
+                const current = this.patientSymptomByIdState$.getValue();
+                if (current && current.id === id) {
+                    this.patientSymptomByIdState$.next(null);
                 }
             })
         );
     }
+
+
 }

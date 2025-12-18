@@ -1,5 +1,7 @@
 package com.example.demo.repository.patientSymptom;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,7 +11,6 @@ public interface PatientSymptomRepositoryCustom {
             UUID symptomId
     );
 
-    boolean existsByPatientIdAndSymptomId (UUID patientId, UUID symptomId);
+    List<PatientSymptomEntity> findByPatientId(UUID patientId);
 
-    void deleteByPatientIdAndSymptomId (UUID patientId, UUID symptomId);
 }
