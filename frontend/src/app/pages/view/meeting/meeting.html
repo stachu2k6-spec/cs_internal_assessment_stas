@@ -136,19 +136,27 @@
                                 </div>
 
                                 <div class="flex flex-col gap-2">
-                                    <label for="surname1">Time</label>
+                                    <label>Time</label>
                                     <p-datepicker
                                         [(ngModel)]="meeting.dateTime"
-                                        [disabled]="!isEditMode"
                                         [timeOnly]="true"
-                                        dateFormat="hh:mm"
-                                    >
+                                        hourFormat="24"
+                                        [disabled]="!isEditMode"
+                                        inputId="calendar-timeonly">
                                     </p-datepicker>
                                 </div>
 
                                 <div class="flex flex-col gap-2">
                                     <label for="email1">Minutes</label>
-                                    <p-inputnumber [(ngModel)]="meeting.duration" [disabled]="!isEditMode" showButtons mode="decimal"></p-inputnumber>
+                                    <p-inputnumber
+                                        [(ngModel)]="meeting.duration"
+                                        [disabled]="!isEditMode"
+                                        [min]="1"
+                                        [step]="1"
+                                        [allowEmpty]="false"
+                                        [maxFractionDigits]="0"
+                                        showButtons>
+                                    </p-inputnumber>
                                 </div>
 
                                 <div class="flex flex-col gap-2">
