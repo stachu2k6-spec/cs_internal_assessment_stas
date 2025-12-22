@@ -74,6 +74,15 @@ export class PatientSymptomFacade {
         );
     }
 
+    updatePatientSymptoms(patientSymptoms: PatientSymptomDto[]) {
+        this.patientSymptomService.updateMany(patientSymptoms)
+            .pipe(
+                take(1),
+                tap(x => this.patientSymptomState$.next(x))
+            )
+            .subscribe();
+    }
+
     /* ===================== DELETE ===================== */
 
     deletePatientSymptom(id: string): Observable<void> {
@@ -93,6 +102,7 @@ export class PatientSymptomFacade {
             })
         );
     }
+
 
 
 }

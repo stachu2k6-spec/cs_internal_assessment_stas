@@ -188,7 +188,7 @@ export class Symptom implements OnInit, OnDestroy {
             .pipe(take(1))
             .subscribe({
                 next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Symptom profile deleted.' });
+                    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Symptom deleted.' });
                     this.router.navigate(['/menu', 'symptoms']); // navigate back to symptom list
                 },
                 error: (err) => {

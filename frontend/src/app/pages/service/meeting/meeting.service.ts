@@ -37,7 +37,7 @@ export class MeetingService {
         return this.http.put<MeetingDto>(this.apiUrl + '/' + id, meeting);
     }
 
-    delete(id: string): Observable<string> {
-        return this.http.delete<string>(this.apiUrl + '/' + id);
+    delete(id: string): Observable<void> {
+        return this.http.delete<void>(this.apiUrl + '/' + id);
     }
 }

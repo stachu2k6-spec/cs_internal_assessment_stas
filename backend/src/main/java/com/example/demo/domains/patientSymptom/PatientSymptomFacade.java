@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,6 +78,7 @@ public class PatientSymptomFacade {
                 );
 
         // Update fields
+        patientSymptom.setSeverity(patientSymptomDto.getSeverity());
         
         PatientEntity patient = patientRepository.findById(patientSymptomDto.getPatient().getId())
                 .orElseThrow(() -> new ResponseStatusException(
@@ -99,6 +101,12 @@ public class PatientSymptomFacade {
         return patientSymptomMapper.toDto(updated);
     }
 
+    public PatientSymptomDto[] updatePatientSymptoms(PatientSymptomDto[] patientSymptoms) {
+        return Arrays.stream(patientSymptoms)
+                .map(dto -> updatePatientSymptom(dto.getId().toString(), dto))
+                .toArray(PatientSymptomDto[]::new);
+    }
+
     public void deletePatientSymptom(String id) {
         UUID uuid = UUID.fromString(id);
 
@@ -108,6 +116,7 @@ public class PatientSymptomFacade {
 
         patientSymptomRepository.deleteById(uuid);
     }
+
 
 
 }

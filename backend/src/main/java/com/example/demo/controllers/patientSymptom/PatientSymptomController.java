@@ -43,9 +43,13 @@ public class PatientSymptomController {
         return patientSymptomFacade.updatePatientSymptom(id, patientSymptomDto);
     }
 
+    @PutMapping("/many")
+    public PatientSymptomDto[] updatePatientSymptoms(@RequestBody PatientSymptomDto[] patientSymptoms) {
+        return patientSymptomFacade.updatePatientSymptoms(patientSymptoms);
+    }
+
     @DeleteMapping("/{id}")
-    public String deletePatientSymptom(@PathVariable String id) {
+    public void deletePatientSymptom(@PathVariable String id) {
         patientSymptomFacade.deletePatientSymptom(id);
-        return "ok";
     }
 }

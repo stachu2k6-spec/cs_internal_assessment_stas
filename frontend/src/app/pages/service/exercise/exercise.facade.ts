@@ -65,7 +65,7 @@ export class ExerciseFacade {
         );
     }
 
-    deleteExercise(id: string): Observable<ExerciseDto> {
+    deleteExercise(id: string): Observable<void> {
         return this.exerciseService.delete(id).pipe(
             take(1),
             tap(() => {

@@ -61,16 +61,16 @@
                                 icon="pi pi-trash"
                                 severity="danger"
                                 raised
-                                (click)="openConfirmDialog()"
+                                (click)="openPatientConfirmDialog()"
                             ></p-button>
 
-                            <p-dialog header="Confirmation" [(visible)]="displayConfirmDialog" [style]="{ width: '350px' }" [modal]="true">
+                            <p-dialog header="Confirmation" [(visible)]="displayPatientConfirmDialog" [style]="{ width: '350px' }" [modal]="true">
                                 <div class="flex items-center justify-center">
                                     <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem"> </i>
                                     <span>Are you sure you want to delete patient?</span>
                                 </div>
                                 <ng-template #footer>
-                                    <p-button label="No" icon="pi pi-times" (click)="closeConfirmDialog()" text severity="secondary" />
+                                    <p-button label="No" icon="pi pi-times" (click)="closeConfirmDialog('patient')" text severity="secondary" />
                                     <p-button label="Yes" icon="pi pi-check" (click)="deletePatient()" severity="danger" outlined autofocus />
                                 </ng-template>
                             </p-dialog>
@@ -170,14 +170,47 @@
                             </ng-template>
 
                             <ng-template pTemplate="body" let-patientSymptom>
-                                <tr
-                                    class="hover-scale cursor-pointer"
-                                    [routerLink]="['/view','symptom', ]"
+                                <tr class="hover-scale cursor-pointer"
                                     (contextmenu)="$event.preventDefault()"
-                                    [pContextMenuRow]="symptom">
-                                      <!-- this ties the row to the context menu -->
-                                    <td style="min-width:100px">{{ patientSymptom.symptom.name }}</td>
-                                    <td style="min-width:100px">{{ patientSymptom.severity }}</td>
+                                    [pContextMenuRow]="patientSymptom">
+
+                                    <td
+                                        style="min-width:100px"
+                                        [routerLink]="['/view','symptom']">
+                                        {{ patientSymptom.symptom.name }}
+                                    </td>
+
+                                    <td class="flex flex-row gap-10" style="min-width:65px">
+                                        <p-inputnumber
+                                            [(ngModel)]="patientSymptom.severity"
+                                            [min]="1"
+                                            [max]="3"
+                                            [step]="1"
+                                            [allowEmpty]="false"
+                                            [disabled]="!isEditMode"
+                                            [inputStyle]="{ width: '65px' }"
+                                            showButtons>
+                                        </p-inputnumber>
+
+                                        <p-button
+                                            *ngIf="isEditMode && !isNewPatientMode"
+                                            icon="pi pi-trash"
+                                            severity="danger"
+                                            raised
+                                            (click)="openPatientSymptomConfirmDialog()"
+                                        ></p-button>
+
+                                        <p-dialog header="Confirmation" [(visible)]="displayPatientSymptomConfirmDialog" [style]="{ width: '350px' }" [modal]="true">
+                                            <div class="flex items-center justify-center">
+                                                <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem"> </i>
+                                                <span>Are you sure you want to delete symptom?</span>
+                                            </div>
+                                            <ng-template #footer>
+                                                <p-button label="No" icon="pi pi-times" (click)="closeConfirmDialog('symptom')" text severity="secondary" />
+                                                <p-button label="Yes" icon="pi pi-check" (click)="deletePatientSymptom(patientSymptom.id)" severity="danger" outlined autofocus />
+                                            </ng-template>
+                                        </p-dialog>
+                                    </td>
                                 </tr>
                             </ng-template>
                         </p-table>
