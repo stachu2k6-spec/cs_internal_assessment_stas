@@ -438,21 +438,21 @@ export class Patient implements OnInit, OnDestroy {
     splitMeetings() {
         const now = new Date();
 
-        this.upcomingMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) >= now).sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
+        this.upcomingMeetings = this.meetings.filter((m) => new Date(m.dateTime) >= now).sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
 
-        this.pastMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) < now).sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
+        this.pastMeetings = this.meetings.filter((m) => new Date(m.dateTime) < now).sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
     }
 
     getNextMeetingDate(id: string) {
         // find the next meeting for a patient
-        const nextMeeting = this.upcomingMeetings.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
-        return nextMeeting ? nextMeeting.date : null;
+        const nextMeeting = this.upcomingMeetings.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())[0];
+        return nextMeeting ? nextMeeting.dateTime : null;
     }
 
     getPreviousMeetingDate(id: string) {
         // find the previous meeting for a patient
-        const previousMeeting = this.pastMeetings.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-        return previousMeeting ? previousMeeting.date : null;
+        const previousMeeting = this.pastMeetings.sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime())[0];
+        return previousMeeting ? previousMeeting.dateTime : null;
     }
 
     toLocalDate(value: string | Date | null): Date {

@@ -30,8 +30,8 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom{
         String query =
                 "SELECT meetingEntity FROM MeetingEntity meetingEntity " +
                         "LEFT JOIN FETCH meetingEntity.patient patient " +
-                        "WHERE EXTRACT(MONTH FROM meetingEntity.date) = :month " +
-                        "AND EXTRACT(YEAR FROM meetingEntity.date) = :year";
+                        "WHERE EXTRACT(MONTH FROM meetingEntity.dateTime) = :month " +
+                        "AND EXTRACT(YEAR FROM meetingEntity.dateTime) = :year";
 
         return entityManager.createQuery(query, MeetingEntity.class)
                 .setParameter("month", month)

@@ -63,8 +63,7 @@ interface expandedRows {
         RouterLink,
         DatePickerModule,
         InputNumber,
-        Dialog,
-        AutoComplete
+        Dialog
     ],
     templateUrl: './meeting.html',
     styleUrl: './meeting.scss',
@@ -147,8 +146,7 @@ export class Meeting implements OnInit, OnDestroy {
             .pipe(
                 takeUntil(this.destroy$),
                 tap((x) => {
-                    x.date = this.toLocalDate(x.date);
-                    x.startTime = this.toDateFromTimestamp(x.startTime);
+                    x.dateTime = this.toLocalDate(x.dateTime);
                     x.duration = this.getMinutesFromIsoDuration(x.duration);
                     this.meeting = x;
                     this.patientFacade
@@ -202,7 +200,7 @@ export class Meeting implements OnInit, OnDestroy {
             return;
         }
 
-        if (!this.meeting.date || !this.meeting.startTime) {
+        if (!this.meeting.dateTime) {
             this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Date and start time are required.' });
             return;
         }
@@ -213,19 +211,16 @@ export class Meeting implements OnInit, OnDestroy {
                 // create new meeting
                 const createdMeeting = {
                     patientId: patientId,
-                    date: this.meeting.date,
-                    startTime: this.getTimeHHMM(this.meeting.startTime),
-                    duration: this.minutesToIsoDuration(this.meeting.duration),
-                    notes: this.meeting.notes
+                    dateTime: this.meeting.dateTime,
+                    duration: this.meeting.duration,
+                    notes: this.meeting.notes,
+                    rating: this.meeting.rating
                 };
                 this.meetingFacade
                     .createMeeting(createdMeeting)
                     .pipe(takeUntil(this.destroy$))
                     .subscribe({
                         next: (created: MeetingDto) => {
-                            created.date = this.toLocalDate(created.date);
-                            created.startTime = this.toDateFromTimestamp(created.startTime);
-                            created.duration = this.getMinutesFromIsoDuration(created.duration);
                             this.meeting = created;
                             this._meetingBackup = null;
                             this.isEditMode = false;
@@ -249,22 +244,12 @@ export class Meeting implements OnInit, OnDestroy {
         this.isEditMode = false;
 
         try {
-            const updatedMeeting = {
-                id: this.meeting.id,
-                patient: this.patient,
-                date: this.meeting.date,
-                startTime: this.getTimeHHMM(this.meeting.startTime),
-                duration: this.minutesToIsoDuration(this.meeting.duration),
-                notes: this.meeting.notes
-            };
+            const updatedMeeting = this.meeting;
             this.meetingFacade
                 .updateMeeting(this.meeting.id, updatedMeeting)
                 .pipe(takeUntil(this.destroy$)) // ensure unsubscribe on destroy
                 .subscribe({
                     next: (saved: MeetingDto) => {
-                        saved.date = this.toLocalDate(saved.date);
-                        saved.startTime = this.toDateFromTimestamp(saved.startTime);
-                        saved.duration = this.getMinutesFromIsoDuration(this.meeting.duration);
                         this.meeting = saved;
                         this._meetingBackup = null;
                         this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Meeting saved successfully.' });
@@ -395,10 +380,10 @@ export class Meeting implements OnInit, OnDestroy {
         return {
             id: '',
             patient: this.createEmptyPatient(),
-            date: new Date(),
-            startTime: new Date(),
-            duration: '0',
-            notes: ''
+            dateTime: new Date(),
+            duration: 0,
+            notes: '',
+            rating: 0
         };
     }
 

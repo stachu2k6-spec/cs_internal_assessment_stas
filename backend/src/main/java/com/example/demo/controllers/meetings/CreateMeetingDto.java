@@ -8,20 +8,20 @@ import java.util.UUID;
 
 public class CreateMeetingDto {
     private UUID patientId;
-    private LocalDate date;
-    private LocalTime startTime;
-    private Duration duration;
+    private LocalDate dateTime;
+    private int duration;
     private String notes;
+    private double rating;
 
     public CreateMeetingDto() {
     }
 
-    public CreateMeetingDto(String patientId, LocalDate date, LocalTime startTime, Duration duration, String notes) {
+    public CreateMeetingDto(String patientId, LocalDate dateTime, int duration, String notes, double rating) {
         this.patientId = UUID.fromString(patientId);
-        this.date = date;
-        this.startTime = startTime;
+        this.dateTime = dateTime;
         this.duration = duration;
         this.notes = notes;
+        this.rating = rating;
     }
 
     public UUID getPatientId() {
@@ -32,27 +32,19 @@ public class CreateMeetingDto {
         this.patientId = patientId;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDate getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setDateTime(LocalDate dateTime) {
+        this.dateTime = dateTime;
     }
 
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public Duration getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(Duration duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
@@ -62,6 +54,14 @@ public class CreateMeetingDto {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 }
 

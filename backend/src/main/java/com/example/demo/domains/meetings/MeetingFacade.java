@@ -58,10 +58,10 @@ public class MeetingFacade {
 
         // 2. Convert DTO → Entity (without patient)
         MeetingEntity meeting = new MeetingEntity();
-        meeting.setDate(dto.getDate());
-        meeting.setStartTime(dto.getStartTime());
+        meeting.setDateTime(dto.getDateTime());
         meeting.setDuration(dto.getDuration());
         meeting.setNotes(dto.getNotes());
+        meeting.setRating(dto.getRating());
 
         // 3. Attach the PatientEntity
         meeting.setPatient(patient);
@@ -86,10 +86,10 @@ public class MeetingFacade {
         ));
 
         meeting.setPatient(patient);
-        meeting.setDate(meetingDto.getDateTime());
-        meeting.setStartTime(meetingDto.getStartTime());
+        meeting.setDateTime(meetingDto.getDateTime());
         meeting.setDuration(meetingDto.getDuration());
         meeting.setNotes(meetingDto.getNotes());
+        meeting.setRating(meetingDto.getRating());
 
         MeetingEntity saved = meetingRepository.save(meeting);
 

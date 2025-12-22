@@ -20,10 +20,10 @@ public class MeetingEntity {
     @JoinColumn(name = "patient")
     private PatientEntity patient;
 
-    private LocalDate date;
-    private LocalTime startTime;
-    private Duration duration;
+    private LocalDate dateTime;
+    private int duration;
     private String notes;
+    private double rating;
 
     public MeetingEntity() {}
 
@@ -43,28 +43,19 @@ public class MeetingEntity {
         this.patient = patient;
     }
 
-
-    public LocalDate getDate() {
-        return date;
+    public LocalDate getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setDateTime(LocalDate date) {
+        this.dateTime = date;
     }
 
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public Duration getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(Duration duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
@@ -74,5 +65,13 @@ public class MeetingEntity {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 }

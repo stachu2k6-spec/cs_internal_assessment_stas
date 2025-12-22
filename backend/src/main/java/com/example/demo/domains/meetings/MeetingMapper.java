@@ -30,8 +30,7 @@ public class MeetingMapper {
 
         MeetingDto dto = new MeetingDto();
         dto.setId(entity.getId());
-        dto.setDateTime(entity.getDate());
-        dto.setStartTime(entity.getStartTime());
+        dto.setDateTime(entity.getDateTime());
         dto.setDuration(entity.getDuration());
         dto.setNotes(entity.getNotes());
 
@@ -54,10 +53,10 @@ public class MeetingMapper {
         MeetingEntity entity = new MeetingEntity();
 
         entity.setId(dto.getId());
-        entity.setDate(dto.getDateTime());
-        entity.setStartTime(dto.getStartTime());
+        entity.setDateTime(dto.getDateTime());
         entity.setDuration(dto.getDuration());
         entity.setNotes(dto.getNotes());
+        entity.setRating(dto.getRating());
 
          PatientEntity p = patientRepository.findById(dto.getPatient().getId()).get();
          entity.setPatient(p);
@@ -71,10 +70,10 @@ public class MeetingMapper {
     public MeetingEntity fromCreate(CreateMeetingDto dto) {
         MeetingEntity entity = new MeetingEntity();
         entity.setId(UUID.randomUUID());
-        entity.setDate(dto.getDate());
-        entity.setStartTime(dto.getStartTime());
+        entity.setDateTime(dto.getDateTime());
         entity.setDuration(dto.getDuration());
         entity.setNotes(dto.getNotes());
+        entity.setRating(dto.getRating());
         return entity;
     }
 }

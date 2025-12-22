@@ -12,18 +12,20 @@ public class MeetingDto {
     private UUID id;
     private PatientDto patient;
     private LocalDate dateTime;
-    private Duration duration;
+    private int duration;
     private String notes;
+    private double rating;
 
     public MeetingDto() {
     }
 
-    public MeetingDto(String id,  PatientDto patient, LocalDate dateTime, Duration duration, String notes) {
+    public MeetingDto(String id,  PatientDto patient, LocalDate dateTime, int duration, String notes, double rating) {
         this.id = UUID.fromString(id);
         this.patient = patient;
         this.dateTime = dateTime;
         this.duration = duration;
         this.notes = notes;
+        this.rating = rating;
     }
 
     public UUID getId() {
@@ -50,11 +52,11 @@ public class MeetingDto {
         this.dateTime = dateTime;
     }
 
-    public Duration getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(Duration duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
@@ -64,5 +66,13 @@ public class MeetingDto {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 }
