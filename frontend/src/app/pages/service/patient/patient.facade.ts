@@ -69,7 +69,7 @@ export class PatientFacade {
         );
     }
 
-    deletePatient(id: string): Observable<string> {
+    deletePatient(id: string): Observable<void> {
         return this.patientService.delete(id).pipe(
             take(1),
             tap(() => {

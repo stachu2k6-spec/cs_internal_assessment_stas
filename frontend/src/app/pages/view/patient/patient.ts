@@ -26,7 +26,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ContextMenu } from 'primeng/contextmenu';
 import { PatientDto } from '@/pages/service/patient/patient.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
-import { Subject, take, takeUntil, tap } from 'rxjs';
+import { pipe, Subject, take, takeUntil, tap } from 'rxjs';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { ConfirmPopup } from 'primeng/confirmpopup';
@@ -35,6 +35,7 @@ import { SymptomDto } from '@/pages/service/symptom/symptom.model';
 import { PatientSymptomDto } from '@/pages/service/patient-symptom/patient-symptom.model';
 import { PatientSymptomFacade } from '@/pages/service/patient-symptom/patient-symptom.facade';
 import { SymptomFacade } from '@/pages/service/symptom/symptom.facade';
+import { InputNumber } from 'primeng/inputnumber';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -70,7 +71,8 @@ interface expandedRows {
         RouterLink,
         ContextMenu,
         DatePicker,
-        Dialog
+        Dialog,
+        InputNumber
     ],
     templateUrl: './patient.html',
     styleUrl: './patient.scss',
@@ -89,7 +91,9 @@ export class Patient implements OnInit, OnDestroy {
 
     isNewPatientMode: boolean = false;
 
-    displayConfirmDialog: boolean = false;
+    displayPatientConfirmDialog: boolean = false;
+
+    displayPatientSymptomConfirmDialog: boolean = false;
 
     displayAddSymptomDialog: boolean = false;
 
@@ -103,7 +107,7 @@ export class Patient implements OnInit, OnDestroy {
 
     symptomNames: string[] = [];
 
-    severities: number[] = [1,2,3]
+    severities: number[] = [1, 2, 3];
 
     symptom: SymptomDto = this.createEmptySymptom();
 
@@ -114,6 +118,8 @@ export class Patient implements OnInit, OnDestroy {
     pastMeetings: MeetingDto[] = [];
 
     private _patientBackup: any = null;
+
+    private _backupPatientSymptoms: any[] = [];
 
     private destroy$ = new Subject<void>();
 
@@ -175,7 +181,6 @@ export class Patient implements OnInit, OnDestroy {
             )
             .subscribe();
 
-
         this.patientSymptomFacade.fetchByPatientId(id);
         this.patientSymptomFacade.patientSymptomState$
             .pipe(
@@ -184,16 +189,12 @@ export class Patient implements OnInit, OnDestroy {
                     this.patientSymptoms = list;
                 })
             )
-            .subscribe()
+            .subscribe();
     }
 
     ngOnDestroy() {
         this.destroy$.next();
         this.destroy$.complete();
-    }
-
-    deleteSymptom(symptom: Customer | null) {
-        //remove symptom logic here
     }
 
     editMeeting(customer: Customer | null) {
@@ -207,6 +208,7 @@ export class Patient implements OnInit, OnDestroy {
     enterEdit() {
         // create a shallow clone backup so cancel can restore previous state
         this._patientBackup = { ...this.patient };
+        this._backupPatientSymptoms = [ ...this.patientSymptoms ];
         this.isEditMode = true;
     }
 
@@ -214,6 +216,11 @@ export class Patient implements OnInit, OnDestroy {
         if (this._patientBackup) {
             this.patient = { ...this._patientBackup };
             this._patientBackup = null;
+        }
+
+        if (this._backupPatientSymptoms) {
+            this.patientSymptoms = [...this._backupPatientSymptoms];
+            this._backupPatientSymptoms = [];
         }
 
         if (this.isNewPatientMode) {
@@ -261,6 +268,18 @@ export class Patient implements OnInit, OnDestroy {
             return;
         }
 
+        this.patientSymptomFacade.updatePatientSymptoms(this.patientSymptoms);
+        this.patientSymptomFacade.patientSymptomState$
+            .pipe(
+                tap(uptdated => (
+                    this.patientSymptoms = uptdated,
+                    this._patientBackup = null
+                )),
+                takeUntil(this.destroy$)
+            )
+            .subscribe()
+
+
         this.patientFacade
             .updatePatient(this.patient.id, this.patient)
             .pipe(take(1))
@@ -278,14 +297,28 @@ export class Patient implements OnInit, OnDestroy {
                     this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
                 }
             });
+
+
     }
 
-    openConfirmDialog() {
-        this.displayConfirmDialog = true;
+    openPatientConfirmDialog() {
+        this.displayPatientConfirmDialog = true;
     }
 
-    closeConfirmDialog() {
-        this.displayConfirmDialog = false;
+    openPatientSymptomConfirmDialog() {
+        this.displayPatientSymptomConfirmDialog = true;
+    }
+
+    closeConfirmDialog(type: string) {
+        switch (type) {
+            case 'patient':
+                this.displayPatientConfirmDialog = false;
+                break;
+
+            case 'symptom':
+                this.displayPatientSymptomConfirmDialog = false;
+                break;
+        }
     }
 
     closeAddSymptomDialog() {
@@ -295,7 +328,7 @@ export class Patient implements OnInit, OnDestroy {
     protected addSymptom() {
         this.displayAddSymptomDialog = true;
 
-        this.patientSymptom = this.createEmptyPatientSymptom()
+        this.patientSymptom = this.createEmptyPatientSymptom();
 
         // fetch all symptoms for selection
         this.symptomFacade.fetchAllSymptoms();
@@ -308,7 +341,6 @@ export class Patient implements OnInit, OnDestroy {
                 takeUntil(this.destroy$)
             )
             .subscribe();
-
     }
 
     deletePatient() {
@@ -328,6 +360,24 @@ export class Patient implements OnInit, OnDestroy {
                 error: (err) => {
                     console.error('Failed to delete patient', err);
                     this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
+                    this.closeConfirmDialog('patient')
+                }
+            });
+    }
+
+    deletePatientSymptom(patientSymptomId: string) {
+        this.patientSymptomFacade
+            .deletePatientSymptom(patientSymptomId)
+            .pipe(take(1))
+            .subscribe({
+                next: () => {
+                    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'PatientSymptom profile deleted.' });
+                    this.closeConfirmDialog('symptom')
+                },
+                error: (err) => {
+                    console.error('Failed to delete patientSymptom', err);
+                    this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
+                    this.closeConfirmDialog('symptom')
                 }
             });
     }
@@ -396,7 +446,7 @@ export class Patient implements OnInit, OnDestroy {
             id: '',
             name: '',
             notes: ''
-        }
+        };
     }
 
     private createEmptyPatientSymptom(): PatientSymptomDto {
@@ -405,20 +455,19 @@ export class Patient implements OnInit, OnDestroy {
             patient: this.patient,
             symptom: this.symptom,
             severity: 0
-        }
+        };
     }
 
     getSymptomNames(symptoms: SymptomDto[]) {
-        this.symptomNames = symptoms.map((p) => p.name).filter(
-            name => !this.patientSymptoms.some(ps => ps.symptom.name === name));
+        this.symptomNames = symptoms.map((p) => p.name).filter((name) => !this.patientSymptoms.some((ps) => ps.symptom.name === name));
     }
 
     protected saveAddedSymptom() {
         // create new meeting
         const createdPatientSymptom = this.patientSymptom;
-        const selectedSymptom = this.findSymptomByName(this.symptom.name)
+        const selectedSymptom = this.findSymptomByName(this.symptom.name);
 
-        if(selectedSymptom) {
+        if (selectedSymptom) {
             createdPatientSymptom.symptom = selectedSymptom;
         } else {
             console.error('Failed to add symptom');
@@ -442,10 +491,7 @@ export class Patient implements OnInit, OnDestroy {
             });
     }
 
-    findSymptomByName(
-        name: string
-    ): SymptomDto | undefined {
-        return this.symptoms.find(s => s.name === name)
+    findSymptomByName(name: string): SymptomDto | undefined {
+        return this.symptoms.find((s) => s.name === name);
     }
-
 }

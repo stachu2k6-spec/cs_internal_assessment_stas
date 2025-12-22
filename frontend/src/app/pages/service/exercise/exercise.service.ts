@@ -28,7 +28,7 @@ export class ExerciseService {
         return this.http.put<ExerciseDto>(this.apiUrl + '/' + id, exercise);
     }
 
-    delete(id: string): Observable<ExerciseDto> {
-        return this.http.delete<ExerciseDto>(this.apiUrl + '/' + id);
+    delete(id: string): Observable<void> {
+        return this.http.delete<void>(this.apiUrl + '/' + id);
     }
 }

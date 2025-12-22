@@ -59,6 +59,17 @@ export class MeetingFacade {
             .subscribe()
     }
 
+    fetchMultipleMonths(months: { year: number; month: number }[]): void {
+        forkJoin(
+            months.map(m =>
+                this.meetingService.getMonthMeetings(m.year, m.month).pipe(take(1))
+            )
+        ).subscribe(results => {
+            const merged = results.flat();
+            this.meetingState$.next(merged);
+        });
+    }
+
     createMeeting(meeting: CreateMeetingDto): Observable<MeetingDto> {
         return this.meetingService.create(meeting).pipe(
             take(1),
@@ -91,7 +102,7 @@ export class MeetingFacade {
         );
     }
 
-    deleteMeeting(id: string): Observable<string> {
+    deleteMeeting(id: string): Observable<void> {
         return this.meetingService.delete(id).pipe(
             take(1),
             tap(() => {
@@ -109,14 +120,5 @@ export class MeetingFacade {
         );
     }
 
-    fetchMultipleMonths(months: { year: number; month: number }[]): void {
-        forkJoin(
-            months.map(m =>
-                this.meetingService.getMonthMeetings(m.year, m.month).pipe(take(1))
-            )
-        ).subscribe(results => {
-            const merged = results.flat();
-            this.meetingState$.next(merged);
-        });
-    }
+
 }

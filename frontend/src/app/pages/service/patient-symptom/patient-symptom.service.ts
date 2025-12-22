@@ -35,9 +35,16 @@ export class PatientSymptomService {
         );
     }
 
+    updateMany(patientSymptoms: PatientSymptomDto[]) {
+        return this.http.put<PatientSymptomDto[]>(this.apiUrl + '/many',
+            patientSymptoms
+        );
+    }
+
     delete(id: string): Observable<void> {
         return this.http.delete<void>(this.apiUrl + '/' + id);
     }
+
 
 
 }
