@@ -244,42 +244,29 @@ export class Patient implements OnInit, OnDestroy {
         }
 
         if (this.isNewPatientMode) {
-            // create new patient
-            this.patient.id = ''; // clear temporary id before sending to server
-            this.patientFacade
-                .createPatient(this.patient)
-                .pipe(takeUntil(this.destroy$))
-                .subscribe({
-                    next: (created: PatientDto) => {
-                        // update local model with server response
-                        created.birthDate = this.toLocalDate(this.patient.birthDate);
-                        this.patient = created;
-                        this.isNewPatientMode = false;
-                        this.isEditMode = false;
-                        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Patient profile saved.' });
-                        //this.router.navigate(['/view/patient', created.id]);
-                    },
-                    error: (err) => {
-                        console.error('Failed to save patient', err);
-                        const detail = err?.message ?? 'Unknown error';
-                        this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
-                    }
-                });
+            this.createPatient()
             return;
         }
 
+        this.updatePatientSymptoms()
+
+        this.updatePatient()
+    }
+
+    updatePatientSymptoms(): void {
         this.patientSymptomFacade.updatePatientSymptoms(this.patientSymptoms);
         this.patientSymptomFacade.patientSymptomState$
             .pipe(
-                tap(uptdated => (
-                    this.patientSymptoms = uptdated,
-                    this._patientBackup = null
+                tap(updated => (
+                    this.patientSymptoms = updated,
+                        this._patientBackup = null
                 )),
                 takeUntil(this.destroy$)
             )
             .subscribe()
+    }
 
-
+    updatePatient(): void {
         this.patientFacade
             .updatePatient(this.patient.id, this.patient)
             .pipe(take(1))
@@ -297,9 +284,32 @@ export class Patient implements OnInit, OnDestroy {
                     this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
                 }
             });
-
-
     }
+
+    createPatient(): void {
+        // create new patient
+        this.patient.id = ''; // clear temporary id before sending to server
+        this.patientFacade
+            .createPatient(this.patient)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (created: PatientDto) => {
+                    // update local model with server response
+                    created.birthDate = this.toLocalDate(this.patient.birthDate);
+                    this.patient = created;
+                    this.isNewPatientMode = false;
+                    this.isEditMode = false;
+                    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Patient profile saved.' });
+                    this.router.navigate(['/view/patient', created.id]); // navigate to newly created patient's page
+                },
+                error: (err) => {
+                    console.error('Failed to save patient', err);
+                    const detail = err?.message ?? 'Unknown error';
+                    this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
+                }
+            });
+    }
+
 
     openPatientConfirmDialog() {
         this.displayPatientConfirmDialog = true;
@@ -355,7 +365,7 @@ export class Patient implements OnInit, OnDestroy {
             .subscribe({
                 next: () => {
                     this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Patient profile deleted.' });
-                    this.router.navigate(['/menu', 'patients']); // navigate back to patient list
+                    this.router.navigate(['/view', 'patients']); // navigate back to patient list
                 },
                 error: (err) => {
                     console.error('Failed to delete patient', err);

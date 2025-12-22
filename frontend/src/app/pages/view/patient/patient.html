@@ -216,7 +216,21 @@
                         </p-table>
 
                         <div class="w-full flex justify-center mt-4">
-                            <p-button (onClick)="addSymptom()" label="Add Symptom" icon="pi pi-plus" iconPos="right"></p-button>
+                            <p-button
+                                *ngIf="!isNewPatientMode"
+                                (onClick)="addSymptom()"
+                                label="Add Symptom"
+                                icon="pi pi-plus"
+                                iconPos="right"
+                            ></p-button>
+
+                            <p-button
+                                *ngIf="isNewPatientMode"
+                                disabled = 'true'
+                                label="Create patient to add symptom"
+                                icon="pi pi-plus"
+                                iconPos="right"
+                            ></p-button>
 
                             <p-dialog header="Add symptom" [(visible)]="displayAddSymptomDialog"  [modal]="true">
                                 <div class="card flex flex-row gap-4 " [style]="{ height: '300px'}">
@@ -245,7 +259,21 @@
                     <div class="card">
                         <div class="w-full flex justify-between">
                             <div class="font-semibold text-xl mb-4">Meetings</div>
-                            <p-button label="Schedule Meeting" icon="pi pi-plus" iconPos="right"></p-button>
+                            <p-button
+                                *ngIf="!isNewPatientMode"
+                                label="Schedule Meeting"
+                                icon="pi pi-plus"
+                                iconPos="right"
+                            ></p-button>
+
+                            <p-button
+                                *ngIf="isNewPatientMode"
+                                disabled = 'true'
+                                label="Create patient to schedule meeting"
+                                icon="pi pi-plus"
+                                iconPos="right"
+                            ></p-button>
+
                         </div>
                         <p-contextMenu #cmMeetings [model]="meetingsCMItems"></p-contextMenu>
 
