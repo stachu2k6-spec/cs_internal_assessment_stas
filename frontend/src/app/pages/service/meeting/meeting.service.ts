@@ -30,6 +30,7 @@ export class MeetingService {
     }
 
     create(meeting: CreateMeetingDto): Observable<MeetingDto> {
+        debugger
         return this.http.post<MeetingDto>(this.apiUrl, meeting);
     }
 

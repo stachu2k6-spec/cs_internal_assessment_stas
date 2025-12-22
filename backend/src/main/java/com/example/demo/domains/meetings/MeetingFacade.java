@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -87,7 +86,7 @@ public class MeetingFacade {
         ));
 
         meeting.setPatient(patient);
-        meeting.setDate(meetingDto.getDate());
+        meeting.setDate(meetingDto.getDateTime());
         meeting.setStartTime(meetingDto.getStartTime());
         meeting.setDuration(meetingDto.getDuration());
         meeting.setNotes(meetingDto.getNotes());

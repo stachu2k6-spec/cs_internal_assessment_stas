@@ -1,7 +1,6 @@
 package com.example.demo.controllers.meetings;
 
 import com.example.demo.controllers.patients.PatientDto;
-import com.example.demo.repository.patients.PatientEntity;
 
 
 import java.time.Duration;
@@ -12,19 +11,17 @@ import java.util.UUID;
 public class MeetingDto {
     private UUID id;
     private PatientDto patient;
-    private LocalDate date;
-    private LocalTime startTime;
+    private LocalDate dateTime;
     private Duration duration;
     private String notes;
 
     public MeetingDto() {
     }
 
-    public MeetingDto(String id,  PatientDto patient, LocalDate date, LocalTime startTime, Duration duration, String notes) {
+    public MeetingDto(String id,  PatientDto patient, LocalDate dateTime, Duration duration, String notes) {
         this.id = UUID.fromString(id);
         this.patient = patient;
-        this.date = date;
-        this.startTime = startTime;
+        this.dateTime = dateTime;
         this.duration = duration;
         this.notes = notes;
     }
@@ -45,20 +42,12 @@ public class MeetingDto {
         this.patient = patient;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDate getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
+    public void setDateTime(LocalDate dateTime) {
+        this.dateTime = dateTime;
     }
 
     public Duration getDuration() {

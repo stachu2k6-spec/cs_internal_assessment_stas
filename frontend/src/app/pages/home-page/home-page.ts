@@ -88,6 +88,7 @@ export class HomePage implements OnInit, OnDestroy {
     }
 
     handleDateClick(arg: any) {
+        debugger
         this.quickScheduleMeeting(arg.date);
     }
 

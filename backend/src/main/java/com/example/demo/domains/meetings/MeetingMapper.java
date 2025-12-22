@@ -30,7 +30,7 @@ public class MeetingMapper {
 
         MeetingDto dto = new MeetingDto();
         dto.setId(entity.getId());
-        dto.setDate(entity.getDate());
+        dto.setDateTime(entity.getDate());
         dto.setStartTime(entity.getStartTime());
         dto.setDuration(entity.getDuration());
         dto.setNotes(entity.getNotes());
@@ -54,7 +54,7 @@ public class MeetingMapper {
         MeetingEntity entity = new MeetingEntity();
 
         entity.setId(dto.getId());
-        entity.setDate(dto.getDate());
+        entity.setDate(dto.getDateTime());
         entity.setStartTime(dto.getStartTime());
         entity.setDuration(dto.getDuration());
         entity.setNotes(dto.getNotes());
