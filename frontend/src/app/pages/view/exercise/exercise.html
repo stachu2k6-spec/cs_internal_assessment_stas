@@ -50,7 +50,7 @@
                             <p-dialog header="Confirmation" [(visible)]="displayExerciseConfirmDialog" [style]="{ width: '350px' }" [modal]="true">
                                 <div class="flex items-center justify-center">
                                     <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem"> </i>
-                                    <span>Are you sure you want to delete symptom?</span>
+                                    <span>Are you sure you want to delete exercise?</span>
                                 </div>
                                 <ng-template #footer>
                                     <p-button label="No" icon="pi pi-times" (click)="closeDialog('deleteExercise')" text severity="secondary" />
@@ -162,7 +162,7 @@
                         <p-button
                             *ngIf="isNewExerciseMode"
                             disabled = 'true'
-                            label="Create patient to add symptom"
+                            label="Create Exercise to add symptom"
                             icon="pi pi-plus"
                             iconPos="right"
                         ></p-button>

@@ -61,16 +61,16 @@
                                 icon="pi pi-trash"
                                 severity="danger"
                                 raised
-                                (click)="openConfirmDialog()"
+                                (click)="openDeleteMeetingDialog()"
                             ></p-button>
 
-                            <p-dialog header="Confirmation" [(visible)]="displayConfirmDialog" [style]="{ width: '350px' }" [modal]="true">
+                            <p-dialog header="Confirmation" [(visible)]="displayDeleteMeetingDialog" [style]="{ width: '350px' }" [modal]="true">
                                 <div class="flex items-center justify-center">
                                     <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem"> </i>
                                     <span>Are you sure you want to delete meeting?</span>
                                 </div>
                                 <ng-template #footer>
-                                    <p-button label="No" icon="pi pi-times" (click)="closeConfirmDialog()" text severity="secondary" />
+                                    <p-button label="No" icon="pi pi-times" (click)="closeDialog('deleteMeeting')" text severity="secondary" />
                                     <p-button label="Yes" icon="pi pi-check" (click)="deleteMeeting()" severity="danger" outlined autofocus />
                                 </ng-template>
                             </p-dialog>
@@ -187,7 +187,7 @@
             <p-splitter layout="vertical" [panelSizes]="[40, 60]">
                 <ng-template #panel>
                     <div class="card">
-                        <p-table [value]="customers2" [scrollable]="true" scrollHeight="250px" styleClass="mt-4">
+                        <p-table [value]="suggestedExercises" [scrollable]="true" scrollHeight="250px" styleClass="mt-4">
                             <ng-template #header>
                                 <tr>
                                     <th class="text-xl" style="min-width:300px">Suggested Exercises</th>
@@ -205,20 +205,52 @@
                 </ng-template>
                 <ng-template #panel>
                     <div class="card">
-                        <p-table [value]="customers2" [scrollable]="true" scrollHeight="400px" styleClass="mt-4">
+                        <p-table [value]="meeting.exercises" [scrollable]="true" scrollHeight="400px" styleClass="mt-4">
                             <ng-template #header>
                                 <tr>
                                     <th class="text-xl" style="min-width:300px">Currently Planned Exercises</th>
                                 </tr>
                             </ng-template>
-                            <ng-template #body let-customer>
+                            <ng-template #body let-exercise>
                                 <tr class="hover-scale cursor-pointer"
                                 [routerLink]="['/view','exercise']"
                                 >
-                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                    <td style="min-width:100px">{{ exercise.name }}</td>
                                 </tr>
                             </ng-template>
                         </p-table>
+                        <div class="w-full flex justify-center mt-4">
+                            <p-button
+                                *ngIf="!isNewMeetingMode"
+                                (onClick)="openAddExerciseDialog()"
+                                label="Add Exercise"
+                                icon="pi pi-plus"
+                                iconPos="right"
+                            ></p-button>
+
+                            <p-button
+                                *ngIf="isNewMeetingMode"
+                                disabled = 'true'
+                                label="Create Meeting to add Exercise"
+                                icon="pi pi-plus"
+                                iconPos="right"
+                            ></p-button>
+
+                            <p-dialog header="Add exercise" [(visible)]="displayAddExerciseDialog"  [modal]="true">
+                                <div class="card flex flex-row gap-4 " [style]="{ height: '300px'}">
+                                    <div class="card flex flex-col gap-4">
+                                        <div class="font-semibold text-xl flex items-center justify-center">Select Exercise</div>
+                                        <div class="flex flex-col gap-2">
+                                            <p-select [(ngModel)]="exerciseToAdd.name" [options]="exerciseNames" placeholder="Select" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <ng-template #footer>
+                                    <p-button label="Cancel" icon="pi pi-times" (click)="closeDialog('addExercise')" text severity="danger" />
+                                    <p-button label="Add" icon="pi pi-check" (click)="addExercise()" severity="success" outlined autofocus />
+                                </ng-template>
+                            </p-dialog>
+                        </div>
                     </div>
                 </ng-template>
             </p-splitter>

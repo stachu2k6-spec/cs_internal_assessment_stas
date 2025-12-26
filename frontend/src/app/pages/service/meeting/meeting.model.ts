@@ -1,4 +1,5 @@
-import { PatientDto } from '@/pages/service/patient/patient.model';
+import { PatientDto } from '../patient/patient.model';
+import { ExerciseDto } from '../exercise/exercise.model';
 
 export interface MeetingDto {
     id: string;
@@ -7,6 +8,7 @@ export interface MeetingDto {
     duration: number;
     notes: string;
     rating: number; // 1 to 5
+    exercises: ExerciseDto[];
 }
 
 export interface CreateMeetingDto {

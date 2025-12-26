@@ -226,7 +226,8 @@ export class HomePage implements OnInit, OnDestroy {
             dateTime: new Date(),
             duration: 0,
             notes: '',
-            rating: 0
+            rating: 0,
+            exercises: []
         };
     }
 

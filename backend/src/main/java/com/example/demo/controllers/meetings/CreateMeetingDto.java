@@ -1,10 +1,13 @@
 package com.example.demo.controllers.meetings;
 
 
+import com.example.demo.controllers.exercises.ExerciseDto;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 public class CreateMeetingDto {
@@ -13,16 +16,18 @@ public class CreateMeetingDto {
     private int duration;
     private String notes;
     private int rating;
+    private List<ExerciseDto> exercises;
 
     public CreateMeetingDto() {
     }
 
-    public CreateMeetingDto(String patientId, LocalDateTime dateTime, int duration, String notes, int rating) {
+    public CreateMeetingDto(String patientId, LocalDateTime dateTime, int duration, String notes, int rating, List<ExerciseDto> exercises) {
         this.patientId = UUID.fromString(patientId);
         this.dateTime = dateTime;
         this.duration = duration;
         this.notes = notes;
         this.rating = rating;
+        this.exercises = exercises;
     }
 
     public UUID getPatientId() {
@@ -63,6 +68,14 @@ public class CreateMeetingDto {
 
     public void setRating(int rating) {
         this.rating = rating;
+    }
+
+    public List<ExerciseDto> getExercises() {
+        return exercises;
+    }
+
+    public void setExercises(List<ExerciseDto> exercises) {
+        this.exercises = exercises;
     }
 }
 

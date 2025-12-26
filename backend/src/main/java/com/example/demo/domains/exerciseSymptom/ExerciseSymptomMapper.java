@@ -30,8 +30,8 @@ public class ExerciseSymptomMapper {
     public ExerciseSymptomEntity toEntity(ExerciseSymptomDto dto) {
         ExerciseSymptomEntity entity = new ExerciseSymptomEntity();
 
-        ExerciseEntity p = exerciseRepository.findById(dto.getExercise().getId()).get();
-        entity.setExercise(p);
+        ExerciseEntity e = exerciseRepository.findById(dto.getExercise().getId()).get();
+        entity.setExercise(e);
         
         SymptomEntity s = symptomRepository.findById(dto.getSymptom().getId()).get();
         entity.setSymptom(s);

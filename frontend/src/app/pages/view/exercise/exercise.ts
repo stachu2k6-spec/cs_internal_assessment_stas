@@ -189,8 +189,9 @@ export class Exercise implements OnInit, OnDestroy {
                     // update local model with server response (in case server modifies the entity)
                     this.exercise = created;
                     this.isEditMode = false;
+                    this.isNewExerciseMode = false;
                     this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Exercise saved.' });
-                    //this.router.navigate(['/view/exercise', created.id]);
+                    this.router.navigate(['/view/exercise', created.id]);
                 },
                 error: (err) => {
                     console.error('Failed to save exercise', err);
@@ -257,7 +258,6 @@ export class Exercise implements OnInit, OnDestroy {
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (created: ExerciseSymptomDto) => {
-                    this.exerciseSymptomToAdd = created;
                     this.displayAddExerciseSymptomDialog = false;
                     this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Symptom added successfully.' });
                 },

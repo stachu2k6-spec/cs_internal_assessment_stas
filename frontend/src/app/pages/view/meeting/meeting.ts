@@ -22,11 +22,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { PatientDto } from '@/pages/service/patient/patient.model';
+import { ExerciseDto } from '@/pages/service/exercise/exercise.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
+import { ExerciseFacade } from '@/pages/service/exercise/exercise.facade';
 import { MessageService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
-
-// rxjs
 import { Subject, of, pipe, take } from 'rxjs';
 import { takeUntil, switchMap, tap, catchError } from 'rxjs/operators';
 import { InputNumber } from 'primeng/inputnumber';
@@ -71,21 +71,28 @@ interface expandedRows {
     providers: [MessageService, CountryService]
 })
 export class Meeting implements OnInit, OnDestroy {
-    customers2: any[] = [];
-
-    statuses: any[] = [];
 
     isEditMode: boolean = false;
 
     isNewMeetingMode: boolean = false;
 
-    displayConfirmDialog: boolean = false;
+    displayDeleteMeetingDialog: boolean = false;
+
+    displayAddExerciseDialog: boolean = false;
 
     meeting: MeetingDto = this.createEmptyMeeting(); // Meeting data to be displayed and edited, initialized to empty
 
     patient: PatientDto = this.createEmptyPatient(); // Associated patient data, initialized to empty
 
     patients: PatientDto[] = [];
+
+    suggestedExercises: ExerciseDto[] = [];
+
+    exercises: ExerciseDto[] = [];
+
+    exerciseNames: string[] = [];
+
+    exerciseToAdd: ExerciseDto = this.createEmptyExercise();
 
     patientsNames: string[] = [];
 
@@ -96,9 +103,11 @@ export class Meeting implements OnInit, OnDestroy {
     // destroy notifier for takeUntil
     private destroy$ = new Subject<void>();
 
+
     constructor(
         private meetingFacade: MeetingFacade,
         private patientFacade: PatientFacade,
+        private exerciseFacade: ExerciseFacade,
         private route: ActivatedRoute,
         private router: Router,
         private messageService: MessageService
@@ -241,6 +250,11 @@ export class Meeting implements OnInit, OnDestroy {
             }
         }
 
+        this.updateMeeting();
+
+    }
+
+    updateMeeting() {
         const previousEditState = this.isEditMode;
         this.isEditMode = false;
 
@@ -250,7 +264,8 @@ export class Meeting implements OnInit, OnDestroy {
             dateTime: this.tweakHours(this.meeting.dateTime),
             duration: this.meeting.duration,
             notes: this.meeting.notes,
-            rating: this.meeting.rating
+            rating: this.meeting.rating,
+            exercises: this.meeting.exercises
         };
         this.meetingFacade
             .updateMeeting(this.meeting.id, updatedMeeting)
@@ -270,12 +285,52 @@ export class Meeting implements OnInit, OnDestroy {
             });
     }
 
-    openConfirmDialog() {
-        this.displayConfirmDialog = true;
+    openDeleteMeetingDialog() {
+        this.displayDeleteMeetingDialog = true;
     }
 
-    closeConfirmDialog() {
-        this.displayConfirmDialog = false;
+    openAddExerciseDialog() {
+        this.displayAddExerciseDialog = true;
+
+        // fetch all exercises for selection
+        this.exerciseFacade.fetchAllExercises();
+        this.exerciseFacade.exerciseState$
+            .pipe(
+                tap((x) => {
+                    this.exercises = this.filterAvailableExercises(x);
+                    this.exerciseNames = x.map((e) => e.name);
+                }),
+                takeUntil(this.destroy$)
+            )
+            .subscribe();
+    }
+
+    addExercise() {
+        this.exerciseToAdd = this.findExerciseByName(this.exerciseToAdd.name) || this.exerciseToAdd;
+        this.meeting.exercises = [
+            ...this.meeting.exercises,
+            this.exerciseToAdd
+        ];
+        this.exerciseToAdd = this.createEmptyExercise();
+        this.displayAddExerciseDialog = false;
+
+        this.updateMeeting();
+    }
+
+
+
+    protected closeDialog(type: string) {
+        switch (type) {
+            case 'deleteMeeting':
+                this.displayDeleteMeetingDialog = false;
+                break;
+            case 'addExercise':
+                this.displayAddExerciseDialog = false;
+                break;
+
+            default:
+                break;
+        }
     }
 
     deleteMeeting() {
@@ -335,6 +390,18 @@ export class Meeting implements OnInit, OnDestroy {
         return copy;
     }
 
+    filterAvailableExercises(allExercises: ExerciseDto[]): ExerciseDto[] {
+        const selectedIds = new Set(
+            this.meeting.exercises.map(e => e.id)
+        );
+
+        return allExercises.filter(e => !selectedIds.has(e.id));
+    }
+
+    findExerciseByName(name: string): ExerciseDto | undefined {
+        return this.exercises.find((e) => e.name === name);
+    }
+
 
     createEmptyMeeting() {
         return {
@@ -343,7 +410,8 @@ export class Meeting implements OnInit, OnDestroy {
             dateTime: new Date(),
             duration: 0,
             notes: '',
-            rating: 0
+            rating: 0,
+            exercises: []
         };
     }
 
@@ -362,6 +430,16 @@ export class Meeting implements OnInit, OnDestroy {
             photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
         };
     }
+
+
+    private createEmptyExercise(): ExerciseDto {
+        return {
+            id: '',
+            name: '',
+            notes: ''
+        }
+    }
+
 
 
 }

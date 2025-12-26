@@ -1,5 +1,6 @@
 package com.example.demo.repository.meetings;
 
+import com.example.demo.repository.exercises.ExerciseEntity;
 import com.example.demo.repository.patients.PatientEntity;
 import jakarta.persistence.*;
 
@@ -7,6 +8,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -20,6 +23,14 @@ public class MeetingEntity {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "patient")
     private PatientEntity patient;
+
+    @ManyToMany
+    @JoinTable(
+            name = "meeting_exercises",
+            joinColumns = @JoinColumn(name = "meeting_id"),
+            inverseJoinColumns = @JoinColumn(name = "exercise_id")
+    )
+    private Set<ExerciseEntity> exercises = new HashSet<>();
 
     private LocalDateTime dateTime;
     private int duration;
@@ -74,5 +85,13 @@ public class MeetingEntity {
 
     public void setRating(int rating) {
         this.rating = rating;
+    }
+
+    public Set<ExerciseEntity> getExercises() {
+        return exercises;
+    }
+
+    public void setExercises(Set<ExerciseEntity> exercises) {
+        this.exercises = exercises;
     }
 }
