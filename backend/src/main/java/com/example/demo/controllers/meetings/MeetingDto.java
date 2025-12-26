@@ -15,12 +15,12 @@ public class MeetingDto {
     private LocalDateTime dateTime;
     private int duration;
     private String notes;
-    private double rating;
+    private int rating;
 
     public MeetingDto() {
     }
 
-    public MeetingDto(String id, PatientDto patient, LocalDateTime dateTime, int duration, String notes, double rating) {
+    public MeetingDto(String id, PatientDto patient, LocalDateTime dateTime, int duration, String notes, int rating) {
         this.id = UUID.fromString(id);
         this.patient = patient;
         this.dateTime = dateTime;
@@ -69,11 +69,11 @@ public class MeetingDto {
         this.notes = notes;
     }
 
-    public double getRating() {
+    public int getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(int rating) {
         this.rating = rating;
     }
 }

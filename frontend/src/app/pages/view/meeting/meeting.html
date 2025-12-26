@@ -158,7 +158,9 @@
                                     </p-inputnumber>
                                 </div>
 
-                                <div class="flex flex-col gap-2">
+                                <div
+                                    *ngIf="!isNewMeetingMode"
+                                    class="flex flex-col gap-2">
                                     <div>Rating</div>
                                     <p-rating [(ngModel)]="meeting.rating" [disabled]="!isEditMode"/>
                                 </div>

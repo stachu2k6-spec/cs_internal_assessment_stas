@@ -33,6 +33,7 @@ public class MeetingMapper {
         dto.setDateTime(entity.getDateTime());
         dto.setDuration(entity.getDuration());
         dto.setNotes(entity.getNotes());
+        dto.setRating(entity.getRating());
 
         // Convert PatientEntity -> PatientDto
         PatientDto patientDto = patientMapper.toDto(entity.getPatient());

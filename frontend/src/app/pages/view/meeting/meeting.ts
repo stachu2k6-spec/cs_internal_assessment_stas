@@ -245,8 +245,12 @@ export class Meeting implements OnInit, OnDestroy {
         this.isEditMode = false;
 
         const updatedMeeting = {
-            ...this.meeting,
-            dateTime: this.tweakHours(this.meeting.dateTime)
+            id: this.meeting.id,
+            patient: this.meeting.patient,
+            dateTime: this.tweakHours(this.meeting.dateTime),
+            duration: this.meeting.duration,
+            notes: this.meeting.notes,
+            rating: this.meeting.rating
         };
         this.meetingFacade
             .updateMeeting(this.meeting.id, updatedMeeting)

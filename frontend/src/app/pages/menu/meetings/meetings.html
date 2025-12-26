@@ -165,18 +165,17 @@
                                 class="hover-scale cursor-pointer"
                                 [routerLink]="['/view','meeting', meeting.id]"
                             >
-                                <!-- TODO: ensure `customer.id` exists and pass correct id here -->
                                 <td>
                                     {{ meeting.patient.name }} {{ meeting.patient.surname }}
                                 </td>
                                 <td>
-                                    {{ meeting.date }}
+                                    {{ meeting.dateTime | date: 'yyyy-MM-dd' }}
                                 </td>
                                 <td>
-                                    {{ meeting.startTime }}
+                                    {{ meeting.dateTime | date: 'HH:mm' }}
                                 </td>
                                 <td>
-                                    {{ formatDuration(meeting.duration) }}
+                                    {{ meeting.duration }}
                                 </td>
                             </tr>
                         </ng-template>

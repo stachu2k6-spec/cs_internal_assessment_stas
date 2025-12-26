@@ -12,12 +12,12 @@ public class CreateMeetingDto {
     private LocalDateTime dateTime;
     private int duration;
     private String notes;
-    private double rating;
+    private int rating;
 
     public CreateMeetingDto() {
     }
 
-    public CreateMeetingDto(String patientId, LocalDateTime dateTime, int duration, String notes, double rating) {
+    public CreateMeetingDto(String patientId, LocalDateTime dateTime, int duration, String notes, int rating) {
         this.patientId = UUID.fromString(patientId);
         this.dateTime = dateTime;
         this.duration = duration;
@@ -57,11 +57,11 @@ public class CreateMeetingDto {
         this.notes = notes;
     }
 
-    public double getRating() {
+    public int getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(int rating) {
         this.rating = rating;
     }
 }

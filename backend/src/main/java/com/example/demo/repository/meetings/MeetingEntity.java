@@ -24,7 +24,7 @@ public class MeetingEntity {
     private LocalDateTime dateTime;
     private int duration;
     private String notes;
-    private double rating;
+    private int rating;
 
     public MeetingEntity() {}
 
@@ -68,11 +68,11 @@ public class MeetingEntity {
         this.notes = notes;
     }
 
-    public double getRating() {
+    public int getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(int rating) {
         this.rating = rating;
     }
 }
