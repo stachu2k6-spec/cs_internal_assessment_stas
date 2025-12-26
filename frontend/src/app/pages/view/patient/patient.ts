@@ -277,8 +277,11 @@ export class Patient implements OnInit, OnDestroy {
     createPatient(): void {
         // create new patient
         this.patient.id = ''; // clear temporary id before sending to server
+        const created = { ...this.patient,
+        birthDate: this.tweakHours(this.patient.birthDate)};
+
         this.patientFacade
-            .createPatient(this.patient)
+            .createPatient(created)
             .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (created: PatientDto) => {
@@ -299,8 +302,10 @@ export class Patient implements OnInit, OnDestroy {
     }
 
     updatePatient(): void {
+        const updated = { ...this.patient,
+            birthDate: this.tweakHours(this.patient.birthDate)};
         this.patientFacade
-            .updatePatient(this.patient.id, this.patient)
+            .updatePatient(this.patient.id, updated)
             .pipe(take(1))
             .subscribe({
                 next: (saved: PatientDto) => {
@@ -481,6 +486,12 @@ export class Patient implements OnInit, OnDestroy {
 
     findSymptomByName(name: string): SymptomDto | undefined {
         return this.symptoms.find((s) => s.name === name);
+    }
+
+    private tweakHours(date: Date): Date {
+        const copy = new Date(date);
+        copy.setHours(copy.getHours() + 1);
+        return copy;
     }
 
 
