@@ -213,9 +213,32 @@
                             </ng-template>
                             <ng-template #body let-exercise>
                                 <tr class="hover-scale cursor-pointer"
-                                [routerLink]="['/view','exercise']"
                                 >
-                                    <td style="min-width:100px">{{ exercise.name }}</td>
+                                    <td
+                                        class ="flex justify-between items-center"
+                                        style="min-width:100px"
+                                        [routerLink]="['/view','exercise', exercise.id]"
+                                    >{{ exercise.name }}
+
+                                        <p-button
+                                            *ngIf="isEditMode && !isNewMeetingMode"
+                                            icon="pi pi-trash"
+                                            severity="danger"
+                                            raised
+                                            (click)="openDeleteExerciseDialog($event)"
+                                        ></p-button>
+
+                                        <p-dialog header="Confirmation" [(visible)]="displayDeleteExerciseDialog" [style]="{ width: '350px' }" [modal]="true" (click)="$event.stopPropagation()">
+                                            <div class="flex items-center justify-center">
+                                                <i class="pi pi-exclamation-triangle mr-4" style="font-size: 2rem"> </i>
+                                                <span>Are you sure you want to delete exercise?</span>
+                                            </div>
+                                            <ng-template #footer>
+                                                <p-button label="No" icon="pi pi-times" (click)="$event.stopPropagation(); closeDialog('deleteExercise')" text severity="secondary" />
+                                                <p-button label="Yes" icon="pi pi-check" (click)="$event.stopPropagation(); removeExercise(exercise.id)" severity="danger" outlined autofocus />
+                                            </ng-template>
+                                        </p-dialog>
+                                    </td>
                                 </tr>
                             </ng-template>
                         </p-table>

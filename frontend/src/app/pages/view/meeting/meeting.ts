@@ -80,6 +80,8 @@ export class Meeting implements OnInit, OnDestroy {
 
     displayAddExerciseDialog: boolean = false;
 
+    displayDeleteExerciseDialog: boolean = false;
+
     meeting: MeetingDto = this.createEmptyMeeting(); // Meeting data to be displayed and edited, initialized to empty
 
     patient: PatientDto = this.createEmptyPatient(); // Associated patient data, initialized to empty
@@ -102,6 +104,7 @@ export class Meeting implements OnInit, OnDestroy {
 
     // destroy notifier for takeUntil
     private destroy$ = new Subject<void>();
+
 
 
     constructor(
@@ -305,6 +308,11 @@ export class Meeting implements OnInit, OnDestroy {
             .subscribe();
     }
 
+    openDeleteExerciseDialog(event: Event) {
+        event.stopPropagation();
+        this.displayDeleteExerciseDialog = true;
+    }
+
     addExercise() {
         this.exerciseToAdd = this.findExerciseByName(this.exerciseToAdd.name) || this.exerciseToAdd;
         this.meeting.exercises = [
@@ -317,6 +325,11 @@ export class Meeting implements OnInit, OnDestroy {
         this.updateMeeting();
     }
 
+    protected removeExercise(exerciseId: string) {
+        this.meeting.exercises = this.meeting.exercises.filter(e => e.id !== exerciseId);
+        this.updateMeeting();
+    }
+
 
 
     protected closeDialog(type: string) {
@@ -326,6 +339,10 @@ export class Meeting implements OnInit, OnDestroy {
                 break;
             case 'addExercise':
                 this.displayAddExerciseDialog = false;
+                break;
+
+            case 'deleteExercise':
+                this.displayDeleteExerciseDialog = false;
                 break;
 
             default:
@@ -439,7 +456,5 @@ export class Meeting implements OnInit, OnDestroy {
             notes: ''
         }
     }
-
-
 
 }
