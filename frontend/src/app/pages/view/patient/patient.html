@@ -310,8 +310,8 @@
                                                     [pContextMenuRow]="meeting"
                                                     (contextmenu)="$event.preventDefault()"
                                                 >
-                                                    <td class="font-bold">{{ meeting.date }}</td>
-                                                    <td style="min-width:100px">{{ meeting.startTime }}</td>
+                                                    <td class="font-bold">{{ meeting.dateTime | date:'dd.MM.yyyy' }}</td>
+                                                    <td style="min-width:100px">{{ meeting.dateTime | date: 'HH:mm' }}</td>
                                                     <td style="min-width:100px">{{ meeting.duration }}</td>
                                                 </tr>
                                             </ng-template>
@@ -344,8 +344,8 @@
                                                     [pContextMenuRow]="meeting"
                                                     (contextmenu)="$event.preventDefault()"
                                                 >
-                                                    <td class="font-bold">{{ meeting.date }}</td>
-                                                    <td style="min-width:100px">{{ meeting.startTime }}</td>
+                                                    <td class="font-bold">{{ meeting.dateTime | date:'dd.MM.yyyy' }}</td>
+                                                    <td style="min-width:100px">{{ meeting.dateTime | date: 'HH:mm' }}</td>
                                                     <td style="min-width:100px">{{ meeting.duration }}</td>
                                                 </tr>
                                             </ng-template>
