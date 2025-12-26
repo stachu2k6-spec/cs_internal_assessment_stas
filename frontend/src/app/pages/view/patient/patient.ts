@@ -8,7 +8,7 @@ import { TableModule } from 'primeng/table';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { ToastModule } from 'primeng/toast';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { RatingModule } from 'primeng/rating';
@@ -71,6 +71,7 @@ interface expandedRows {
         RouterLink,
         ContextMenu,
         DatePicker,
+        DatePipe,
         Dialog,
         InputNumber
     ],
@@ -79,6 +80,8 @@ interface expandedRows {
     providers: [MessageService, ConfirmationService]
 })
 export class Patient implements OnInit, OnDestroy {
+
+
     selectedSymptom: Customer | null = null;
 
     selectedMeeting: Customer | null = null;
@@ -86,6 +89,7 @@ export class Patient implements OnInit, OnDestroy {
     symptomsCMItems: any[] = [];
 
     meetingsCMItems: any[] = [];
+
 
     isEditMode: boolean = false;
 
@@ -95,11 +99,13 @@ export class Patient implements OnInit, OnDestroy {
 
     displayPatientSymptomConfirmDialog: boolean = false;
 
-    displayAddSymptomDialog: boolean = false;
+    displayAddPatientSymptomDialog: boolean = false;
+
+
 
     patient: PatientDto = this.createEmptyPatient(); // Patient data to be displayed and edited, initialized to empty
 
-    meetings: MeetingDto[] = [];
+
 
     patientSymptoms: PatientSymptomDto[] = [];
 
@@ -109,19 +115,25 @@ export class Patient implements OnInit, OnDestroy {
 
     severities: number[] = [1, 2, 3];
 
-    symptom: SymptomDto = this.createEmptySymptom();
+    symptomToAdd: SymptomDto = this.createEmptySymptom();
 
-    patientSymptom: PatientSymptomDto = this.createEmptyPatientSymptom();
+    patientSymptomToAdd : PatientSymptomDto = this.createEmptyPatientSymptom();
+
+
+    meetings: MeetingDto[] = [];
 
     upcomingMeetings: MeetingDto[] = [];
 
     pastMeetings: MeetingDto[] = [];
 
+
     private _patientBackup: any = null;
 
-    private _backupPatientSymptoms: any[] = [];
+    private _patientSymptomsBackup: any[] = [];
+
 
     private destroy$ = new Subject<void>();
+
 
     @ViewChild('filter') filter!: ElementRef;
 
@@ -197,6 +209,7 @@ export class Patient implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
+
     editMeeting(customer: Customer | null) {
         //edit meeting logic here
     }
@@ -205,10 +218,11 @@ export class Patient implements OnInit, OnDestroy {
         //delete meeting logic here
     }
 
+
     enterEdit() {
         // create a shallow clone backup so cancel can restore previous state
         this._patientBackup = { ...this.patient };
-        this._backupPatientSymptoms = [ ...this.patientSymptoms ];
+        this._patientSymptomsBackup = [ ...this.patientSymptoms ];
         this.isEditMode = true;
     }
 
@@ -216,11 +230,6 @@ export class Patient implements OnInit, OnDestroy {
         if (this._patientBackup) {
             this.patient = { ...this._patientBackup };
             this._patientBackup = null;
-        }
-
-        if (this._backupPatientSymptoms) {
-            this.patientSymptoms = [...this._backupPatientSymptoms];
-            this._backupPatientSymptoms = [];
         }
 
         if (this.isNewPatientMode) {
@@ -244,44 +253,60 @@ export class Patient implements OnInit, OnDestroy {
         }
 
         if (this.isNewPatientMode) {
-            // create new patient
-            this.patient.id = ''; // clear temporary id before sending to server
-            this.patientFacade
-                .createPatient(this.patient)
-                .pipe(takeUntil(this.destroy$))
-                .subscribe({
-                    next: (created: PatientDto) => {
-                        // update local model with server response
-                        created.birthDate = this.toLocalDate(this.patient.birthDate);
-                        this.patient = created;
-                        this.isNewPatientMode = false;
-                        this.isEditMode = false;
-                        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Patient profile saved.' });
-                        //this.router.navigate(['/view/patient', created.id]);
-                    },
-                    error: (err) => {
-                        console.error('Failed to save patient', err);
-                        const detail = err?.message ?? 'Unknown error';
-                        this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
-                    }
-                });
+            this.createPatient();
             return;
         }
 
+        this.updatePatientSymptoms();
+
+        this.updatePatient();
+    }
+
+    updatePatientSymptoms(): void {
         this.patientSymptomFacade.updatePatientSymptoms(this.patientSymptoms);
         this.patientSymptomFacade.patientSymptomState$
             .pipe(
-                tap(uptdated => (
-                    this.patientSymptoms = uptdated,
-                    this._patientBackup = null
+                tap(updated => (
+                    this.patientSymptoms = updated,
+                        this._patientBackup = null
                 )),
                 takeUntil(this.destroy$)
             )
             .subscribe()
+    }
 
+    createPatient(): void {
+        // create new patient
+        this.patient.id = ''; // clear temporary id before sending to server
+        const created = { ...this.patient,
+        birthDate: this.tweakHours(this.patient.birthDate)};
 
         this.patientFacade
-            .updatePatient(this.patient.id, this.patient)
+            .createPatient(created)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (created: PatientDto) => {
+                    // update local model with server response
+                    created.birthDate = this.toLocalDate(this.patient.birthDate);
+                    this.patient = created;
+                    this.isNewPatientMode = false;
+                    this.isEditMode = false;
+                    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Patient profile saved.' });
+                    this.router.navigate(['/view/patient', created.id]); // navigate to newly created patient's page
+                },
+                error: (err) => {
+                    console.error('Failed to save patient', err);
+                    const detail = err?.message ?? 'Unknown error';
+                    this.messageService.add({ severity: 'error', summary: 'Save failed', detail });
+                }
+            });
+    }
+
+    updatePatient(): void {
+        const updated = { ...this.patient,
+            birthDate: this.tweakHours(this.patient.birthDate)};
+        this.patientFacade
+            .updatePatient(this.patient.id, updated)
             .pipe(take(1))
             .subscribe({
                 next: (saved: PatientDto) => {
@@ -297,50 +322,6 @@ export class Patient implements OnInit, OnDestroy {
                     this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
                 }
             });
-
-
-    }
-
-    openPatientConfirmDialog() {
-        this.displayPatientConfirmDialog = true;
-    }
-
-    openPatientSymptomConfirmDialog() {
-        this.displayPatientSymptomConfirmDialog = true;
-    }
-
-    closeConfirmDialog(type: string) {
-        switch (type) {
-            case 'patient':
-                this.displayPatientConfirmDialog = false;
-                break;
-
-            case 'symptom':
-                this.displayPatientSymptomConfirmDialog = false;
-                break;
-        }
-    }
-
-    closeAddSymptomDialog() {
-        this.displayAddSymptomDialog = false;
-    }
-
-    protected addSymptom() {
-        this.displayAddSymptomDialog = true;
-
-        this.patientSymptom = this.createEmptyPatientSymptom();
-
-        // fetch all symptoms for selection
-        this.symptomFacade.fetchAllSymptoms();
-        this.symptomFacade.symptomState$
-            .pipe(
-                tap((x) => {
-                    this.symptoms = x;
-                    this.getSymptomNames(x);
-                }),
-                takeUntil(this.destroy$)
-            )
-            .subscribe();
     }
 
     deletePatient() {
@@ -355,14 +336,61 @@ export class Patient implements OnInit, OnDestroy {
             .subscribe({
                 next: () => {
                     this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Patient profile deleted.' });
-                    this.router.navigate(['/menu', 'patients']); // navigate back to patient list
+                    this.router.navigate(['/view', 'patients']); // navigate back to patient list
                 },
                 error: (err) => {
                     console.error('Failed to delete patient', err);
                     this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
-                    this.closeConfirmDialog('patient')
+                    this.closeDialog('deletePatient')
                 }
             });
+    }
+
+
+    saveAddedSymptom() {
+        const createdPatientSymptom = this.patientSymptomToAdd;
+        const selectedSymptom = this.findSymptomByName(this.symptomToAdd.name);
+
+        if (selectedSymptom) {
+            createdPatientSymptom.symptom = selectedSymptom;
+        } else {
+            console.error('Failed to add symptom');
+            this.messageService.add({ severity: 'error', summary: 'Creation failed' });
+            return;
+        }
+
+        this.patientSymptomFacade
+            .createPatientSymptom(createdPatientSymptom)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (created: PatientSymptomDto) => {
+                    this.patientSymptomToAdd = created;
+                    this.displayAddPatientSymptomDialog = false;
+                    this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Symptom added successfully.' });
+                },
+                error: (err: any) => {
+                    console.error('Failed to add symptom', err);
+                    this.messageService.add({ severity: 'error', summary: 'Adding failed', detail: err?.message ?? 'Unknown error' });
+                }
+            });
+    }
+
+    addPatientSymptom() {
+        this.displayAddPatientSymptomDialog = true;
+
+        this.patientSymptomToAdd = this.createEmptyPatientSymptom();
+
+        // fetch all symptoms for selection
+        this.symptomFacade.fetchAllSymptoms();
+        this.symptomFacade.symptomState$
+            .pipe(
+                tap((x) => {
+                    this.symptoms = x;
+                    this.getSymptomNames(x);
+                }),
+                takeUntil(this.destroy$)
+            )
+            .subscribe();
     }
 
     deletePatientSymptom(patientSymptomId: string) {
@@ -372,35 +400,65 @@ export class Patient implements OnInit, OnDestroy {
             .subscribe({
                 next: () => {
                     this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'PatientSymptom profile deleted.' });
-                    this.closeConfirmDialog('symptom')
+                    this.closeDialog('deletePatientSymptom')
                 },
                 error: (err) => {
                     console.error('Failed to delete patientSymptom', err);
                     this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
-                    this.closeConfirmDialog('symptom')
+                    this.closeDialog('deletePatientSymptom')
                 }
             });
     }
 
+
+    openPatientConfirmDialog() {
+        this.displayPatientConfirmDialog = true;
+    }
+
+    openPatientSymptomConfirmDialog() {
+        this.displayPatientSymptomConfirmDialog = true;
+    }
+
+    closeDialog(type: string) {
+        switch (type) {
+            case 'deletePatient':
+                this.displayPatientConfirmDialog = false;
+                break;
+
+            case 'deletePatientSymptom':
+                this.displayPatientSymptomConfirmDialog = false;
+                break;
+
+            case 'addPatientSymptom':
+                this.displayAddPatientSymptomDialog = false;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
+
     // method to split and sort meetings into upcoming and past based on current date
-    private splitMeetings() {
+    splitMeetings() {
         const now = new Date();
 
-        this.upcomingMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) >= now).sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
+        this.upcomingMeetings = this.meetings.filter((m) => new Date(m.dateTime) >= now).sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
 
-        this.pastMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) < now).sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
+        this.pastMeetings = this.meetings.filter((m) => new Date(m.dateTime) < now).sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
     }
 
     getNextMeetingDate(id: string) {
         // find the next meeting for a patient
-        const nextMeeting = this.upcomingMeetings.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
-        return nextMeeting ? nextMeeting.date : null;
+        const nextMeeting = this.upcomingMeetings.sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())[0];
+        return nextMeeting ? nextMeeting.dateTime : null;
     }
 
     getPreviousMeetingDate(id: string) {
         // find the previous meeting for a patient
-        const previousMeeting = this.pastMeetings.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
-        return previousMeeting ? previousMeeting.date : null;
+        const previousMeeting = this.pastMeetings.sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime())[0];
+        return previousMeeting ? previousMeeting.dateTime : null;
     }
 
     toLocalDate(value: string | Date | null): Date {
@@ -422,7 +480,23 @@ export class Patient implements OnInit, OnDestroy {
         return new Date(value);
     }
 
-    createEmptyPatient(): PatientDto {
+
+    getSymptomNames(symptoms: SymptomDto[]) {
+        this.symptomNames = symptoms.map((s) => s.name).filter((name) => !this.patientSymptoms.some((ps) => ps.symptom.name === name));
+    }
+
+    findSymptomByName(name: string): SymptomDto | undefined {
+        return this.symptoms.find((s) => s.name === name);
+    }
+
+    private tweakHours(date: Date): Date {
+        const copy = new Date(date);
+        copy.setHours(copy.getHours() + 1);
+        return copy;
+    }
+
+
+    private createEmptyPatient(): PatientDto {
         return {
             id: '',
             name: '',
@@ -438,9 +512,6 @@ export class Patient implements OnInit, OnDestroy {
         };
     }
 
-    protected readonly confirm = confirm;
-
-
     private createEmptySymptom(): SymptomDto {
         return {
             id: '',
@@ -453,45 +524,10 @@ export class Patient implements OnInit, OnDestroy {
         return {
             id: '',
             patient: this.patient,
-            symptom: this.symptom,
+            symptom: this.symptomToAdd,
             severity: 0
         };
     }
 
-    getSymptomNames(symptoms: SymptomDto[]) {
-        this.symptomNames = symptoms.map((p) => p.name).filter((name) => !this.patientSymptoms.some((ps) => ps.symptom.name === name));
-    }
 
-    protected saveAddedSymptom() {
-        // create new meeting
-        const createdPatientSymptom = this.patientSymptom;
-        const selectedSymptom = this.findSymptomByName(this.symptom.name);
-
-        if (selectedSymptom) {
-            createdPatientSymptom.symptom = selectedSymptom;
-        } else {
-            console.error('Failed to add symptom');
-            this.messageService.add({ severity: 'error', summary: 'Creation failed' });
-            return;
-        }
-
-        this.patientSymptomFacade
-            .createPatientSymptom(createdPatientSymptom)
-            .pipe(takeUntil(this.destroy$))
-            .subscribe({
-                next: (created: PatientSymptomDto) => {
-                    this.patientSymptom = created;
-                    this.displayAddSymptomDialog = false;
-                    this.messageService.add({ severity: 'success', summary: 'Added', detail: 'Symptom added successfully.' });
-                },
-                error: (err: any) => {
-                    console.error('Failed to add symptom', err);
-                    this.messageService.add({ severity: 'error', summary: 'Adding failed', detail: err?.message ?? 'Unknown error' });
-                }
-            });
-    }
-
-    findSymptomByName(name: string): SymptomDto | undefined {
-        return this.symptoms.find((s) => s.name === name);
-    }
 }

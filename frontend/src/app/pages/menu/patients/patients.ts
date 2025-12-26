@@ -83,20 +83,20 @@ export class Patients implements OnInit, OnDestroy {
 
     getNextMeetingDate(id: string) {
         const patientsMeetings = this.meetings.filter(
-            m => m.patient.id === id && new Date(m.date) > new Date()
+            m => m.patient.id === id && new Date(m.dateTime) > new Date()
         );
         return patientsMeetings.sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        )[0]?.date ?? null;
+            (a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime()
+        )[0]?.dateTime ?? null;
     }
 
     getPreviousMeetingDate(id: string) {
         const patientsMeetings = this.meetings.filter(
-            m => m.patient.id === id && new Date(m.date) < new Date()
+            m => m.patient.id === id && new Date(m.dateTime) < new Date()
         );
         return patientsMeetings.sort(
-            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        )[0]?.date ?? null;
+            (a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()
+        )[0]?.dateTime ?? null;
     }
 
     formatDuration(isoDuration: string): string {

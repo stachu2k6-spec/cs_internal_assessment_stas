@@ -57,7 +57,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     patientsSurnames: string[] = [];
 
-    destroy$ = new Subject<void>();
+    destroy$: Subject<void> = new Subject<void>();
 
     constructor(
         private meetingFacade: MeetingFacade,
@@ -108,9 +108,10 @@ export class HomePage implements OnInit, OnDestroy {
 
         this.meetingFacade.fetchMultipleMonths([prev, current, next]);
     }
+
     meetingsToEvents(meetings: MeetingDto[]): EventInput[] {
         return meetings.map((meeting) => {
-            const start = this.buildStartDate(meeting.date, meeting.startTime);
+            const start = meeting.dateTime;
 
             return {
                 id: meeting.id,
@@ -155,7 +156,7 @@ export class HomePage implements OnInit, OnDestroy {
         this.isQuickScheduleVisible = true;
         this.meeting = this.createEmptyMeeting();
         this.meeting.id = 'newMeeting'; // assign temporary id
-        this.meeting.date = date;
+        this.meeting.dateTime = date;
         this.patient = this.createEmptyPatient();
 
         // fetch all patients for selection
@@ -178,19 +179,16 @@ export class HomePage implements OnInit, OnDestroy {
             // create new meeting
             const createdMeeting = {
                 patientId: patientId,
-                date: this.meeting.date,
-                startTime: this.getTimeHHMM(this.meeting.startTime),
-                duration: this.minutesToIsoDuration(this.meeting.duration),
-                notes: this.meeting.notes
+                dateTime: this.meeting.dateTime,
+                duration: this.meeting.duration,
+                notes: this.meeting.notes,
+                rating: this.meeting.rating
             };
             this.meetingFacade
                 .createMeeting(createdMeeting)
                 .pipe(takeUntil(this.destroy$))
                 .subscribe({
                     next: (created: MeetingDto) => {
-                        created.date = this.toLocalDate(created.date);
-                        created.startTime = this.toDateFromTimestamp(created.startTime);
-                        created.duration = this.getMinutesFromIsoDuration(created.duration);
                         this.meeting = created;
                         this.isQuickScheduleVisible = false;
                         this.messageService.add({ severity: 'success', summary: 'Created', detail: 'Meeting created successfully.' });
@@ -225,10 +223,11 @@ export class HomePage implements OnInit, OnDestroy {
         return {
             id: '',
             patient: this.createEmptyPatient(),
-            date: new Date(),
-            startTime: new Date(),
-            duration: '0',
-            notes: ''
+            dateTime: new Date(),
+            duration: 0,
+            notes: '',
+            rating: 0,
+            exercises: []
         };
     }
 
@@ -324,12 +323,12 @@ export class HomePage implements OnInit, OnDestroy {
         const now = new Date();
 
         const upcoming = meetings
-            .map(meeting => ({
-                meeting,
-                start: this.buildStartDate(meeting.date, meeting.startTime)
+            .map(m => ({
+                meeting: m,
+                date: new Date(m.dateTime)
             }))
-            .filter(x => x.start > now)
-            .sort((a, b) => a.start.getTime() - b.start.getTime());
+            .filter(m => m.date > now)
+            .sort((a, b) => a.date.getTime() - b.date.getTime());
 
         return upcoming[0].meeting;
     }

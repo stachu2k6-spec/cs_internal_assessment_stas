@@ -22,11 +22,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MeetingFacade } from '@/pages/service/meeting/meeting.facade';
 import { MeetingDto } from '@/pages/service/meeting/meeting.model';
 import { PatientDto } from '@/pages/service/patient/patient.model';
+import { ExerciseDto } from '@/pages/service/exercise/exercise.model';
 import { PatientFacade } from '@/pages/service/patient/patient.facade';
+import { ExerciseFacade } from '@/pages/service/exercise/exercise.facade';
 import { MessageService } from 'primeng/api';
 import { DatePickerModule } from 'primeng/datepicker';
-
-// rxjs
 import { Subject, of, pipe, take } from 'rxjs';
 import { takeUntil, switchMap, tap, catchError } from 'rxjs/operators';
 import { InputNumber } from 'primeng/inputnumber';
@@ -63,23 +63,24 @@ interface expandedRows {
         RouterLink,
         DatePickerModule,
         InputNumber,
-        Dialog,
-        AutoComplete
+        Dialog
     ],
     templateUrl: './meeting.html',
     styleUrl: './meeting.scss',
+    standalone: true,
     providers: [MessageService, CountryService]
 })
 export class Meeting implements OnInit, OnDestroy {
-    customers2: any[] = [];
-
-    statuses: any[] = [];
 
     isEditMode: boolean = false;
 
     isNewMeetingMode: boolean = false;
 
-    displayConfirmDialog: boolean = false;
+    displayDeleteMeetingDialog: boolean = false;
+
+    displayAddExerciseDialog: boolean = false;
+
+    displayDeleteExerciseDialog: boolean = false;
 
     meeting: MeetingDto = this.createEmptyMeeting(); // Meeting data to be displayed and edited, initialized to empty
 
@@ -87,21 +88,29 @@ export class Meeting implements OnInit, OnDestroy {
 
     patients: PatientDto[] = [];
 
+    suggestedExercises: ExerciseDto[] = [];
+
+    exercises: ExerciseDto[] = [];
+
+    exerciseNames: string[] = [];
+
+    exerciseToAdd: ExerciseDto = this.createEmptyExercise();
+
     patientsNames: string[] = [];
 
     patientsSurnames: string[] = [];
 
     private _meetingBackup: any = null;
 
-
-
-
     // destroy notifier for takeUntil
     private destroy$ = new Subject<void>();
+
+
 
     constructor(
         private meetingFacade: MeetingFacade,
         private patientFacade: PatientFacade,
+        private exerciseFacade: ExerciseFacade,
         private route: ActivatedRoute,
         private router: Router,
         private messageService: MessageService
@@ -131,7 +140,8 @@ export class Meeting implements OnInit, OnDestroy {
                     tap((x) => {
                         this.patients = x;
                         this.getNames(x);
-                        this.getSurnames(x); }),
+                        this.getSurnames(x);
+                    }),
                     takeUntil(this.destroy$)
                 )
                 .subscribe();
@@ -147,24 +157,23 @@ export class Meeting implements OnInit, OnDestroy {
             .pipe(
                 takeUntil(this.destroy$),
                 tap((x) => {
-                    x.date = this.toLocalDate(x.date);
-                    x.startTime = this.toDateFromTimestamp(x.startTime);
-                    x.duration = this.getMinutesFromIsoDuration(x.duration);
-                    this.meeting = x;
+                    this.meeting = {
+                        ...x,
+                        dateTime: new Date(x.dateTime)
+                    };
+
                     this.patientFacade
                         .fetchById(this.meeting.patient.id)
                         .pipe(
                             takeUntil(this.destroy$),
-                            tap((x) => {
-                                this.patient = x;
+                            tap((p) => {
+                                this.patient = p;
                             })
                         )
                         .subscribe();
                 })
             )
             .subscribe();
-
-
     }
 
     ngOnDestroy(): void {
@@ -202,7 +211,7 @@ export class Meeting implements OnInit, OnDestroy {
             return;
         }
 
-        if (!this.meeting.date || !this.meeting.startTime) {
+        if (!this.meeting.dateTime) {
             this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Date and start time are required.' });
             return;
         }
@@ -213,24 +222,23 @@ export class Meeting implements OnInit, OnDestroy {
                 // create new meeting
                 const createdMeeting = {
                     patientId: patientId,
-                    date: this.meeting.date,
-                    startTime: this.getTimeHHMM(this.meeting.startTime),
-                    duration: this.minutesToIsoDuration(this.meeting.duration),
-                    notes: this.meeting.notes
+                    dateTime: this.tweakHours(this.meeting.dateTime),
+                    duration: this.meeting.duration,
+                    notes: this.meeting.notes,
+                    rating: this.meeting.rating
                 };
                 this.meetingFacade
                     .createMeeting(createdMeeting)
                     .pipe(takeUntil(this.destroy$))
                     .subscribe({
                         next: (created: MeetingDto) => {
-                            created.date = this.toLocalDate(created.date);
-                            created.startTime = this.toDateFromTimestamp(created.startTime);
-                            created.duration = this.getMinutesFromIsoDuration(created.duration);
                             this.meeting = created;
+                            created.dateTime = new Date(created.dateTime);
                             this._meetingBackup = null;
                             this.isEditMode = false;
                             this.isNewMeetingMode = false;
                             this.messageService.add({ severity: 'success', summary: 'Created', detail: 'Meeting created successfully.' });
+                            this.router.navigate(['/view', 'meeting', created.id]); // navigate to newly created meeting
                         },
                         error: (err: any) => {
                             console.error('Failed to create meeting', err);
@@ -245,49 +253,101 @@ export class Meeting implements OnInit, OnDestroy {
             }
         }
 
+        this.updateMeeting();
+
+    }
+
+    updateMeeting() {
         const previousEditState = this.isEditMode;
         this.isEditMode = false;
 
-        try {
-            const updatedMeeting = {
-                id: this.meeting.id,
-                patient: this.patient,
-                date: this.meeting.date,
-                startTime: this.getTimeHHMM(this.meeting.startTime),
-                duration: this.minutesToIsoDuration(this.meeting.duration),
-                notes: this.meeting.notes
-            };
-            this.meetingFacade
-                .updateMeeting(this.meeting.id, updatedMeeting)
-                .pipe(takeUntil(this.destroy$)) // ensure unsubscribe on destroy
-                .subscribe({
-                    next: (saved: MeetingDto) => {
-                        saved.date = this.toLocalDate(saved.date);
-                        saved.startTime = this.toDateFromTimestamp(saved.startTime);
-                        saved.duration = this.getMinutesFromIsoDuration(this.meeting.duration);
-                        this.meeting = saved;
-                        this._meetingBackup = null;
-                        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Meeting saved successfully.' });
-                    },
-                    error: (err: any) => {
-                        console.error('Failed to save meeting', err);
-                        this.isEditMode = previousEditState;
-                        this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
-                    }
-                });
-        } catch (err: any) {
-            console.error('Save exception', err);
-            this.isEditMode = previousEditState;
-            this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+        const updatedMeeting = {
+            id: this.meeting.id,
+            patient: this.meeting.patient,
+            dateTime: this.tweakHours(this.meeting.dateTime),
+            duration: this.meeting.duration,
+            notes: this.meeting.notes,
+            rating: this.meeting.rating,
+            exercises: this.meeting.exercises
+        };
+        this.meetingFacade
+            .updateMeeting(this.meeting.id, updatedMeeting)
+            .pipe(takeUntil(this.destroy$)) // ensure unsubscribe on destroy
+            .subscribe({
+                next: (saved: MeetingDto) => {
+                    this.meeting = saved;
+                    saved.dateTime = new Date(saved.dateTime);
+                    this._meetingBackup = null;
+                    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Meeting saved successfully.' });
+                },
+                error: (err: any) => {
+                    console.error('Failed to save meeting', err);
+                    this.isEditMode = previousEditState;
+                    this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+                }
+            });
+    }
+
+    openDeleteMeetingDialog() {
+        this.displayDeleteMeetingDialog = true;
+    }
+
+    openAddExerciseDialog() {
+        this.displayAddExerciseDialog = true;
+
+        // fetch all exercises for selection
+        this.exerciseFacade.fetchAllExercises();
+        this.exerciseFacade.exerciseState$
+            .pipe(
+                tap((x) => {
+                    this.exercises = this.filterAvailableExercises(x);
+                    this.exerciseNames = x.map((e) => e.name);
+                }),
+                takeUntil(this.destroy$)
+            )
+            .subscribe();
+    }
+
+    openDeleteExerciseDialog(event: Event) {
+        event.stopPropagation();
+        this.displayDeleteExerciseDialog = true;
+    }
+
+    addExercise() {
+        this.exerciseToAdd = this.findExerciseByName(this.exerciseToAdd.name) || this.exerciseToAdd;
+        this.meeting.exercises = [
+            ...this.meeting.exercises,
+            this.exerciseToAdd
+        ];
+        this.exerciseToAdd = this.createEmptyExercise();
+        this.displayAddExerciseDialog = false;
+
+        this.updateMeeting();
+    }
+
+    protected removeExercise(exerciseId: string) {
+        this.meeting.exercises = this.meeting.exercises.filter(e => e.id !== exerciseId);
+        this.updateMeeting();
+    }
+
+
+
+    protected closeDialog(type: string) {
+        switch (type) {
+            case 'deleteMeeting':
+                this.displayDeleteMeetingDialog = false;
+                break;
+            case 'addExercise':
+                this.displayAddExerciseDialog = false;
+                break;
+
+            case 'deleteExercise':
+                this.displayDeleteExerciseDialog = false;
+                break;
+
+            default:
+                break;
         }
-    }
-
-    openConfirmDialog() {
-        this.displayConfirmDialog = true;
-    }
-
-    closeConfirmDialog() {
-        this.displayConfirmDialog = false;
     }
 
     deleteMeeting() {
@@ -323,82 +383,52 @@ export class Meeting implements OnInit, OnDestroy {
         return this.patients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
     }
 
-    /** Format ISO 8601 duration to number format */
-    getMinutesFromIsoDuration(iso: string | number): number {
-        if (typeof iso === 'number') return iso;
-
-        const regex = /PT(?:(\d+)H)?(?:(\d+)M)?/;
-
-        const match = iso.match(regex);
-
-        if (!match) return 0;
-
-        const hours = match[1] ? parseInt(match[1], 10) : 0;
-        const minutes = match[2] ? parseInt(match[2], 10) : 0;
-
-        return hours * 60 + minutes;
-    }
-
-    minutesToIsoDuration(minutes: number | string): string {
-        if (typeof minutes === 'string') {
-            minutes = parseInt(minutes, 10);
-        }
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-
-        let iso = 'PT';
-
-        if (hours > 0) iso += `${hours}H`;
-        if (mins > 0) iso += `${mins}M`;
-
-        // ISO requires at least one field
-        if (iso === 'PT') iso = 'PT0M';
-
-        return iso;
-    }
-
-    toDateFromTimestamp(timestamp: any): Date {
-        const [hours, minutes, seconds] = timestamp.split(':').map(Number);
-
-        const date = new Date();
-        date.setHours(hours, minutes, seconds, 0);
-
-        return date;
-    }
-
-    toLocalDate(value: string | Date | null): Date {
-        if (!value) return new Date();
-
-        if (value instanceof Date) return value;
-
-        const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (match) {
-            const year = +match[1];
-            const month = +match[2] - 1;
-            const day = +match[3];
-            return new Date(year, month, day);
+    onDateTimeChange(newDate: Date) {
+        if (!this.meeting.dateTime) {
+            this.meeting.dateTime = newDate;
+            return;
         }
 
-        return new Date(value);
+        const old = this.meeting.dateTime;
+
+        newDate.setHours(
+            old.getHours(),
+            old.getMinutes(),
+            0,
+            0
+        );
+
+        this.meeting.dateTime = newDate;
     }
 
-    getTimeHHMM(date: Date | string): string {
-        if (typeof date === 'string') {
-            return date;
-        }
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
+    private tweakHours(date: Date): Date {
+        const copy = new Date(date);
+        copy.setHours(copy.getHours() + 1);
+        return copy;
     }
+
+    filterAvailableExercises(allExercises: ExerciseDto[]): ExerciseDto[] {
+        const selectedIds = new Set(
+            this.meeting.exercises.map(e => e.id)
+        );
+
+        return allExercises.filter(e => !selectedIds.has(e.id));
+    }
+
+    findExerciseByName(name: string): ExerciseDto | undefined {
+        return this.exercises.find((e) => e.name === name);
+    }
+
 
     createEmptyMeeting() {
         return {
             id: '',
             patient: this.createEmptyPatient(),
-            date: new Date(),
-            startTime: new Date(),
-            duration: '0',
-            notes: ''
+            dateTime: new Date(),
+            duration: 0,
+            notes: '',
+            rating: 0,
+            exercises: []
         };
     }
 
@@ -416,6 +446,15 @@ export class Meeting implements OnInit, OnDestroy {
             activityLevel: '',
             photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
         };
+    }
+
+
+    private createEmptyExercise(): ExerciseDto {
+        return {
+            id: '',
+            name: '',
+            notes: ''
+        }
     }
 
 }

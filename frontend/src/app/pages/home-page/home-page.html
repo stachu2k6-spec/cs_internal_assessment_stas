@@ -25,10 +25,10 @@
             Patient: {{nextMeeting.patient.name}} {{nextMeeting.patient.surname}}
         </p>
         <p class="m-0">
-            Meeting Date: {{ nextMeeting.date | date:'yyyy-MM-dd' }}
+            Meeting Date: {{ nextMeeting.dateTime | date:'yyyy-MM-dd' }}
         </p>
         <p class="m-0">
-            Meeting Time: {{ nextMeeting.startTime | date: 'HH:mm' }}
+            Meeting Time: {{ nextMeeting.dateTime | date: 'HH:mm' }}
         </p>
     </p-panel>
 
@@ -50,7 +50,7 @@
                     <div class="flex flex-col gap-2">
                         <label>Date</label>
                         <p-datepicker
-                            [(ngModel)]="meeting.date"
+                            [(ngModel)]="meeting.dateTime"
                             [disabled]="true"
                             [showIcon]="true"
                             [showButtonBar]="true"
@@ -61,7 +61,7 @@
 
                     <div class="flex flex-col gap-2">
                         <label for="surname1">Time</label>
-                        <p-datepicker inputId="calendar-timeonly" [(ngModel)]="meeting.startTime" [timeOnly]="true" ></p-datepicker>
+                        <p-datepicker inputId="calendar-timeonly" [(ngModel)]="meeting.dateTime" [timeOnly]="true" ></p-datepicker>
                     </div>
 
                     <div class="flex flex-col gap-2">
@@ -69,10 +69,6 @@
                         <p-inputnumber [(ngModel)]="meeting.duration" showButtons mode="decimal"></p-inputnumber>
                     </div>
 
-                    <!--                                < TODO: div class="flex flex-col gap-2">-->
-                    <!--                                    <div>Rating</div>-->
-                    <!--                                    <p-rating [(ngModel)]="meeting.ratingValue" [disabled]="!isEditMode"/>-->
-                    <!--                                </div>-->
                 </div>
                 <div class="card flex flex-col gap-4">
                     <div class="col flex items-center justify-center font-semibold text-xl">Notes</div>

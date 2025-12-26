@@ -1,7 +1,9 @@
 package com.example.demo.domains.meetings;
 
+import com.example.demo.controllers.exercises.ExerciseDto;
 import com.example.demo.controllers.meetings.CreateMeetingDto;
 import com.example.demo.controllers.meetings.MeetingDto;
+import com.example.demo.repository.exercises.ExerciseRepository;
 import com.example.demo.repository.meetings.MeetingEntity;
 import com.example.demo.repository.meetings.MeetingRepository;
 import com.example.demo.repository.patients.PatientEntity;
@@ -11,8 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,13 +23,16 @@ public class MeetingFacade {
 
     private final MeetingRepository meetingRepository;
     private final PatientRepository patientRepository;
+    private final ExerciseRepository exerciseRepository;
     private final MeetingMapper meetingMapper;
 
     public MeetingFacade(MeetingRepository meetingRepository,
                          PatientRepository patientRepository,
+                         ExerciseRepository exerciseRepository,
                          MeetingMapper meetingMapper) {
         this.meetingRepository = meetingRepository;
         this.patientRepository = patientRepository;
+        this.exerciseRepository = exerciseRepository;
         this.meetingMapper = meetingMapper;
     }
 
@@ -59,13 +64,16 @@ public class MeetingFacade {
 
         // 2. Convert DTO → Entity (without patient)
         MeetingEntity meeting = new MeetingEntity();
-        meeting.setDate(dto.getDate());
-        meeting.setStartTime(dto.getStartTime());
+        meeting.setDateTime(dto.getDateTime());
         meeting.setDuration(dto.getDuration());
         meeting.setNotes(dto.getNotes());
+        meeting.setRating(dto.getRating());
 
         // 3. Attach the PatientEntity
         meeting.setPatient(patient);
+
+        // 3.5 Create empty exercises set
+        meeting.setExercises(new HashSet<>());
 
         // 4. Save
         MeetingEntity saved = meetingRepository.save(meeting);
@@ -87,10 +95,21 @@ public class MeetingFacade {
         ));
 
         meeting.setPatient(patient);
-        meeting.setDate(meetingDto.getDate());
-        meeting.setStartTime(meetingDto.getStartTime());
+        meeting.setDateTime(meetingDto.getDateTime());
         meeting.setDuration(meetingDto.getDuration());
         meeting.setNotes(meetingDto.getNotes());
+        meeting.setRating(meetingDto.getRating());
+
+        meeting.setExercises(
+                new HashSet<>(
+                        exerciseRepository.findAllById(
+                                meetingDto.getExercises().stream()
+                                        .map(ExerciseDto::getId)
+                                        .toList()
+                        )
+                )
+        );
+
 
         MeetingEntity saved = meetingRepository.save(meeting);
 

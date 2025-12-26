@@ -1,6 +1,6 @@
 <div class="card">
     <p-toast position="top-right"></p-toast>
-    <div class="font-semibold text-xl mb-4">Patient profile</div>
+    <div class="font-semibold text-2xl mb-4">Patient profile</div>
     <p-splitter [style]="{ height: '800px' }" [panelSizes]="[70, 30]" [minSizes]="[10, 0]" styleClass="mb-8">
         <ng-template #panel>
             <p-splitter layout="vertical" [panelSizes]="[20, 80]">
@@ -20,9 +20,9 @@
 
                             <div class="flex flex-col gap-2">
                                 <div>
-                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">Previous meeting: {{ getPreviousMeetingDate(patient.id)}}</span>
+                                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">Previous meeting: {{ getPreviousMeetingDate(patient.id) | date:'dd.MM.yyyy'}}</span>
                                     <div class="text-lg font-medium mt-1">
-                                        Next meeting: {{ getNextMeetingDate(patient.id) }}
+                                        Next meeting: {{ getNextMeetingDate(patient.id) | date:'dd.MM.yyyy' }}
                                     </div>
                                 </div>
                             </div>
@@ -70,7 +70,7 @@
                                     <span>Are you sure you want to delete patient?</span>
                                 </div>
                                 <ng-template #footer>
-                                    <p-button label="No" icon="pi pi-times" (click)="closeConfirmDialog('patient')" text severity="secondary" />
+                                    <p-button label="No" icon="pi pi-times" (click)="closeDialog('deletePatient')" text severity="secondary" />
                                     <p-button label="Yes" icon="pi pi-check" (click)="deletePatient()" severity="danger" outlined autofocus />
                                 </ng-template>
                             </p-dialog>
@@ -176,7 +176,8 @@
 
                                     <td
                                         style="min-width:100px"
-                                        [routerLink]="['/view','symptom']">
+                                        [routerLink]="['/view','symptom', patientSymptom.symptom.id]"
+                                    >
                                         {{ patientSymptom.symptom.name }}
                                     </td>
 
@@ -206,7 +207,7 @@
                                                 <span>Are you sure you want to delete symptom?</span>
                                             </div>
                                             <ng-template #footer>
-                                                <p-button label="No" icon="pi pi-times" (click)="closeConfirmDialog('symptom')" text severity="secondary" />
+                                                <p-button label="No" icon="pi pi-times" (click)="closeDialog('deletePatientSymptom')" text severity="secondary" />
                                                 <p-button label="Yes" icon="pi pi-check" (click)="deletePatientSymptom(patientSymptom.id)" severity="danger" outlined autofocus />
                                             </ng-template>
                                         </p-dialog>
@@ -216,25 +217,39 @@
                         </p-table>
 
                         <div class="w-full flex justify-center mt-4">
-                            <p-button (onClick)="addSymptom()" label="Add Symptom" icon="pi pi-plus" iconPos="right"></p-button>
+                            <p-button
+                                *ngIf="!isNewPatientMode"
+                                (onClick)="addPatientSymptom()"
+                                label="Add Symptom"
+                                icon="pi pi-plus"
+                                iconPos="right"
+                            ></p-button>
 
-                            <p-dialog header="Add symptom" [(visible)]="displayAddSymptomDialog"  [modal]="true">
+                            <p-button
+                                *ngIf="isNewPatientMode"
+                                disabled = 'true'
+                                label="Create patient to add symptom"
+                                icon="pi pi-plus"
+                                iconPos="right"
+                            ></p-button>
+
+                            <p-dialog header="Add symptom" [(visible)]="displayAddPatientSymptomDialog"  [modal]="true">
                                 <div class="card flex flex-row gap-4 " [style]="{ height: '300px'}">
                                     <div class="card flex flex-col gap-4">
                                         <div class="font-semibold text-xl flex items-center justify-center">Select Symptom</div>
                                         <div class="flex flex-col gap-2">
-                                            <p-select [(ngModel)]="symptom.name" [options]="symptomNames" placeholder="Select" />
+                                            <p-select [(ngModel)]="symptomToAdd.name" [options]="symptomNames" placeholder="Select" />
                                         </div>
                                     </div>
                                     <div class="card flex flex-col gap-4">
                                         <div class="font-semibold text-xl flex items-center justify-center">Select Severity</div>
                                         <div class="flex flex-col gap-2">
-                                            <p-select [(ngModel)]="patientSymptom.severity" [options]="severities" placeholder="Select" />
+                                            <p-select [(ngModel)]="patientSymptomToAdd.severity" [options]="severities" placeholder="Select" />
                                         </div>
                                     </div>
                                 </div>
                                 <ng-template #footer>
-                                    <p-button label="Cancel" icon="pi pi-times" (click)="closeAddSymptomDialog()" text severity="danger" />
+                                    <p-button label="Cancel" icon="pi pi-times" (click)="closeDialog('addPatientSymptom')" text severity="danger" />
                                     <p-button label="Add" icon="pi pi-check" (click)="saveAddedSymptom()" severity="success" outlined autofocus />
                                 </ng-template>
                             </p-dialog>
@@ -245,7 +260,21 @@
                     <div class="card">
                         <div class="w-full flex justify-between">
                             <div class="font-semibold text-xl mb-4">Meetings</div>
-                            <p-button label="Schedule Meeting" icon="pi pi-plus" iconPos="right"></p-button>
+                            <p-button
+                                *ngIf="!isNewPatientMode"
+                                label="Schedule Meeting"
+                                icon="pi pi-plus"
+                                iconPos="right"
+                            ></p-button>
+
+                            <p-button
+                                *ngIf="isNewPatientMode"
+                                disabled = 'true'
+                                label="Create patient to schedule meeting"
+                                icon="pi pi-plus"
+                                iconPos="right"
+                            ></p-button>
+
                         </div>
                         <p-contextMenu #cmMeetings [model]="meetingsCMItems"></p-contextMenu>
 
@@ -281,8 +310,8 @@
                                                     [pContextMenuRow]="meeting"
                                                     (contextmenu)="$event.preventDefault()"
                                                 >
-                                                    <td class="font-bold">{{ meeting.date }}</td>
-                                                    <td style="min-width:100px">{{ meeting.startTime }}</td>
+                                                    <td class="font-bold">{{ meeting.dateTime | date:'dd.MM.yyyy' }}</td>
+                                                    <td style="min-width:100px">{{ meeting.dateTime | date: 'HH:mm' }}</td>
                                                     <td style="min-width:100px">{{ meeting.duration }}</td>
                                                 </tr>
                                             </ng-template>
@@ -315,8 +344,8 @@
                                                     [pContextMenuRow]="meeting"
                                                     (contextmenu)="$event.preventDefault()"
                                                 >
-                                                    <td class="font-bold">{{ meeting.date }}</td>
-                                                    <td style="min-width:100px">{{ meeting.startTime }}</td>
+                                                    <td class="font-bold">{{ meeting.dateTime | date:'dd.MM.yyyy' }}</td>
+                                                    <td style="min-width:100px">{{ meeting.dateTime | date: 'HH:mm' }}</td>
                                                     <td style="min-width:100px">{{ meeting.duration }}</td>
                                                 </tr>
                                             </ng-template>

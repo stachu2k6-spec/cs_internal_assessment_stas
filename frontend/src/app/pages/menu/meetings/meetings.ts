@@ -29,9 +29,10 @@ import { DatePicker } from 'primeng/datepicker';
 
 @Component({
     selector: 'app-meeting-database',
-    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, TableModule, FormsModule, RouterLink, DatePicker],
+    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, TableModule, FormsModule, RouterLink, DatePicker, DatePipe],
     templateUrl: './meetings.html',
     styleUrl: './meetings.scss',
+    standalone: true,
     providers: []
 })
 export class Meetings implements OnInit, OnDestroy {
@@ -110,8 +111,8 @@ export class Meetings implements OnInit, OnDestroy {
     private splitMeetings() {
         const now = new Date();
 
-        this.upcomingMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) >= now).sort((a, b) => new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime());
+        this.upcomingMeetings = this.meetings.filter((m) => new Date(m.dateTime) >= now).sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime());
 
-        this.pastMeetings = this.meetings.filter((m) => new Date(m.date + 'T' + m.startTime) < now).sort((a, b) => new Date(b.date + 'T' + b.startTime).getTime() - new Date(a.date + 'T' + a.startTime).getTime());
+        this.pastMeetings = this.meetings.filter((m) => new Date(m.dateTime) < now).sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
     }
 }
