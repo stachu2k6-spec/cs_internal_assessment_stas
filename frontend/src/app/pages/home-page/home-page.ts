@@ -57,7 +57,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     patientsSurnames: string[] = [];
 
-    destroy$ = new Subject<void>();
+    destroy$: Subject<void> = new Subject<void>();
 
     constructor(
         private meetingFacade: MeetingFacade,
@@ -322,12 +322,12 @@ export class HomePage implements OnInit, OnDestroy {
         const now = new Date();
 
         const upcoming = meetings
-            .map(meeting => ({
-                meeting,
-                start: meeting.dateTime
+            .map(m => ({
+                meeting: m,
+                date: new Date(m.dateTime)
             }))
-            .filter(x => x.start > now)
-            .sort((a, b) => a.start.getTime() - b.start.getTime());
+            .filter(m => m.date > now)
+            .sort((a, b) => a.date.getTime() - b.date.getTime());
 
         return upcoming[0].meeting;
     }

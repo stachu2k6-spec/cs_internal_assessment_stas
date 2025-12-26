@@ -5,13 +5,14 @@ import com.example.demo.controllers.patients.PatientDto;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
 public class MeetingDto {
     private UUID id;
     private PatientDto patient;
-    private LocalDate dateTime;
+    private LocalDateTime dateTime;
     private int duration;
     private String notes;
     private double rating;
@@ -19,7 +20,7 @@ public class MeetingDto {
     public MeetingDto() {
     }
 
-    public MeetingDto(String id,  PatientDto patient, LocalDate dateTime, int duration, String notes, double rating) {
+    public MeetingDto(String id, PatientDto patient, LocalDateTime dateTime, int duration, String notes, double rating) {
         this.id = UUID.fromString(id);
         this.patient = patient;
         this.dateTime = dateTime;
@@ -44,11 +45,11 @@ public class MeetingDto {
         this.patient = patient;
     }
 
-    public LocalDate getDateTime() {
+    public LocalDateTime getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDate dateTime) {
+    public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
     }
 

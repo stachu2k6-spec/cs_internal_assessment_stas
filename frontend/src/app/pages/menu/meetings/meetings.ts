@@ -29,9 +29,10 @@ import { DatePicker } from 'primeng/datepicker';
 
 @Component({
     selector: 'app-meeting-database',
-    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, TableModule, FormsModule, RouterLink, DatePicker],
+    imports: [Button, IconField, InputIcon, InputText, Toolbar, Tab, TabList, TabPanel, TabPanels, Tabs, ButtonDirective, TableModule, FormsModule, RouterLink, DatePicker, DatePipe],
     templateUrl: './meetings.html',
     styleUrl: './meetings.scss',
+    standalone: true,
     providers: []
 })
 export class Meetings implements OnInit, OnDestroy {

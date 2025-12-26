@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ public class MeetingEntity {
     @JoinColumn(name = "patient")
     private PatientEntity patient;
 
-    private LocalDate dateTime;
+    private LocalDateTime dateTime;
     private int duration;
     private String notes;
     private double rating;
@@ -43,12 +44,12 @@ public class MeetingEntity {
         this.patient = patient;
     }
 
-    public LocalDate getDateTime() {
+    public LocalDateTime getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDate date) {
-        this.dateTime = date;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
     }
 
     public int getDuration() {

@@ -67,6 +67,7 @@ interface expandedRows {
     ],
     templateUrl: './meeting.html',
     styleUrl: './meeting.scss',
+    standalone: true,
     providers: [MessageService, CountryService]
 })
 export class Meeting implements OnInit, OnDestroy {
@@ -91,9 +92,6 @@ export class Meeting implements OnInit, OnDestroy {
     patientsSurnames: string[] = [];
 
     private _meetingBackup: any = null;
-
-
-
 
     // destroy notifier for takeUntil
     private destroy$ = new Subject<void>();
@@ -130,7 +128,8 @@ export class Meeting implements OnInit, OnDestroy {
                     tap((x) => {
                         this.patients = x;
                         this.getNames(x);
-                        this.getSurnames(x); }),
+                        this.getSurnames(x);
+                    }),
                     takeUntil(this.destroy$)
                 )
                 .subscribe();
@@ -146,23 +145,23 @@ export class Meeting implements OnInit, OnDestroy {
             .pipe(
                 takeUntil(this.destroy$),
                 tap((x) => {
-                    x.dateTime = this.toLocalDate(x.dateTime);
-                    x.duration = this.getMinutesFromIsoDuration(x.duration);
-                    this.meeting = x;
+                    this.meeting = {
+                        ...x,
+                        dateTime: new Date(x.dateTime)
+                    };
+
                     this.patientFacade
                         .fetchById(this.meeting.patient.id)
                         .pipe(
                             takeUntil(this.destroy$),
-                            tap((x) => {
-                                this.patient = x;
+                            tap((p) => {
+                                this.patient = p;
                             })
                         )
                         .subscribe();
                 })
             )
             .subscribe();
-
-
     }
 
     ngOnDestroy(): void {
@@ -211,7 +210,7 @@ export class Meeting implements OnInit, OnDestroy {
                 // create new meeting
                 const createdMeeting = {
                     patientId: patientId,
-                    dateTime: this.meeting.dateTime,
+                    dateTime: this.tweakHours(this.meeting.dateTime),
                     duration: this.meeting.duration,
                     notes: this.meeting.notes,
                     rating: this.meeting.rating
@@ -222,10 +221,12 @@ export class Meeting implements OnInit, OnDestroy {
                     .subscribe({
                         next: (created: MeetingDto) => {
                             this.meeting = created;
+                            created.dateTime = new Date(created.dateTime);
                             this._meetingBackup = null;
                             this.isEditMode = false;
                             this.isNewMeetingMode = false;
                             this.messageService.add({ severity: 'success', summary: 'Created', detail: 'Meeting created successfully.' });
+                            this.router.navigate(['/view', 'meeting', created.id]); // navigate to newly created meeting
                         },
                         error: (err: any) => {
                             console.error('Failed to create meeting', err);
@@ -243,28 +244,26 @@ export class Meeting implements OnInit, OnDestroy {
         const previousEditState = this.isEditMode;
         this.isEditMode = false;
 
-        try {
-            const updatedMeeting = this.meeting;
-            this.meetingFacade
-                .updateMeeting(this.meeting.id, updatedMeeting)
-                .pipe(takeUntil(this.destroy$)) // ensure unsubscribe on destroy
-                .subscribe({
-                    next: (saved: MeetingDto) => {
-                        this.meeting = saved;
-                        this._meetingBackup = null;
-                        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Meeting saved successfully.' });
-                    },
-                    error: (err: any) => {
-                        console.error('Failed to save meeting', err);
-                        this.isEditMode = previousEditState;
-                        this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
-                    }
-                });
-        } catch (err: any) {
-            console.error('Save exception', err);
-            this.isEditMode = previousEditState;
-            this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
-        }
+        const updatedMeeting = {
+            ...this.meeting,
+            dateTime: this.tweakHours(this.meeting.dateTime)
+        };
+        this.meetingFacade
+            .updateMeeting(this.meeting.id, updatedMeeting)
+            .pipe(takeUntil(this.destroy$)) // ensure unsubscribe on destroy
+            .subscribe({
+                next: (saved: MeetingDto) => {
+                    this.meeting = saved;
+                    saved.dateTime = new Date(saved.dateTime);
+                    this._meetingBackup = null;
+                    this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Meeting saved successfully.' });
+                },
+                error: (err: any) => {
+                    console.error('Failed to save meeting', err);
+                    this.isEditMode = previousEditState;
+                    this.messageService.add({ severity: 'error', summary: 'Save failed', detail: err?.message ?? 'Unknown error' });
+                }
+            });
     }
 
     openConfirmDialog() {
@@ -308,73 +307,30 @@ export class Meeting implements OnInit, OnDestroy {
         return this.patients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
     }
 
-    /** Format ISO 8601 duration to number format */
-    getMinutesFromIsoDuration(iso: string | number): number {
-        if (typeof iso === 'number') return iso;
-
-        const regex = /PT(?:(\d+)H)?(?:(\d+)M)?/;
-
-        const match = iso.match(regex);
-
-        if (!match) return 0;
-
-        const hours = match[1] ? parseInt(match[1], 10) : 0;
-        const minutes = match[2] ? parseInt(match[2], 10) : 0;
-
-        return hours * 60 + minutes;
-    }
-
-    minutesToIsoDuration(minutes: number | string): string {
-        if (typeof minutes === 'string') {
-            minutes = parseInt(minutes, 10);
-        }
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-
-        let iso = 'PT';
-
-        if (hours > 0) iso += `${hours}H`;
-        if (mins > 0) iso += `${mins}M`;
-
-        // ISO requires at least one field
-        if (iso === 'PT') iso = 'PT0M';
-
-        return iso;
-    }
-
-    toDateFromTimestamp(timestamp: any): Date {
-        const [hours, minutes, seconds] = timestamp.split(':').map(Number);
-
-        const date = new Date();
-        date.setHours(hours, minutes, seconds, 0);
-
-        return date;
-    }
-
-    toLocalDate(value: string | Date | null): Date {
-        if (!value) return new Date();
-
-        if (value instanceof Date) return value;
-
-        const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (match) {
-            const year = +match[1];
-            const month = +match[2] - 1;
-            const day = +match[3];
-            return new Date(year, month, day);
+    onDateTimeChange(newDate: Date) {
+        if (!this.meeting.dateTime) {
+            this.meeting.dateTime = newDate;
+            return;
         }
 
-        return new Date(value);
+        const old = this.meeting.dateTime;
+
+        newDate.setHours(
+            old.getHours(),
+            old.getMinutes(),
+            0,
+            0
+        );
+
+        this.meeting.dateTime = newDate;
     }
 
-    getTimeHHMM(date: Date | string): string {
-        if (typeof date === 'string') {
-            return date;
-        }
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
+    private tweakHours(date: Date): Date {
+        const copy = new Date(date);
+        copy.setHours(copy.getHours() + 1);
+        return copy;
     }
+
 
     createEmptyMeeting() {
         return {
@@ -402,5 +358,6 @@ export class Meeting implements OnInit, OnDestroy {
             photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
         };
     }
+
 
 }

@@ -3,12 +3,13 @@ package com.example.demo.controllers.meetings;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
 public class CreateMeetingDto {
     private UUID patientId;
-    private LocalDate dateTime;
+    private LocalDateTime dateTime;
     private int duration;
     private String notes;
     private double rating;
@@ -16,7 +17,7 @@ public class CreateMeetingDto {
     public CreateMeetingDto() {
     }
 
-    public CreateMeetingDto(String patientId, LocalDate dateTime, int duration, String notes, double rating) {
+    public CreateMeetingDto(String patientId, LocalDateTime dateTime, int duration, String notes, double rating) {
         this.patientId = UUID.fromString(patientId);
         this.dateTime = dateTime;
         this.duration = duration;
@@ -32,11 +33,11 @@ public class CreateMeetingDto {
         this.patientId = patientId;
     }
 
-    public LocalDate getDateTime() {
+    public LocalDateTime getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(LocalDate dateTime) {
+    public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
     }
 

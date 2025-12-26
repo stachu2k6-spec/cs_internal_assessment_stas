@@ -90,8 +90,7 @@
                                         [(ngModel)]="patient.name"
                                         [options]="patientsNames"
                                         placeholder="Select" [
-                                        disabled="!isNewMeetingMode"
-                                    />
+                                        [disabled]="!isNewMeetingMode"></p-select>
 
                                     <input
                                         *ngIf="!isNewMeetingMode"
@@ -110,8 +109,7 @@
                                         [(ngModel)]="patient.surname"
                                         [options]="patientsSurnames"
                                         placeholder="Select"
-                                        [disabled]="!isNewMeetingMode"
-                                    />
+                                        [disabled]="!isNewMeetingMode"></p-select>
 
                                     <input
                                         *ngIf="!isNewMeetingMode"
@@ -126,7 +124,8 @@
                                 <div class="flex flex-col gap-2">
                                     <label>Date</label>
                                     <p-datepicker
-                                        [(ngModel)]="meeting.dateTime"
+                                        [ngModel]="meeting.dateTime"
+                                        (ngModelChange)="onDateTimeChange($event)"
                                         [disabled]="!isEditMode"
                                         [showIcon]="true"
                                         [showButtonBar]="true"
