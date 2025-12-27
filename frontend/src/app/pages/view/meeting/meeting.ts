@@ -264,6 +264,7 @@ export class Meeting implements OnInit, OnDestroy {
         }
 
         this.updateMeeting();
+        this.generateSuggestedExercises();
 
     }
 
@@ -311,7 +312,7 @@ export class Meeting implements OnInit, OnDestroy {
             .pipe(
                 tap((x) => {
                     this.exercises = this.filterAvailableExercises(x);
-                    this.exerciseNames = x.map((e) => e.name);
+                    this.exerciseNames = this.exercises.map((e) => e.name);
                 }),
                 takeUntil(this.destroy$)
             )
@@ -336,9 +337,19 @@ export class Meeting implements OnInit, OnDestroy {
         this.generateSuggestedExercises()
     }
 
+    protected addSuggestedExercise(exercise: ExerciseDto) {
+        this.meeting.exercises = [
+            ...this.meeting.exercises,
+            exercise
+        ];
+        this.updateMeeting();
+        this.generateSuggestedExercises();
+    }
+
     protected removeExercise(exerciseId: string) {
         this.meeting.exercises = this.meeting.exercises.filter(e => e.id !== exerciseId);
         this.updateMeeting();
+        this.generateSuggestedExercises();
     }
 
 
@@ -564,5 +575,6 @@ export class Meeting implements OnInit, OnDestroy {
             notes: ''
         }
     }
+
 
 }
