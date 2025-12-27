@@ -187,17 +187,26 @@
             <p-splitter layout="vertical" [panelSizes]="[40, 60]">
                 <ng-template #panel>
                     <div class="card">
-                        <p-table [value]="suggestedExercises" [scrollable]="true" scrollHeight="250px" styleClass="mt-4">
+                        <p-table
+                            [value]="suggestedExercises"
+                            [scrollable]="true"
+                            scrollHeight="250px"
+                            styleClass="mt-4"
+                        >
                             <ng-template #header>
                                 <tr>
-                                    <th class="text-xl" style="min-width:300px">Suggested Exercises</th>
+                                    <th class="text-xl" style="min-width:100px">Suggested Exercise</th>
+                                    <th class="text-xl" style="min-width:100px">Score</th>
                                 </tr>
                             </ng-template>
-                            <ng-template #body let-customer>
+
+                            <ng-template #body let-exercise let-i="rowIndex">
                                 <tr
                                     class="hover-scale cursor-pointer"
-                                    [routerLink]="['/view','exercise']">
-                                    <td style="min-width:100px">{{ customer.id }}</td>
+                                    [routerLink]="['/view','exercise', exercise.id]"
+                                >
+                                    <td style="min-width:100px">{{ exercise.name }}</td>
+                                    <td style="min-width:100px">{{ scores[i] }}</td>
                                 </tr>
                             </ng-template>
                         </p-table>

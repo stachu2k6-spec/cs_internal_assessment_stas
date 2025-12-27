@@ -42,6 +42,24 @@ export class ExerciseSymptomFacade {
             .subscribe();
     }
 
+    fetchBySymptomId(symptomId: string) {
+        this.exerciseSymptomService.getBySymptomId(symptomId)
+            .pipe(
+                take(1),
+                tap(x => this.exerciseSymptomState$.next(x))
+            )
+            .subscribe();
+    }
+
+    fetchBySymptomIdList(symptomIds: string[]) {
+        this.exerciseSymptomService.getBySymptomIdList(symptomIds)
+            .pipe(
+                take(1),
+                tap(x => this.exerciseSymptomState$.next(x))
+            )
+            .subscribe();
+    }
+
     /* ===================== CREATE ===================== */
 
     createExerciseSymptom(exerciseSymptom: ExerciseSymptomDto): Observable<ExerciseSymptomDto> {

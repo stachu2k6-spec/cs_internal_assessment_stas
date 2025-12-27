@@ -23,9 +23,9 @@ public class ExerciseSymptomRepositoryImpl
             UUID symptomId
     ) {
         String query =
-                "SELECT ps FROM ExerciseSymptomEntity ps " +
-                        "WHERE ps.exercise.id = :exerciseId " +
-                        "AND ps.symptom.id = :symptomId";
+                "SELECT es FROM ExerciseSymptomEntity es " +
+                        "WHERE es.exercise.id = :exerciseId " +
+                        "AND es.symptom.id = :symptomId";
 
         return entityManager.createQuery(query, ExerciseSymptomEntity.class)
                 .setParameter("exerciseId", exerciseId)
@@ -38,11 +38,33 @@ public class ExerciseSymptomRepositoryImpl
     @Override
     public List<ExerciseSymptomEntity> findByExerciseId(UUID exerciseId) {
         String query =
-                "SELECT ps FROM ExerciseSymptomEntity ps " +
-                        "WHERE ps.exercise.id = :exerciseId";
+                "SELECT es FROM ExerciseSymptomEntity es " +
+                        "WHERE es.exercise.id = :exerciseId";
 
         return entityManager.createQuery(query, ExerciseSymptomEntity.class)
                 .setParameter("exerciseId", exerciseId)
+                .getResultList();
+    }
+
+    @Override
+    public List<ExerciseSymptomEntity> findBySymptomId(UUID symptomId) {
+        String query =
+                "SELECT es FROM ExerciseSymptomEntity es " +
+                        "WHERE es.symptom.id = :symptomId";
+
+        return entityManager.createQuery(query, ExerciseSymptomEntity.class)
+                .setParameter("symptomId", symptomId)
+                .getResultList();
+    }
+
+    @Override
+    public List<ExerciseSymptomEntity> findBySymptomIds(List<UUID> symptomIds) {
+        String query =
+                "SELECT es FROM ExerciseSymptomEntity es " +
+                        "WHERE es.symptom.id IN :symptomIds";
+
+        return entityManager.createQuery(query, ExerciseSymptomEntity.class)
+                .setParameter("symptomIds", symptomIds)
                 .getResultList();
     }
 }

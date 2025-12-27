@@ -141,7 +141,7 @@ export class Symptom implements OnInit, OnDestroy {
                         this.isNewSymptomMode = false;
                         this.isEditMode = false;
                         this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Symptom profile saved.' });
-                        //this.router.navigate(['/view/symptom', created.id]);
+                        this.router.navigate(['/view/symptom', created.id]);
                     },
                     error: (err) => {
                         console.error('Failed to save symptom', err);

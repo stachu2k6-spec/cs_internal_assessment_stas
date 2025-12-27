@@ -31,6 +31,16 @@ public class ExerciseSymptomController {
         return exerciseSymptomFacade.getExerciseSymptomsByExerciseId(exerciseId);
     }
 
+    @GetMapping("/symptom/{symptomId}")
+    public List<ExerciseSymptomDto> getExerciseSymptomsBySymptomId(@PathVariable String symptomId) {
+        return exerciseSymptomFacade.getExerciseSymptomsBySymptomId(symptomId);
+    }
+
+    @PostMapping("/symptom/list")
+    public List<ExerciseSymptomDto> getExerciseSymptomsBySymptomIds(@RequestBody List<String> symptomIds) {
+        return exerciseSymptomFacade.getExerciseSymptomsBySymptomIds(symptomIds);
+    }
+
     @PostMapping()
     public ExerciseSymptomDto addExerciseSymptom(@RequestBody ExerciseSymptomDto exerciseSymptomDto) {
         return exerciseSymptomFacade.addExerciseSymptom(exerciseSymptomDto);

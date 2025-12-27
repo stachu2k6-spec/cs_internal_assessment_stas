@@ -61,6 +61,24 @@ public class ExerciseSymptomFacade {
                 .toList();
     }
 
+    public List<ExerciseSymptomDto> getExerciseSymptomsBySymptomId(String symptomId) {
+        return exerciseSymptomRepository.findBySymptomId(UUID.fromString(symptomId))
+                .stream()
+                .map(exerciseSymptomMapper::toDto)
+                .toList();
+    }
+
+    public List<ExerciseSymptomDto> getExerciseSymptomsBySymptomIds(List<String> symptomIds) {
+        List<UUID> symptomUuids = symptomIds.stream()
+                .map(UUID::fromString)
+                .toList();
+
+        return exerciseSymptomRepository.findBySymptomIds(symptomUuids)
+                .stream()
+                .map(exerciseSymptomMapper::toDto)
+                .toList();
+    }
+
     public ExerciseSymptomDto addExerciseSymptom(ExerciseSymptomDto exerciseSymptomDto) {
         ExerciseSymptomEntity exerciseSymptomEntity = exerciseSymptomMapper.toEntity(exerciseSymptomDto);
         ExerciseSymptomEntity savedEntity = exerciseSymptomRepository.save(exerciseSymptomEntity);

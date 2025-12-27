@@ -33,6 +33,11 @@ import { InputNumber } from 'primeng/inputnumber';
 import { Dialog } from 'primeng/dialog';
 import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { CountryService } from '@/pages/service/country.service';
+import { SymptomDto } from '@/pages/service/symptom/symptom.model';
+import { PatientSymptomFacade } from '@/pages/service/patient-symptom/patient-symptom.facade';
+import { PatientSymptomDto } from '@/pages/service/patient-symptom/patient-symptom.model';
+import { ExerciseSymptomFacade } from '@/pages/service/exercise-symptom/exercise-symptom.facade';
+import { ExerciseSymptomDto } from '@/pages/service/exercise-symptom/exercise-symptom.model';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -90,6 +95,8 @@ export class Meeting implements OnInit, OnDestroy {
 
     suggestedExercises: ExerciseDto[] = [];
 
+    scores: number[] = [];
+
     exercises: ExerciseDto[] = [];
 
     exerciseNames: string[] = [];
@@ -111,6 +118,8 @@ export class Meeting implements OnInit, OnDestroy {
         private meetingFacade: MeetingFacade,
         private patientFacade: PatientFacade,
         private exerciseFacade: ExerciseFacade,
+        private patientSymptomFacade: PatientSymptomFacade,
+        private exerciseSymptomFacade: ExerciseSymptomFacade,
         private route: ActivatedRoute,
         private router: Router,
         private messageService: MessageService
@@ -168,6 +177,7 @@ export class Meeting implements OnInit, OnDestroy {
                             takeUntil(this.destroy$),
                             tap((p) => {
                                 this.patient = p;
+                                this.generateSuggestedExercises();
                             })
                         )
                         .subscribe();
@@ -323,6 +333,7 @@ export class Meeting implements OnInit, OnDestroy {
         this.displayAddExerciseDialog = false;
 
         this.updateMeeting();
+        this.generateSuggestedExercises()
     }
 
     protected removeExercise(exerciseId: string) {
@@ -418,6 +429,103 @@ export class Meeting implements OnInit, OnDestroy {
     findExerciseByName(name: string): ExerciseDto | undefined {
         return this.exercises.find((e) => e.name === name);
     }
+
+    generateSuggestedExercises() {
+        const suggestedExercises: ExerciseDto[] = [];
+
+        let patientSymptoms: PatientSymptomDto[] = [];
+        let relatedExercises: ExerciseSymptomDto[] = [];
+
+        this.patientSymptomFacade.fetchByPatientId(this.patient.id);
+        this.patientSymptomFacade.patientSymptomState$
+            .pipe(
+                takeUntil(this.destroy$),
+                tap((list) => {
+                    patientSymptoms = list;
+                    // after fetching patient symptoms, fetch exercises which address these symptoms
+                    this.exerciseSymptomFacade.fetchBySymptomIdList(
+                        patientSymptoms.map(ps => ps.symptom.id)
+                    );
+                    this.exerciseSymptomFacade.exerciseSymptomState$
+                        .pipe(
+                            takeUntil(this.destroy$),
+                            tap((exSymptoms) => {
+                                relatedExercises = exSymptoms;
+                                this.suggestExercises(patientSymptoms, relatedExercises);
+                            })
+                        ).subscribe()
+                })
+            )
+            .subscribe();
+    }
+
+    suggestExercises(
+        patientSymptoms: PatientSymptomDto[],
+        relatedExercises: ExerciseSymptomDto[]
+    ) {
+        // --- 1. Build lookup maps ---
+
+        // symptomId -> severity
+        const symptomSeverityMap = new Map<string, number>();
+        for (const patientSymptom of patientSymptoms) {
+            symptomSeverityMap.set(
+                patientSymptom.symptom.id,
+                patientSymptom.severity
+            );
+        }
+
+        // exerciseIds that are already planned (must be excluded)
+        const plannedExerciseIds = new Set(
+            this.meeting.exercises.map(exercise => exercise.id)
+        );
+
+        // exerciseId -> accumulated score
+        const exerciseScoreMap = new Map<string, number>();
+
+        // --- 2. Calculate scores ---
+        for (const exerciseSymptom of relatedExercises) {
+            const exerciseId = exerciseSymptom.exercise.id;
+
+            // Skip exercises already planned
+            if (plannedExerciseIds.has(exerciseId)) continue;
+
+            const symptomId = exerciseSymptom.symptom.id;
+            const symptomSeverity = symptomSeverityMap.get(symptomId);
+
+            // Skip if symptom severity is undefined (should not happen)
+            if (symptomSeverity === undefined) continue;
+
+            const effectiveness = exerciseSymptom.effectiveness;
+
+            let scoreIncrease = 0;
+
+            // +2 for each effectiveness point up to symptom severity
+            const matchedPoints = Math.min(effectiveness, symptomSeverity);
+            scoreIncrease += matchedPoints * 2;
+
+            // +1 for each effectiveness point exceeding symptom severity
+            const excessPoints = Math.max(0, effectiveness - symptomSeverity);
+            scoreIncrease += excessPoints;
+
+            // Accumulate score per exercise
+            exerciseScoreMap.set(
+                exerciseId,
+                (exerciseScoreMap.get(exerciseId) ?? 0) + scoreIncrease
+            );
+        }
+
+        // --- 3. Pick top 5 exercises and save corresponding scores ---
+        const topScored = [...exerciseScoreMap.entries()]
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+
+        this.suggestedExercises = topScored.map(([exerciseId]) =>
+            relatedExercises.find(es => es.exercise.id === exerciseId)!.exercise
+        );
+
+        this.scores = topScored.map(([, score]) => score);
+    }
+
 
 
     createEmptyMeeting() {

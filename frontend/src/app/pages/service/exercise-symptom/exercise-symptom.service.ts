@@ -16,22 +16,31 @@ export class ExerciseSymptomService {
         return this.http.get<ExerciseSymptomDto[]>(this.apiUrl);
     }
 
+    getById(id: string): Observable<ExerciseSymptomDto> {
+        return this.http.get<ExerciseSymptomDto>(this.apiUrl + '/' + id);
+    }
+
+
     getByExerciseId(exerciseId: string) {
         return this.http.get<ExerciseSymptomDto[]>(this.apiUrl + '/exercise/' + exerciseId);
     }
 
-    getById(id: string): Observable<ExerciseSymptomDto> {
-        return this.http.get<ExerciseSymptomDto>(this.apiUrl + '/' + id);
+    getBySymptomId(symptomId: string) {
+        return this.http.get<ExerciseSymptomDto[]>(this.apiUrl + '/symptom/' + symptomId);
+    }
+
+    getBySymptomIdList(symptomIdList: string[]) {
+        return this.http.post<ExerciseSymptomDto[]>(this.apiUrl + '/symptom/list', symptomIdList);
     }
 
     create(payload: ExerciseSymptomDto): Observable<ExerciseSymptomDto> {
         return this.http.post<ExerciseSymptomDto>(this.apiUrl, payload);
     }
 
-    update(id: string, payload: ExerciseSymptomDto): Observable<ExerciseSymptomDto> {
+    update(id: string, exerciseSymptomDto: ExerciseSymptomDto): Observable<ExerciseSymptomDto> {
         return this.http.put<ExerciseSymptomDto>(
             this.apiUrl + '/' + id,
-            payload
+            exerciseSymptomDto
         );
     }
 
