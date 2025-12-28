@@ -85,40 +85,26 @@
                                 <div class="font-semibold text-xl flex items-center justify-center">Info</div>
                                 <div class="flex flex-col gap-2">
                                     <label for="name1">Patient Name</label>
-                                    <p-select
-                                        *ngIf="isNewMeetingMode"
-                                        [(ngModel)]="patient.name"
-                                        [options]="patientsNames"
-                                        placeholder="Select" [
-                                        [disabled]="!isNewMeetingMode"></p-select>
 
-                                    <input
-                                        *ngIf="!isNewMeetingMode"
-                                        pInputText
-                                        id="name1"
-                                        type="text"
+                                    <p-autoComplete
                                         [(ngModel)]="patient.name"
-                                        [disabled]='true'
-                                    />
+                                        [suggestions]="filteredPatientNames"
+                                        placeholder="Search name"
+                                        (completeMethod)="filterNames($event)"
+                                        (onSelect)="onNameSelected()"
+                                        [disabled]="!isNewMeetingMode"
+                                    ></p-autoComplete>
                                 </div>
 
                                 <div class="flex flex-col gap-2">
                                     <label for="name1">Patient Surname</label>
-                                    <p-select
-                                        *ngIf="isNewMeetingMode"
+                                    <p-autoComplete
                                         [(ngModel)]="patient.surname"
-                                        [options]="patientsSurnames"
-                                        placeholder="Select"
-                                        [disabled]="!isNewMeetingMode"></p-select>
-
-                                    <input
-                                        *ngIf="!isNewMeetingMode"
-                                        pInputText
-                                        id="name1"
-                                        type="text"
-                                        [(ngModel)]="patient.surname"
-                                        [disabled]='true'
-                                    />
+                                        [suggestions]="filteredPatientSurnames"
+                                        placeholder="Search surname"
+                                        (completeMethod)="filterSurnames($event)"
+                                        [disabled]="!isNewMeetingMode">
+                                    </p-autoComplete>
                                 </div>
 
                                 <div class="flex flex-col gap-2">

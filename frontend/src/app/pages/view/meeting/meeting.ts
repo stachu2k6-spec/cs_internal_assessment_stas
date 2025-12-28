@@ -68,7 +68,8 @@ interface expandedRows {
         RouterLink,
         DatePickerModule,
         InputNumber,
-        Dialog
+        Dialog,
+        AutoComplete
     ],
     templateUrl: './meeting.html',
     styleUrl: './meeting.scss',
@@ -91,7 +92,7 @@ export class Meeting implements OnInit, OnDestroy {
 
     patient: PatientDto = this.createEmptyPatient(); // Associated patient data, initialized to empty
 
-    patients: PatientDto[] = [];
+    allPatients: PatientDto[] = [];
 
     suggestedExercises: ExerciseDto[] = [];
 
@@ -103,14 +104,23 @@ export class Meeting implements OnInit, OnDestroy {
 
     exerciseToAdd: ExerciseDto = this.createEmptyExercise();
 
-    patientsNames: string[] = [];
+    patientNames: string[] = [];
 
-    patientsSurnames: string[] = [];
+    patientSurnames: string[] = [];
+
+
+    filteredPatientNames: string[] = [];
+
+    filteredPatientSurnames: string[] = [];
+
+
 
     private _meetingBackup: any = null;
 
     // destroy notifier for takeUntil
     private destroy$ = new Subject<void>();
+
+
 
 
 
@@ -147,7 +157,7 @@ export class Meeting implements OnInit, OnDestroy {
             this.patientFacade.patientState$
                 .pipe(
                     tap((x) => {
-                        this.patients = x;
+                        this.allPatients = x;
                         this.getNames(x);
                         this.getSurnames(x);
                     }),
@@ -394,15 +404,15 @@ export class Meeting implements OnInit, OnDestroy {
     }
 
     getNames(patients: PatientDto[]) {
-        this.patientsNames = patients.map((p) => p.name);
+        this.patientNames = patients.map((p) => p.name);
     }
 
     getSurnames(patients: PatientDto[]) {
-        this.patientsSurnames = patients.map((p) => p.surname);
+        this.patientSurnames = patients.map((p) => p.surname);
     }
 
     patientsId(name: string, surname: string): string | null {
-        return this.patients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
+        return this.allPatients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
     }
 
     onDateTimeChange(newDate: Date) {
@@ -577,4 +587,26 @@ export class Meeting implements OnInit, OnDestroy {
     }
 
 
+    filterNames(event: { query: string }) {
+        const q = event.query.toLowerCase().trim();
+        this.filteredPatientNames = this.patientNames.filter(name =>
+            name.toLowerCase().includes(q)
+        );
+    }
+
+    onNameSelected() {
+        // Reset surname when name changes
+        this.patient.surname = '';
+
+        this.patientSurnames = this.allPatients
+            .filter(p => p.name === this.patient.name)
+            .map(p => p.surname);
+    }
+
+    filterSurnames(event: { query: string }) {
+        const q = event.query.toLowerCase().trim();
+        this.filteredPatientSurnames = this.patientSurnames.filter(surname =>
+            surname.toLowerCase().includes(q)
+        );
+    }
 }

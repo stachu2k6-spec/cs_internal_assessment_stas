@@ -6,3 +6,8 @@
 .hover-scale:hover td {
     background-color: #f3f3f3 !important;
 }
+
+:host ::ng-deep .p-autocomplete,
+:host ::ng-deep .p-autocomplete-input {
+    width: 100%;
+}
