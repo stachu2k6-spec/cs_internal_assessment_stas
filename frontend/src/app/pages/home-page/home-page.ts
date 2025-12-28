@@ -26,11 +26,12 @@ import { FormsModule } from '@angular/forms';
 import { Textarea } from 'primeng/textarea';
 import { Toast } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { AutoComplete } from 'primeng/autocomplete';
 
 @Component({
     selector: 'app-home-page',
     standalone: true,
-    imports: [CommonModule, FullCalendarModule, Panel, Button, IconField, InputIcon, InputText, Toolbar, Dialog, DatePicker, InputNumber, Select, FormsModule, Textarea, Toast],
+    imports: [CommonModule, FullCalendarModule, Panel, Button, IconField, InputIcon, InputText, Toolbar, Dialog, DatePicker, InputNumber, Select, FormsModule, Textarea, Toast, AutoComplete],
     templateUrl: './home-page.html',
     styleUrl: './home-page.scss',
     providers: [MessageService]
@@ -51,11 +52,17 @@ export class HomePage implements OnInit, OnDestroy {
 
     patient: PatientDto = this.createEmptyPatient(); // Associated patient data, initialized to empty
 
-    patients: PatientDto[] = [];
+    allPatients: PatientDto[] = [];
 
-    patientsNames: string[] = [];
+    patientNames: string[] = [];
 
-    patientsSurnames: string[] = [];
+    patientSurnames: string[] = [];
+
+
+    filteredPatientNames: string[] = [];
+
+    filteredPatientSurnames: string[] = [];
+
 
     destroy$: Subject<void> = new Subject<void>();
 
@@ -69,6 +76,14 @@ export class HomePage implements OnInit, OnDestroy {
     calendarOptions: CalendarOptions = {
         plugins: [dayGridPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
+        dayMaxEvents: 5,
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        },
+        expandRows: true,
+        fixedWeekCount: true,
         selectable: true,
         eventClick: this.handleEventClick.bind(this),
         dateClick: this.handleDateClick.bind(this),
@@ -164,7 +179,7 @@ export class HomePage implements OnInit, OnDestroy {
         this.patientFacade.patientState$
             .pipe(
                 tap((x) => {
-                    this.patients = x;
+                    this.allPatients = x;
                     this.getNames(x);
                     this.getSurnames(x);
                 }),
@@ -179,7 +194,7 @@ export class HomePage implements OnInit, OnDestroy {
             // create new meeting
             const createdMeeting = {
                 patientId: patientId,
-                dateTime: this.meeting.dateTime,
+                dateTime: this.tweakHours(this.meeting.dateTime),
                 duration: this.meeting.duration,
                 notes: this.meeting.notes,
                 rating: this.meeting.rating
@@ -212,11 +227,11 @@ export class HomePage implements OnInit, OnDestroy {
 
 
     getNames(patients: PatientDto[]) {
-        this.patientsNames = patients.map((p) => p.name);
+        this.patientNames = patients.map((p) => p.name);
     }
 
     getSurnames(patients: PatientDto[]) {
-        this.patientsSurnames = patients.map((p) => p.surname);
+        this.patientSurnames = patients.map((p) => p.surname);
     }
 
     createEmptyMeeting() {
@@ -248,7 +263,7 @@ export class HomePage implements OnInit, OnDestroy {
     }
 
     patientsId(name: string, surname: string): string | null {
-        return this.patients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
+        return this.allPatients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
     }
 
     getTimeHHMM(date: Date | string): string {
@@ -331,6 +346,35 @@ export class HomePage implements OnInit, OnDestroy {
             .sort((a, b) => a.date.getTime() - b.date.getTime());
 
         return upcoming[0].meeting;
+    }
+
+    private tweakHours(date: Date): Date {
+        const copy = new Date(date);
+        copy.setHours(copy.getHours() + 1);
+        return copy;
+    }
+
+    filterNames(event: { query: string }) {
+        const q = event.query.toLowerCase().trim();
+        this.filteredPatientNames = this.patientNames.filter(name =>
+            name.toLowerCase().includes(q)
+        );
+    }
+
+    onNameSelected() {
+        // Reset surname when name changes
+        this.patient.surname = '';
+
+        this.patientSurnames = this.allPatients
+            .filter(p => p.name === this.patient.name)
+            .map(p => p.surname);
+    }
+
+    filterSurnames(event: { query: string }) {
+        const q = event.query.toLowerCase().trim();
+        this.filteredPatientSurnames = this.patientSurnames.filter(surname =>
+            surname.toLowerCase().includes(q)
+        );
     }
 }
 
