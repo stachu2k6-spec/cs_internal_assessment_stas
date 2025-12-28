@@ -81,16 +81,6 @@ interface expandedRows {
 })
 export class Patient implements OnInit, OnDestroy {
 
-
-    selectedSymptom: Customer | null = null;
-
-    selectedMeeting: Customer | null = null;
-
-    symptomsCMItems: any[] = [];
-
-    meetingsCMItems: any[] = [];
-
-
     isEditMode: boolean = false;
 
     isNewPatientMode: boolean = false;
@@ -104,6 +94,8 @@ export class Patient implements OnInit, OnDestroy {
 
 
     patient: PatientDto = this.createEmptyPatient(); // Patient data to be displayed and edited, initialized to empty
+
+    genderOptions: string[] = ['Male', 'Female', 'Other'];
 
 
 

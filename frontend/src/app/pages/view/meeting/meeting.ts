@@ -283,7 +283,7 @@ export class Meeting implements OnInit, OnDestroy {
         };
         this.meetingFacade
             .updateMeeting(this.meeting.id, updatedMeeting)
-            .pipe(takeUntil(this.destroy$)) // ensure unsubscribe on destroy
+            .pipe(takeUntil(this.destroy$))
             .subscribe({
                 next: (saved: MeetingDto) => {
                     this.meeting = saved;

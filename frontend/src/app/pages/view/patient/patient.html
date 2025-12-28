@@ -74,7 +74,6 @@
                                     <p-button label="Yes" icon="pi pi-check" (click)="deletePatient()" severity="danger" outlined autofocus />
                                 </ng-template>
                             </p-dialog>
-
                         </div>
                     </div>
                 </ng-template>
@@ -108,7 +107,7 @@
 
                                 <div class="flex flex-col gap-2">
                                     <label for="surname1">Gender</label>
-                                    <input pInputText id="surname1" type="text" [(ngModel)]="patient.gender" [disabled]="!isEditMode" />
+                                    <p-select [(ngModel)]="patient.gender" [options]="genderOptions" [disabled]="!isEditMode" placeholder="Select Gender" />
                                 </div>
 
                                 <div class="flex flex-col gap-2">
@@ -151,16 +150,12 @@
                 <ng-template #panel>
                     <div class="card">
                         <div class="font-semibold text-xl mb-4">Symptoms</div>
-                        <!-- context menu instance (one only) -->
-                        <p-contextMenu #cm [model]="symptomsCMItems"></p-contextMenu>
 
                         <p-table
                             [value]="patientSymptoms"
                             [scrollable]="true"
                             scrollHeight="200px"
                             styleClass="mt-4"
-                            [contextMenu]="cm"
-                            [(contextMenuSelection)]="selectedSymptom"
                         >
                             <ng-template pTemplate="header">
                                 <tr>
@@ -170,9 +165,7 @@
                             </ng-template>
 
                             <ng-template pTemplate="body" let-patientSymptom>
-                                <tr class="hover-scale cursor-pointer"
-                                    (contextmenu)="$event.preventDefault()"
-                                    [pContextMenuRow]="patientSymptom">
+                                <tr class="hover-scale cursor-pointer">
 
                                     <td
                                         style="min-width:100px"
@@ -276,7 +269,6 @@
                             ></p-button>
 
                         </div>
-                        <p-contextMenu #cmMeetings [model]="meetingsCMItems"></p-contextMenu>
 
                         <p-tabs value="0">
                             <p-tablist>
@@ -292,8 +284,6 @@
                                             [scrollable]="true"
                                             scrollHeight="350px"
                                             styleClass="mt-4"
-                                            [contextMenu]="cmMeetings"
-                                            [(contextMenuSelection)]="selectedMeeting"
                                         >
                                             <ng-template #header>
                                                 <tr>
@@ -307,8 +297,6 @@
                                                 <tr
                                                     class="hover-scale cursor-pointer"
                                                     [routerLink]="['/view','meeting', meeting.id]"
-                                                    [pContextMenuRow]="meeting"
-                                                    (contextmenu)="$event.preventDefault()"
                                                 >
                                                     <td class="font-bold">{{ meeting.dateTime | date:'dd.MM.yyyy' }}</td>
                                                     <td style="min-width:100px">{{ meeting.dateTime | date: 'HH:mm' }}</td>
@@ -326,8 +314,6 @@
                                             [scrollable]="true"
                                             scrollHeight="300px"
                                             styleClass="mt-4"
-                                            [contextMenu]="cmMeetings"
-                                            [(contextMenuSelection)]="selectedMeeting"
                                         >
                                             <ng-template #header>
                                                 <tr>
@@ -341,8 +327,6 @@
                                                 <tr
                                                     class="hover-scale cursor-pointer"
                                                     [routerLink]="['/view','meeting', meeting.id]"
-                                                    [pContextMenuRow]="meeting"
-                                                    (contextmenu)="$event.preventDefault()"
                                                 >
                                                     <td class="font-bold">{{ meeting.dateTime | date:'dd.MM.yyyy' }}</td>
                                                     <td style="min-width:100px">{{ meeting.dateTime | date: 'HH:mm' }}</td>
