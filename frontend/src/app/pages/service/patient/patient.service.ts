@@ -24,6 +24,13 @@ export class PatientService {
         return this.http.post<PatientDto>(this.apiUrl, patient);
     }
 
+    uploadPatientPhoto(id: string, photoFile: File): Observable<PatientDto> {
+        const formData = new FormData();
+        formData.append('file', photoFile);
+
+        return this.http.post<PatientDto>(this.apiUrl + '/' + id + '/' + 'photo', formData);
+    }
+
     update(id: string, patient: PatientDto): Observable<PatientDto> {
         return this.http.put<PatientDto>(this.apiUrl + '/' + id, patient);
     }

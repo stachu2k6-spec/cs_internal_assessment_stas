@@ -36,6 +36,7 @@ import { PatientSymptomDto } from '@/pages/service/patient-symptom/patient-sympt
 import { PatientSymptomFacade } from '@/pages/service/patient-symptom/patient-symptom.facade';
 import { SymptomFacade } from '@/pages/service/symptom/symptom.facade';
 import { InputNumber } from 'primeng/inputnumber';
+import { FileUpload, FileUploadEvent } from 'primeng/fileupload';
 
 interface expandedRows {
     [key: string]: boolean;
@@ -69,18 +70,17 @@ interface expandedRows {
         Textarea,
         Image,
         RouterLink,
-        ContextMenu,
         DatePicker,
         DatePipe,
         Dialog,
-        InputNumber
+        InputNumber,
+        FileUpload
     ],
     templateUrl: './patient.html',
     styleUrl: './patient.scss',
     providers: [MessageService, ConfirmationService]
 })
 export class Patient implements OnInit, OnDestroy {
-
     isEditMode: boolean = false;
 
     isNewPatientMode: boolean = false;
@@ -91,13 +91,13 @@ export class Patient implements OnInit, OnDestroy {
 
     displayAddPatientSymptomDialog: boolean = false;
 
+    displayImageDialog: boolean = false;
 
+    selectedPhotoFile: File | null = null;
 
     patient: PatientDto = this.createEmptyPatient(); // Patient data to be displayed and edited, initialized to empty
 
     genderOptions: string[] = ['Male', 'Female', 'Other'];
-
-
 
     patientSymptoms: PatientSymptomDto[] = [];
 
@@ -109,8 +109,7 @@ export class Patient implements OnInit, OnDestroy {
 
     symptomToAdd: SymptomDto = this.createEmptySymptom();
 
-    patientSymptomToAdd : PatientSymptomDto = this.createEmptyPatientSymptom();
-
+    patientSymptomToAdd: PatientSymptomDto = this.createEmptyPatientSymptom();
 
     meetings: MeetingDto[] = [];
 
@@ -118,14 +117,11 @@ export class Patient implements OnInit, OnDestroy {
 
     pastMeetings: MeetingDto[] = [];
 
-
     private _patientBackup: any = null;
 
     private _patientSymptomsBackup: any[] = [];
 
-
     private destroy$ = new Subject<void>();
-
 
     @ViewChild('filter') filter!: ElementRef;
 
@@ -201,7 +197,6 @@ export class Patient implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
-
     editMeeting(customer: Customer | null) {
         //edit meeting logic here
     }
@@ -210,11 +205,10 @@ export class Patient implements OnInit, OnDestroy {
         //delete meeting logic here
     }
 
-
     enterEdit() {
         // create a shallow clone backup so cancel can restore previous state
         this._patientBackup = { ...this.patient };
-        this._patientSymptomsBackup = [ ...this.patientSymptoms ];
+        this._patientSymptomsBackup = [...this.patientSymptoms];
         this.isEditMode = true;
     }
 
@@ -258,20 +252,16 @@ export class Patient implements OnInit, OnDestroy {
         this.patientSymptomFacade.updatePatientSymptoms(this.patientSymptoms);
         this.patientSymptomFacade.patientSymptomState$
             .pipe(
-                tap(updated => (
-                    this.patientSymptoms = updated,
-                        this._patientBackup = null
-                )),
+                tap((updated) => ((this.patientSymptoms = updated), (this._patientBackup = null))),
                 takeUntil(this.destroy$)
             )
-            .subscribe()
+            .subscribe();
     }
 
     createPatient(): void {
         // create new patient
         this.patient.id = ''; // clear temporary id before sending to server
-        const created = { ...this.patient,
-        birthDate: this.tweakHours(this.patient.birthDate)};
+        const created = { ...this.patient, birthDate: this.tweakHours(this.patient.birthDate) };
 
         this.patientFacade
             .createPatient(created)
@@ -295,8 +285,7 @@ export class Patient implements OnInit, OnDestroy {
     }
 
     updatePatient(): void {
-        const updated = { ...this.patient,
-            birthDate: this.tweakHours(this.patient.birthDate)};
+        const updated = { ...this.patient, birthDate: this.tweakHours(this.patient.birthDate) };
         this.patientFacade
             .updatePatient(this.patient.id, updated)
             .pipe(take(1))
@@ -333,11 +322,10 @@ export class Patient implements OnInit, OnDestroy {
                 error: (err) => {
                     console.error('Failed to delete patient', err);
                     this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
-                    this.closeDialog('deletePatient')
+                    this.closeDialog('deletePatient');
                 }
             });
     }
-
 
     saveAddedSymptom() {
         const createdPatientSymptom = this.patientSymptomToAdd;
@@ -392,16 +380,15 @@ export class Patient implements OnInit, OnDestroy {
             .subscribe({
                 next: () => {
                     this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'PatientSymptom profile deleted.' });
-                    this.closeDialog('deletePatientSymptom')
+                    this.closeDialog('deletePatientSymptom');
                 },
                 error: (err) => {
                     console.error('Failed to delete patientSymptom', err);
                     this.messageService.add({ severity: 'error', summary: 'Delete failed', detail: err?.message ?? 'Unknown error' });
-                    this.closeDialog('deletePatientSymptom')
+                    this.closeDialog('deletePatientSymptom');
                 }
             });
     }
-
 
     openPatientConfirmDialog() {
         this.displayPatientConfirmDialog = true;
@@ -409,6 +396,10 @@ export class Patient implements OnInit, OnDestroy {
 
     openPatientSymptomConfirmDialog() {
         this.displayPatientSymptomConfirmDialog = true;
+    }
+
+    openImageDialog() {
+        this.displayImageDialog = true;
     }
 
     closeDialog(type: string) {
@@ -429,8 +420,6 @@ export class Patient implements OnInit, OnDestroy {
                 break;
         }
     }
-
-
 
     // method to split and sort meetings into upcoming and past based on current date
     splitMeetings() {
@@ -472,7 +461,6 @@ export class Patient implements OnInit, OnDestroy {
         return new Date(value);
     }
 
-
     getSymptomNames(symptoms: SymptomDto[]) {
         this.symptomNames = symptoms.map((s) => s.name).filter((name) => !this.patientSymptoms.some((ps) => ps.symptom.name === name));
     }
@@ -487,7 +475,6 @@ export class Patient implements OnInit, OnDestroy {
         return copy;
     }
 
-
     private createEmptyPatient(): PatientDto {
         return {
             id: '',
@@ -500,7 +487,7 @@ export class Patient implements OnInit, OnDestroy {
             email: '',
             notes: '',
             activityLevel: '',
-            photoUrl: 'https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg'
+            photoUrl: 'assets/images/default-profile.png'
         };
     }
 
@@ -521,5 +508,44 @@ export class Patient implements OnInit, OnDestroy {
         };
     }
 
+    onFileSelected(event: any) {
+        this.selectedPhotoFile = event.files[0] || null;
+    }
 
+    changeProfilePicture() {
+        if (!this.selectedPhotoFile) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'No file',
+                detail: 'Please choose a file first.'
+            });
+            return;
+        }
+
+        this.patientFacade
+            .uploadPatientPhoto(this.patient.id, this.selectedPhotoFile)
+            .pipe(take(1))
+            .subscribe({
+                next: (updated: PatientDto) => {
+                    updated.birthDate = this.toLocalDate(updated.birthDate);
+                    this.patient = updated;
+
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Updated',
+                        detail: 'Profile picture updated successfully.'
+                    });
+
+                    this.displayImageDialog = false;
+                    this.selectedPhotoFile = null;
+                },
+                error: () => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Failed to update profile picture.'
+                    });
+                }
+            });
+    }
 }

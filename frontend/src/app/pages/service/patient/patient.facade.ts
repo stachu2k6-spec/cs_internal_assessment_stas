@@ -51,6 +51,24 @@ export class PatientFacade {
         );
     }
 
+    uploadPatientPhoto(id: string, photoFile: File): Observable<PatientDto> {
+        return this.patientService.uploadPatientPhoto(id, photoFile).pipe(
+            take(1),
+            tap(updatedPatient => {
+                // update the patient in patientByIdState$
+                this.patientByIdState$.next(updatedPatient);
+
+                // update the patient in patientState$
+                const currentPatients = this.patientState$.getValue();
+                const index = currentPatients.findIndex(p => p.id === updatedPatient.id);
+                if (index !== -1) {
+                    currentPatients[index] = updatedPatient;
+                    this.patientState$.next([...currentPatients]);
+                }
+            })
+        );
+    }
+
     updatePatient(id: string, patient: PatientDto): Observable<PatientDto> {
         return this.patientService.update(id, patient).pipe(
             take(1),

@@ -3,10 +3,50 @@
     <div class="font-semibold text-2xl mb-4">Patient profile</div>
     <p-splitter [style]="{ height: '800px' }" [panelSizes]="[70, 30]" [minSizes]="[10, 0]" styleClass="mb-8">
         <ng-template #panel>
-            <p-splitter layout="vertical" [panelSizes]="[20, 80]">
+            <p-splitter layout="vertical" [panelSizes]="[25, 75]">
                 <ng-template #panel>
                     <div class="w-full p-6 bg-surface-0 dark:bg-surface-900 rounded flex justify-between items-center">
-                        <p-image src="{{ patient.photoUrl }}" alt="Image" width="150" />
+                        <p-image
+                            class="profile-img hover-scale cursor-pointer"
+                            src="{{ patient.photoUrl }}"
+                            alt="Image"
+                            (click)="openImageDialog()"
+                            width="100"
+                        />
+
+                        <p-dialog
+                            header="Profile Picture"
+                            [(visible)]="displayImageDialog"
+                            [modal]="true"
+                            [dismissableMask]="true"
+                        >
+                            <div class = "card">
+                                <img [src]="patient.photoUrl" alt="Profile" style="width: 100%; border-radius: 8px;" />
+                            </div>
+                            <div class = "card">
+                                <div class="col-span-full lg:col-span-6">
+                                    <div class="font-semibold text-xl mb-4">Change Profile Picture</div>
+                                    <div class="flex flex-col gap-4 items-center justify-center">
+                                        <p-fileupload
+                                            #fu
+                                            mode="basic"
+                                            chooseLabel="Choose"
+                                            chooseIcon="pi pi-upload"
+                                            accept="image/*"
+                                            maxFileSize="1000000"
+                                            (onSelect)="onFileSelected($event)"
+                                        >
+                                        </p-fileupload>
+
+                                        <p-button
+                                            label="Change"
+                                            (onClick)="changeProfilePicture()"
+                                            severity="secondary"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </p-dialog>
 
                         <div class="flex flex-col gap-4 ml-6 flex-1">
                             <div class="flex flex-row justify-between items-start gap-2">
@@ -26,6 +66,8 @@
                                     </div>
                                 </div>
                             </div>
+
+
                         </div>
 
                         <div class="flex gap-4 items-center">

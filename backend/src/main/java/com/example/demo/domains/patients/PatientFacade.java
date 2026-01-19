@@ -9,8 +9,13 @@ import com.example.demo.repository.patients.PatientEntity;
 import com.example.demo.repository.patients.PatientRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +51,28 @@ public class PatientFacade {
                 );
     }
 
+    public PatientDto uploadPatientPhoto(String id, MultipartFile file) throws IOException {
+        PatientEntity patient = patientRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+
+        String filename = "patient_" + id + "_" + System.currentTimeMillis() + ".jpg";
+        Path uploadPath = Paths.get("uploads/patients");
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        Path filePath = uploadPath.resolve(filename);
+        Files.write(filePath, file.getBytes());
+
+        // URL to be stored in DB
+        String url = "http://localhost:8080/uploads/patients/" + filename;
+        patient.setPhotoUrl(url);
+
+        patientRepository.save(patient);
+        return patientMapper.toDto(patient);
+    }
+
     public PatientDto updatePatient(String id, PatientDto patientDto) {
         PatientEntity patient = patientRepository.findById(UUID.fromString(id))
                 .orElseThrow(() ->
@@ -78,4 +105,6 @@ public class PatientFacade {
 
         patientRepository.deleteById(uuid);
     }
+
+
 }
