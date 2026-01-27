@@ -4,16 +4,9 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { Toolbar } from 'primeng/toolbar';
-import { CurrencyPipe, DatePipe } from '@angular/common';
-import { MultiSelect } from 'primeng/multiselect';
 import { ProgressBar } from 'primeng/progressbar';
-import { Select } from 'primeng/select';
 import { Slider } from 'primeng/slider';
 import { Table, TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
-import { Customer, CustomerService, Representative } from '../../service/customer.service';
-import { Product, ProductService } from '../../service/product.service';
-import { ObjectUtils } from 'primeng/utils';
 import { FormsModule } from '@angular/forms';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { RouterLink } from '@angular/router';
@@ -34,7 +27,7 @@ interface expandedRows {
     ],
     templateUrl: './symptoms.html',
     styleUrl: './symptoms.scss',
-    providers: [ConfirmationService, MessageService, CustomerService, ProductService]
+    providers: [ConfirmationService, MessageService]
 })
 export class Symptoms implements OnInit, OnDestroy {
 

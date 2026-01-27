@@ -16,7 +16,6 @@ import { RippleModule } from 'primeng/ripple';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { TagModule } from 'primeng/tag';
-import { Customer } from '../../service/customer.service';
 import { Splitter } from 'primeng/splitter';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { Textarea } from 'primeng/textarea';
@@ -195,14 +194,6 @@ export class Patient implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.destroy$.next();
         this.destroy$.complete();
-    }
-
-    editMeeting(customer: Customer | null) {
-        //edit meeting logic here
-    }
-
-    deleteMeeting(customer: Customer | null) {
-        //delete meeting logic here
     }
 
     enterEdit() {

@@ -4,9 +4,6 @@ import { InputText, InputTextModule } from 'primeng/inputtext';
 import { Splitter } from 'primeng/splitter';
 import { Table, TableModule } from 'primeng/table';
 import { Textarea } from 'primeng/textarea';
-import { Customer, CustomerService, Representative } from '@/pages/service/customer.service';
-import { Product, ProductService } from '@/pages/service/product.service';
-import { ObjectUtils } from 'primeng/utils';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { NgIf } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -20,7 +17,6 @@ import { Toast } from 'primeng/toast';
 import { Dialog } from 'primeng/dialog';
 import { Select } from 'primeng/select';
 import { ExerciseSymptomDto } from '@/pages/service/exercise-symptom/exercise-symptom.model';
-import { PatientSymptomDto } from '@/pages/service/patient-symptom/patient-symptom.model';
 import { ExerciseSymptomFacade } from '@/pages/service/exercise-symptom/exercise-symptom.facade';
 import { InputNumber } from 'primeng/inputnumber';
 
@@ -33,7 +29,7 @@ interface expandedRows {
     imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink, Toast, Dialog, Select, InputNumber],
     templateUrl: './exercise.html',
     styleUrl: './exercise.scss',
-    providers: [ConfirmationService, MessageService, CustomerService, ProductService]
+    providers: [ConfirmationService, MessageService ]
 })
 export class Exercise implements OnInit, OnDestroy {
     isEditMode: boolean = false;

@@ -120,7 +120,4 @@ export class ExerciseSymptomFacade {
             })
         );
     }
-
-
-
 }

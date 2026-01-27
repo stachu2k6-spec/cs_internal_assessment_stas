@@ -45,6 +45,4 @@ export class PatientSymptomService {
         return this.http.delete<void>(this.apiUrl + '/' + id);
     }
 
-
-
 }

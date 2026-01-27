@@ -31,7 +31,7 @@ import { AutoComplete } from 'primeng/autocomplete';
 @Component({
     selector: 'app-home-page',
     standalone: true,
-    imports: [CommonModule, FullCalendarModule, Panel, Button, IconField, InputIcon, InputText, Toolbar, Dialog, DatePicker, InputNumber, Select, FormsModule, Textarea, Toast, AutoComplete],
+    imports: [CommonModule, FullCalendarModule, Panel, Button, Dialog, DatePicker, InputNumber, FormsModule, Textarea, AutoComplete],
     templateUrl: './home-page.html',
     styleUrl: './home-page.scss',
     providers: [MessageService]
@@ -153,20 +153,6 @@ export class HomePage implements OnInit, OnDestroy {
         };
     }
 
-    buildStartDate(date: Date, startTime: string | Date): Date {
-        const baseDate = new Date(date);
-
-        if (typeof startTime === 'string') {
-            const [h, m, s = '0'] = startTime.split(':');
-            baseDate.setHours(+h, +m, +s, 0);
-        } else {
-            baseDate.setHours(startTime.getHours(), startTime.getMinutes(), startTime.getSeconds(), 0);
-        }
-        return baseDate;
-    }
-
-    test() {}
-
     private quickScheduleMeeting(date: any) {
         this.isQuickScheduleVisible = true;
         this.meeting = this.createEmptyMeeting();
@@ -178,10 +164,10 @@ export class HomePage implements OnInit, OnDestroy {
         this.patientFacade.fetchAllPatients();
         this.patientFacade.patientState$
             .pipe(
-                tap((x) => {
-                    this.allPatients = x;
-                    this.getNames(x);
-                    this.getSurnames(x);
+                tap((patients) => {
+                    this.allPatients = patients;
+                    this.getNames(patients);
+                    this.getSurnames(patients);
                 }),
                 takeUntil(this.destroy$)
             )
@@ -266,73 +252,6 @@ export class HomePage implements OnInit, OnDestroy {
         return this.allPatients.find((p) => p.name.toLowerCase() === name.toLowerCase() && p.surname.toLowerCase() === surname.toLowerCase())?.id ?? null;
     }
 
-    getTimeHHMM(date: Date | string): string {
-        if (typeof date === 'string') {
-            return date;
-        }
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
-    }
-
-    minutesToIsoDuration(minutes: number | string): string {
-        if (typeof minutes === 'string') {
-            minutes = parseInt(minutes, 10);
-        }
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-
-        let iso = 'PT';
-
-        if (hours > 0) iso += `${hours}H`;
-        if (mins > 0) iso += `${mins}M`;
-
-        // ISO requires at least one field
-        if (iso === 'PT') iso = 'PT0M';
-
-        return iso;
-    }
-
-    toLocalDate(value: string | Date | null): Date {
-        if (!value) return new Date();
-
-        if (value instanceof Date) return value;
-
-        const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (match) {
-            const year = +match[1];
-            const month = +match[2] - 1;
-            const day = +match[3];
-            return new Date(year, month, day);
-        }
-
-        return new Date(value);
-    }
-
-    toDateFromTimestamp(timestamp: any): Date {
-        const [hours, minutes, seconds] = timestamp.split(':').map(Number);
-
-        const date = new Date();
-        date.setHours(hours, minutes, seconds, 0);
-
-        return date;
-    }
-
-    /** Format ISO 8601 duration to number format */
-    getMinutesFromIsoDuration(iso: string | number): number {
-        if (typeof iso === 'number') return iso;
-
-        const regex = /PT(?:(\d+)H)?(?:(\d+)M)?/;
-
-        const match = iso.match(regex);
-
-        if (!match) return 0;
-
-        const hours = match[1] ? parseInt(match[1], 10) : 0;
-        const minutes = match[2] ? parseInt(match[2], 10) : 0;
-
-        return hours * 60 + minutes;
-    }
 
     getNextMeeting(meetings: MeetingDto[]): MeetingDto {
         const now = new Date();

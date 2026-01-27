@@ -6,7 +6,13 @@
             <p-splitter layout="vertical" [panelSizes]="[20, 80]">
                 <ng-template #panel>
                     <div class="w-full p-6 bg-surface-0 dark:bg-surface-900 rounded flex justify-between items-center">
-                        <p-image src="{{ patient.photoUrl }}" alt="Image" width="150" />
+                        <p-image
+                            class="profile-img hover-scale cursor-pointer"
+                            src="{{ patient.photoUrl }}"
+                            alt="Image"
+                            (click)="viewPatient()"
+                            width="100"
+                        />
 
                         <div class="flex flex-col gap-4 ml-6 flex-1">
                             <div class="flex flex-row justify-between items-start gap-2">

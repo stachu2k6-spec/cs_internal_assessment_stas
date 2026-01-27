@@ -32,7 +32,6 @@ import { takeUntil, switchMap, tap, catchError } from 'rxjs/operators';
 import { InputNumber } from 'primeng/inputnumber';
 import { Dialog } from 'primeng/dialog';
 import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
-import { CountryService } from '@/pages/service/country.service';
 import { SymptomDto } from '@/pages/service/symptom/symptom.model';
 import { PatientSymptomFacade } from '@/pages/service/patient-symptom/patient-symptom.facade';
 import { PatientSymptomDto } from '@/pages/service/patient-symptom/patient-symptom.model';
@@ -74,7 +73,7 @@ interface expandedRows {
     templateUrl: './meeting.html',
     styleUrl: './meeting.scss',
     standalone: true,
-    providers: [MessageService, CountryService]
+    providers: [MessageService]
 })
 export class Meeting implements OnInit, OnDestroy {
 
@@ -589,9 +588,7 @@ export class Meeting implements OnInit, OnDestroy {
 
     filterNames(event: { query: string }) {
         const q = event.query.toLowerCase().trim();
-        this.filteredPatientNames = this.patientNames.filter(name =>
-            name.toLowerCase().includes(q)
-        );
+        this.filteredPatientNames = this.patientNames.filter((name) => name.toLowerCase().includes(q));
     }
 
     onNameSelected() {
@@ -608,5 +605,9 @@ export class Meeting implements OnInit, OnDestroy {
         this.filteredPatientSurnames = this.patientSurnames.filter(surname =>
             surname.toLowerCase().includes(q)
         );
+    }
+
+    viewPatient() {
+        this.router.navigate(['/view', 'patient', this.patient.id]);
     }
 }

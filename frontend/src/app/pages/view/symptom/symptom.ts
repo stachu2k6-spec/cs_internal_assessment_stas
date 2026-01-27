@@ -6,8 +6,6 @@ import { Rating } from 'primeng/rating';
 import { Splitter } from 'primeng/splitter';
 import { Table, TableModule } from 'primeng/table';
 import { Textarea } from 'primeng/textarea';
-import { Customer, CustomerService, Representative } from '@/pages/service/customer.service';
-import { Product, ProductService } from '@/pages/service/product.service';
 import { ObjectUtils } from 'primeng/utils';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { NgIf } from '@angular/common';
@@ -31,7 +29,7 @@ interface expandedRows {
     imports: [Button, InputText, Splitter, TableModule, Textarea, NgIf, ReactiveFormsModule, FormsModule, RouterLink, Toast, Dialog],
     templateUrl: './symptom.html',
     styleUrl: './symptom.scss',
-    providers: [ConfirmationService, MessageService, CustomerService, ProductService]
+    providers: [ConfirmationService, MessageService]
 })
 export class Symptom implements OnInit, OnDestroy {
     tempData: any[] = [];

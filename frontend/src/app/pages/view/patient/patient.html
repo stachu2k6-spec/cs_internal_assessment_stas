@@ -6,6 +6,7 @@
             <p-splitter layout="vertical" [panelSizes]="[25, 75]">
                 <ng-template #panel>
                     <div class="w-full p-6 bg-surface-0 dark:bg-surface-900 rounded flex justify-between items-center">
+                        <!-- Displays patient profile picture; clicking opens dialog -->
                         <p-image
                             class="profile-img hover-scale cursor-pointer"
                             src="{{ patient.photoUrl }}"
@@ -13,20 +14,23 @@
                             (click)="openImageDialog()"
                             width="100"
                         />
-
+                        <!-- Dialog for viewing and updating the profile image -->
                         <p-dialog
                             header="Profile Picture"
                             [(visible)]="displayImageDialog"
                             [modal]="true"
                             [dismissableMask]="true"
                         >
-                            <div class = "card">
+                            <!-- Shows enlarged profile image -->
+                            <div class="card">
                                 <img [src]="patient.photoUrl" alt="Profile" style="width: 100%; border-radius: 8px;" />
                             </div>
-                            <div class = "card">
+                            <!-- File upload section for changing the picture -->
+                            <div class="card">
                                 <div class="col-span-full lg:col-span-6">
                                     <div class="font-semibold text-xl mb-4">Change Profile Picture</div>
                                     <div class="flex flex-col gap-4 items-center justify-center">
+                                        <!-- Upload component accepting only images -->
                                         <p-fileupload
                                             #fu
                                             mode="basic"
@@ -37,7 +41,7 @@
                                             (onSelect)="onFileSelected($event)"
                                         >
                                         </p-fileupload>
-
+                                        <!-- Button triggers backend update of the profile picture -->
                                         <p-button
                                             label="Change"
                                             (onClick)="changeProfilePicture()"
@@ -48,7 +52,7 @@
                             </div>
                         </p-dialog>
 
-                        <div class="flex flex-col gap-4 ml-6 flex-1">
+                    <div class="flex flex-col gap-4 ml-6 flex-1">
                             <div class="flex flex-row justify-between items-start gap-2">
                                 <div>
                                     <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{ patient.name }}</span>

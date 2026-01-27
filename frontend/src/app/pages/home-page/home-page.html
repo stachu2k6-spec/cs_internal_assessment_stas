@@ -1,45 +1,31 @@
+<!-- NEXT MEETING CARD AND QUICK SCHEDULE DIALOG -->
 <div class="card">
-    <p-toast position="top-right"></p-toast>
-    <div class="font-semibold text-xl mb-4">SEARCH BAR AND UTIL BUTTONS</div>
-    <p-toolbar>
-        <ng-template #start>
-            <p-button icon="pi pi-plus" class="mr-2" severity="secondary" text />
-            <p-button icon="pi pi-print" class="mr-2" severity="secondary" text />
-            <p-button icon="pi pi-upload" severity="secondary" text />
-        </ng-template>
-
-        <ng-template #center>
-            <p-iconfield>
-                <p-inputicon>
-                    <i class="pi pi-search"></i>
-                </p-inputicon>
-                <input pInputText placeholder="Search" />
-            </p-iconfield>
-        </ng-template>
-    </p-toolbar>
-</div>
-<div class="card">
+    <!-- Next Meeting Information Panel -->
     <div class="font-semibold text-xl mb-4">Next meeting</div>
     <p-panel header="Info" [toggleable]="true">
         <p class="m-0">
-            Patient: {{nextMeeting.patient.name}} {{nextMeeting.patient.surname}}
+            <!-- Displays patient information dynamically using Angular interpolation -->
+            Patient: {{ nextMeeting.patient.name }} {{ nextMeeting.patient.surname }}
         </p>
         <p class="m-0">
+            <!-- Angular date pipe formats meeting date -->
             Meeting Date: {{ nextMeeting.dateTime | date:'yyyy-MM-dd' }}
         </p>
         <p class="m-0">
-            Meeting Time: {{ nextMeeting.dateTime | date: 'HH:mm' }}
+            <!-- Angular date pipe formats meeting time -->
+            Meeting Time: {{ nextMeeting.dateTime | date:'HH:mm' }}
         </p>
     </p-panel>
 
     <p-dialog header="Quick Schedule" [(visible)]="isQuickScheduleVisible"  [modal]="true">
+
+        <!-- Form content -->
         <div class="flex items-center justify-center">
             <div class="card flex flex-row gap-4">
                 <div class="card flex flex-col gap-4">
                     <div class="font-semibold text-xl flex items-center justify-center">Meeting Info</div>
                     <div class="flex flex-col gap-2">
                         <label for="name1">Patient Name</label>
-
                         <p-autoComplete
                             [(ngModel)]="patient.name"
                             [suggestions]="filteredPatientNames"
@@ -96,6 +82,7 @@
 
 
         </div>
+
         <ng-template #footer>
             <p-button
                 label="Save"

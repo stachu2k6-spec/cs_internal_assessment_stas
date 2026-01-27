@@ -1,25 +1,4 @@
 <div class="card">
-    <div class="font-semibold text-xl mb-4">SEARCH BAR AND UTIL BUTTONS</div>
-    <p-toolbar>
-        <ng-template #start>
-            <p-button icon="pi pi-plus" class="mr-2" severity="secondary" text />
-            <p-button icon="pi pi-print" class="mr-2" severity="secondary" text />
-            <p-button icon="pi pi-upload" severity="secondary" text />
-        </ng-template>
-
-        <ng-template #center>
-            <p-iconfield>
-                <p-inputicon>
-                    <i class="pi pi-search"></i>
-                </p-inputicon>
-                <input pInputText placeholder="Search" />
-            </p-iconfield>
-        </ng-template>
-    </p-toolbar>
-</div>
-
-
-<div class="card">
     <div class="w-full flex justify-between mt-4 mb-3">
         <div class="font-semibold text-xl">Symptoms</div>
         <p-button [routerLink]="['/view', 'symptom', 'newSymptom']" label="Add Symptom" icon="pi pi-plus" iconPos="right"></p-button>
@@ -54,26 +33,6 @@
                         <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter>
                     </div>
                 </th>
-                <th style="min-width: 10rem">
-                    <div class="flex justify-between items-center">
-                        Patients Affected
-                        <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter>
-                    </div>
-                </th>
-                <th style="min-width: 12rem">
-                    <div class="flex justify-between items-center">
-                        Activity
-                        <p-columnFilter field="activity" matchMode="between" display="menu" [showMatchModes]="false" [showOperator]="false" [showAddButton]="false">
-                            <ng-template #filter let-filter="filterCallback">
-                                <p-slider [ngModel]="activityValues" [range]="true" (onSlideEnd)="filter($event.values)" styleClass="m-3" [style]="{ 'min-width': '12rem' }"></p-slider>
-                                <div class="flex items-center justify-between px-2">
-                                    <span>{{ activityValues[0] }}</span>
-                                    <span>{{ activityValues[1] }}</span>
-                                </div>
-                            </ng-template>
-                        </p-columnFilter>
-                    </div>
-                </th>
             </tr>
         </ng-template>
         <ng-template #body let-symptom>
@@ -81,16 +40,8 @@
                 class="hover-scale cursor-pointer"
                 [routerLink]="['/view','symptom', symptom.id]"
             >
-                <!-- TODO: ensure `id` exists and pass correct id here -->
                 <td>
                     {{ symptom.name }}
-                </td>
-                <td>
-                    N of patients affected
-                </td>
-                <td>
-                    <p-progressbar [value]="symptom.activity" [showValue]="false" [style]="{ height: '0.5rem' }" />
-                    XX% exhibit this symptom
                 </td>
             </tr>
         </ng-template>

@@ -1,11 +1,10 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Button, ButtonDirective, ButtonModule } from 'primeng/button';
-import { CommonModule, CurrencyPipe, DatePipe, NgForOf } from '@angular/common';
-import { Tag, TagModule } from 'primeng/tag';
-import { Product, ProductService } from '../../service/product.service';
+import { Component, OnDestroy, OnInit, } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { CommonModule, NgForOf } from '@angular/common';
+import { TagModule } from 'primeng/tag';
 import { FormsModule } from '@angular/forms';
-import { DataView, DataViewModule } from 'primeng/dataview';
-import { SelectButton, SelectButtonModule } from 'primeng/selectbutton';
+import { DataViewModule } from 'primeng/dataview';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { PickListModule } from 'primeng/picklist';
 import { OrderListModule } from 'primeng/orderlist';
 import { Toolbar } from 'primeng/toolbar';
