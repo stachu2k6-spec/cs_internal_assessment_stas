@@ -117,6 +117,4 @@ public class PatientSymptomFacade {
         patientSymptomRepository.deleteById(uuid);
     }
 
-
-
 }

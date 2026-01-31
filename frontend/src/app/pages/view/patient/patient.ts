@@ -308,7 +308,7 @@ export class Patient implements OnInit, OnDestroy {
             .subscribe({
                 next: () => {
                     this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Patient profile deleted.' });
-                    this.router.navigate(['/view', 'patients']); // navigate back to patient list
+                    this.router.navigate(['/menu', 'patients']); // navigate back to patient list
                 },
                 error: (err) => {
                     console.error('Failed to delete patient', err);
@@ -390,6 +390,10 @@ export class Patient implements OnInit, OnDestroy {
     }
 
     openImageDialog() {
+        if (this.isNewPatientMode){
+            this.messageService.add({ severity: 'error', summary: 'Cannot edit picture', detail: 'Save patient first' });
+            return
+        }
         this.displayImageDialog = true;
     }
 

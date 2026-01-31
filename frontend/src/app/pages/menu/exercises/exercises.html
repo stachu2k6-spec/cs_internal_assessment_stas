@@ -1,24 +1,4 @@
 <div class="card">
-    <div class="font-semibold text-xl mb-4">SEARCH BAR AND UTIL BUTTONS</div>
-    <p-toolbar>
-        <ng-template #start>
-            <p-button icon="pi pi-plus" class="mr-2" severity="secondary" text />
-            <p-button icon="pi pi-print" class="mr-2" severity="secondary" text />
-            <p-button icon="pi pi-upload" severity="secondary" text />
-        </ng-template>
-
-        <ng-template #center>
-            <p-iconfield>
-                <p-inputicon>
-                    <i class="pi pi-search"></i>
-                </p-inputicon>
-                <input pInputText placeholder="Search" />
-            </p-iconfield>
-        </ng-template>
-    </p-toolbar>
-</div>
-
-<div class="card">
     <div class="w-full flex justify-between mt-4 mb-3">
         <div class="font-semibold text-xl">Exercises</div>
         <p-button [routerLink]="['/view', 'exercise', 'newExercise']" label="Add Exercise" icon="pi pi-plus" iconPos="right"></p-button>
@@ -53,18 +33,6 @@
                         <p-columnFilter type="text" field="name" display="menu" placeholder="Search by name"></p-columnFilter>
                     </div>
                 </th>
-                <th style="min-width: 10rem">
-                    <div class="flex justify-between items-center">
-                        Notes
-                        <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter>
-                    </div>
-                </th>
-                <th style="min-width: 10rem">
-                    <div class="flex justify-between items-center">
-                        Symptoms Addressed
-                        <p-columnFilter type="date" field="date" display="menu" placeholder="mm/dd/yyyy"></p-columnFilter>
-                    </div>
-                </th>
             </tr>
         </ng-template>
         <ng-template #body let-exercise>
@@ -72,15 +40,8 @@
                 class="hover-scale cursor-pointer"
                 [routerLink]="['/view','exercise',exercise.id]"
             >
-                <!-- TODO: ensure `id` exists and pass correct id here -->
                 <td>
                     {{ exercise.name }}
-                </td>
-                <td>
-                    {{ exercise.notes }}
-                </td>
-                <td>
-                    List of symptoms this exercise addresses
                 </td>
             </tr>
         </ng-template>

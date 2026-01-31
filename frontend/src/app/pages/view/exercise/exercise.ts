@@ -237,7 +237,6 @@ export class Exercise implements OnInit, OnDestroy {
     }
 
     saveAddedSymptom() {
-        // create new meeting
         const createdExerciseSymptom = this.exerciseSymptomToAdd;
         const selectedSymptom = this.findSymptomByName(this.symptomToAdd.name);
 
@@ -288,7 +287,7 @@ export class Exercise implements OnInit, OnDestroy {
             .pipe(take(1))
             .subscribe({
                 next: () => {
-                    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'ExerciseSymptom profile deleted.' });
+                    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'ExerciseSymptom deleted.' });
                     this.closeDialog('deleteExerciseSymptom');
                 },
                 error: (err) => {

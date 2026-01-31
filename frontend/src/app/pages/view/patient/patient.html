@@ -299,21 +299,6 @@
                     <div class="card">
                         <div class="w-full flex justify-between">
                             <div class="font-semibold text-xl mb-4">Meetings</div>
-                            <p-button
-                                *ngIf="!isNewPatientMode"
-                                label="Schedule Meeting"
-                                icon="pi pi-plus"
-                                iconPos="right"
-                            ></p-button>
-
-                            <p-button
-                                *ngIf="isNewPatientMode"
-                                disabled = 'true'
-                                label="Create patient to schedule meeting"
-                                icon="pi pi-plus"
-                                iconPos="right"
-                            ></p-button>
-
                         </div>
 
                         <p-tabs value="0">
